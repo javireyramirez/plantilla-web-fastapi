@@ -48,7 +48,7 @@ El proyecto está construido sobre las siguientes tecnologías y librerías mode
 
 Para optimizar el rendimiento y evitar un volumen excesivo de llamadas a las APIs de autenticación de tu backend, el comportamiento de la sesión se gestiona a través de la configuración `sessionOptions` en [auth-client.ts](file:///c:/Users/javir/Desktop/APP/plantilla-web/src/config/auth-client.ts):
 
-*   **`refetchOnWindowFocus: false` (Por defecto):** Se ha desactivado la recarga de sesión al enfocar o volver a la pestaña de la aplicación. Esto evita que si un usuario cambia constantemente de pestaña en su navegador, el servidor de API se sature con peticiones HTTP redundantes `/api/v1/auth/get-session`.
+*   **`refetchOnWindowFocus: false` (Por defecto):** Se ha desactivado la recarga de sesión al enfocar o volver a la pestaña de la aplicación. Esto evita que si un usuario cambia constantemente de pestaña en su navegador, el servidor de API se sature con peticiones HTTP redundantes `/api/auth/get-session`.
 
 ### ¿Cómo volver a activar la recarga de sesión al enfocar la pestaña?
 
@@ -57,7 +57,7 @@ Si tu aplicación requiere un nivel de seguridad crítico donde si el usuario ci
 ```typescript
 // src/config/auth-client.ts
 export const authClient = createAuthClient({
-  baseURL: `${backURL}/api/v1/auth`,
+  baseURL: `${backURL}/api/auth`,
   fetchOptions: {
     credentials: 'include',
   },

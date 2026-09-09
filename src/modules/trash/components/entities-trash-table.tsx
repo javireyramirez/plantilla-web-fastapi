@@ -36,9 +36,9 @@ function useModulesOptions() {
 
   return {
     data:
-      data?.map((m: { id: string; slug: string; name: string }) => ({
-        id: m.slug,
-        name: m.name ?? m.slug,
+      data?.map((m: any) => ({
+        id: m.code ?? m.slug,
+        name: m.name ?? m.code ?? m.slug,
       })) ?? [],
     isLoading,
   };

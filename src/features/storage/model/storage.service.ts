@@ -8,21 +8,21 @@ class StorageService {
   // 1. CONSULTAS Y LECTURA
   // ==========================================
 
-  getDocuments = async (entityType: string, entityId: string, query: GetDocumentsQuery) => {
-    const response = await instance.get(`/storage/${entityType}/${entityId}/documents`, {
-      params: query,
+  getDocuments = async (entityType: string, entityId: string, query?: GetDocumentsQuery) => {
+    const response = await instance.get(`/storage/documents`, {
+      params: { ...query, entity_type: entityType, entity_id: entityId },
     });
     return response.data;
   };
 
-  getDocumentDetail = async (entityType: string, entityId: string, documentId: string) => {
-    const response = await instance.get(`/storage/${entityType}/${entityId}/${documentId}`);
+  getDocumentDetail = async (_entityType: string, _entityId: string, documentId: string) => {
+    const response = await instance.get(`/storage/documents/${documentId}`);
     return response.data;
   };
 
-  downloadUrl = async (entityType: string, entityId: string, documentId: string) => {
+  downloadUrl = async (_entityType: string, _entityId: string, documentId: string) => {
     const response = await instance.get(
-      `/storage/${entityType}/${entityId}/${documentId}/download-url`
+      `/storage/documents/${documentId}/download-url`
     );
     return response.data;
   };
@@ -35,8 +35,13 @@ class StorageService {
    * Paso 1: Obtener la URL firmada de S3/GCS y crear registro PENDING
    */
   requestUploadUrl = async (entityType: string, entityId: string, data: RequestUploadParams) => {
-    const response = await instance.post(`/storage/${entityType}/${entityId}/upload-url`, {
-      fileData: data,
+    const response = await instance.post(`/storage/documents/presigned-upload`, {
+      filename: data.fileName,
+      content_type: data.mimeType,
+      file_size: data.size,
+      entity_type: entityType,
+      entity_id: entityId,
+      description: (data as any).description,
     });
     return response.data;
   };
@@ -56,9 +61,9 @@ class StorageService {
   /**
    * Paso 3: Confirmar al backend que la subida fue exitosa (pasa a SUCCESS)
    */
-  confirmDocument = async (entityType: string, entityId: string, documentId: string) => {
-    const response = await instance.patch(
-      `/storage/${entityType}/${entityId}/${documentId}/confirm-document`
+  confirmDocument = async (_entityType: string, _entityId: string, documentId: string) => {
+    const response = await instance.post(
+      `/storage/documents/${documentId}/confirm`
     );
     return response.data;
   };
@@ -68,28 +73,28 @@ class StorageService {
   // ==========================================
 
   updateMetadata = async (
-    entityType: string,
-    entityId: string,
+    _entityType: string,
+    _entityId: string,
     documentId: string,
     data: { fileName?: string; isPublic?: boolean }
   ) => {
     const response = await instance.patch(
-      `/storage/${entityType}/${entityId}/${documentId}/metadata`,
+      `/storage/documents/${documentId}`,
       data
     );
     return response.data;
   };
 
-  deleteSoftDocument = async (entityType: string, entityId: string, documentId: string) => {
-    const response = await instance.patch(
-      `/storage/${entityType}/${entityId}/${documentId}/delete-soft-document`
+  deleteSoftDocument = async (_entityType: string, _entityId: string, documentId: string) => {
+    const response = await instance.delete(
+      `/storage/documents/${documentId}`
     );
     return response.data;
   };
 
-  restoreDocument = async (entityType: string, entityId: string, documentId: string) => {
-    const response = await instance.patch(
-      `/storage/${entityType}/${entityId}/${documentId}/restore-document`
+  restoreDocument = async (_entityType: string, _entityId: string, documentId: string) => {
+    const response = await instance.post(
+      `/storage/documents/${documentId}/restore`
     );
     return response.data;
   };
@@ -99,30 +104,23 @@ class StorageService {
   // ==========================================
 
   bulkDelete = async (entityType: string, entityId: string, documentIds: string[]) => {
-    const response = await instance.patch(`/storage/${entityType}/${entityId}/bulk-delete`, {
-      documentIds,
-    });
-    return response.data;
+    await Promise.all(documentIds.map((id) => this.deleteSoftDocument(entityType, entityId, id)));
+    return { count: documentIds.length };
   };
 
   bulkRestore = async (entityType: string, entityId: string, documentIds: string[]) => {
-    const response = await instance.patch(`/storage/${entityType}/${entityId}/bulk-restore`, {
-      documentIds,
-    });
-    return response.data;
+    await Promise.all(documentIds.map((id) => this.restoreDocument(entityType, entityId, id)));
+    return { count: documentIds.length };
   };
 
   bulkDownload = async (entityType: string, entityId: string, documentIds: string[]) => {
-    const response = await instance.post(`/storage/${entityType}/${entityId}/bulk-download`, {
-      documentIds,
-    });
-    return response.data;
+    return await this.bulkDownloadZip(entityType, entityId, documentIds);
   };
 
-  bulkDownloadZip = async (entityType: string, entityId: string, documentIds: string[]) => {
+  bulkDownloadZip = async (_entityType: string, _entityId: string, documentIds: string[]) => {
     const response = await instance.post(
-      `/storage/${entityType}/${entityId}/bulk-download-zip`,
-      { documentIds },
+      `/storage/documents/zip`,
+      { document_ids: documentIds },
       {
         responseType: 'blob',
       }
@@ -134,14 +132,14 @@ class StorageService {
   // 5. MANTENIMIENTO Y ELIMINACIÓN FÍSICA
   // ==========================================
 
-  emptyTrash = async (entityType: string, entityId: string) => {
-    const response = await instance.delete(`/storage/${entityType}/${entityId}/empty-trash`);
+  emptyTrash = async (_entityType: string, _entityId: string) => {
+    const response = await instance.post(`/trash/purge-expired`);
     return response.data;
   };
 
-  deletePermanent = async (entityType: string, entityId: string, documentId: string) => {
+  deletePermanent = async (_entityType: string, _entityId: string, documentId: string) => {
     const response = await instance.delete(
-      `/storage/${entityType}/${entityId}/${documentId}/delete-document`
+      `/storage/documents/${documentId}/permanent`
     );
     return response.data;
   };

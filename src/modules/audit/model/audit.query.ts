@@ -11,6 +11,8 @@ export const auditQueries = {
     return useQuery<AuditLogsListResponse, Error>({
       queryKey: ['audit', 'all', query],
       queryFn: () => auditService.getAudit(query),
+      staleTime: 0,
+      refetchOnMount: 'always',
       ...options,
     });
   },
@@ -23,6 +25,8 @@ export const auditQueries = {
       queryKey: ['audit', 'detail', id],
       queryFn: () => auditService.getAuditById(id),
       enabled: !!id && (options?.enabled ?? true),
+      staleTime: 0,
+      refetchOnMount: 'always',
       ...options,
     });
   },

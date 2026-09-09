@@ -159,7 +159,7 @@ export function useUsersForm(id?: string) {
   }, [isEditing, data, isLoading, isFetching, form]);
 
   const userName = useWatch({ control: form.control, name: 'name' });
-  const isActive = data?.isActive ?? false;
+  const isActive = data?.isActive ?? (data as any)?.is_active ?? true;
   const handleExport = () => {
     if (!id) return;
     mutateExport(

@@ -40,21 +40,65 @@ class RolesService extends CrudService<
   AllResponse
 > {
   constructor() {
-    super('roles');
+    super('rbac/roles');
   }
+
+  // ==========================================
+  // LECTURA DE ROLES (ADAPTACIÓN FASTAPI)
+  // ==========================================
+
+  getAll = async (query?: QueryParams): Promise<AllResponse> => {
+    const { data } = await instance.get<any>('/rbac/roles', { params: query });
+    if (Array.isArray(data)) {
+      return {
+        data,
+        meta: {
+          page: (query as any)?.page ?? 1,
+          limit: (query as any)?.limit ?? data.length,
+          total: data.length,
+          totalPages: 1,
+        },
+      } as AllResponse;
+    }
+    return data;
+  };
+
+  getList = async (_query?: ListQueryParams): Promise<Item[]> => {
+    const { data } = await instance.get<any>('/rbac/roles');
+    if (Array.isArray(data)) {
+      return data;
+    }
+    return (data as any)?.data ?? [];
+  };
 
   // ==========================================
   // PERMISOS — LECTURA
   // ==========================================
 
   /**
-   * Obtiene los permisos paginados y filtrados de un rol específico
+   * Obtiene los permisos de un rol específico desde FastAPI /rbac/roles/{roleId}
    */
-  async getPermissions(roleId: string, params?: GetPermissionsQuery) {
-    const response = await instance.get<{ data: RolePermission[]; meta: any }>(
-      `/roles/${roleId}/permissions`,
-      { params }
-    );
+  async getPermissions(roleId: string, _params?: GetPermissionsQuery) {
+    const response = await instance.get<any>(`/rbac/roles/${roleId}`);
+    const permissions = response.data?.permissions ?? [];
+    return {
+      data: permissions as RolePermission[],
+      meta: {
+        page: 1,
+        limit: permissions.length,
+        total: permissions.length,
+        totalPages: 1,
+      },
+    };
+  }
+
+  /**
+   * Reemplaza todos los permisos de un rol en FastAPI (/rbac/roles/{roleId}/permissions)
+   */
+  async setPermissions(roleId: string, permissions: any[]) {
+    const response = await instance.put<any>(`/rbac/roles/${roleId}/permissions`, {
+      permissions,
+    });
     return response.data;
   }
 
@@ -63,91 +107,139 @@ class RolesService extends CrudService<
   // ==========================================
 
   /**
-   * Vincula un nuevo permiso de forma individual a un rol
+   * Vincula un nuevo permiso a un rol
    */
   async addPermission(roleId: string, data: CreatePermissionBody) {
-    const response = await instance.post<RolePermission>(`/roles/${roleId}/permissions`, data);
-    return response.data;
+    const current = await this.getPermissions(roleId);
+    const existing = current.data || [];
+    const updated = [
+      ...existing.map((p) => ({
+        module_code: (p as any).module_code || (p as any).module?.code,
+        action: p.action,
+        scope: p.scope,
+      })),
+      {
+        module_code: (data as any).moduleCode || (data as any).module_code,
+        action: data.action,
+        scope: data.scope,
+      },
+    ];
+    return await this.setPermissions(roleId, updated);
   }
 
   /**
-   * Revoca de forma individual un permiso de un rol
+   * Revoca un permiso de un rol
    */
   async revokePermission(roleId: string, permissionId: string) {
-    const response = await instance.delete<RolePermission>(
-      `/roles/${roleId}/permissions/${permissionId}`
-    );
-    return response.data;
+    const current = await this.getPermissions(roleId);
+    const existing = current.data || [];
+    const updated = existing
+      .filter((p: any) => p.id !== permissionId)
+      .map((p: any) => ({
+        module_code: p.module_code || p.module?.code,
+        action: p.action,
+        scope: p.scope,
+      }));
+    return await this.setPermissions(roleId, updated);
   }
 
   /**
-   * Actualiza el scope (GLOBAL, TEAM, OWN) de un permiso individual
+   * Actualiza el scope de un permiso
    */
   async updatePermissionScope(roleId: string, permissionId: string, data: CreatePermissionBody) {
-    const response = await instance.patch<RolePermission>(
-      `/roles/${roleId}/permissions/${permissionId}`,
-      data
-    );
-    return response.data;
+    const current = await this.getPermissions(roleId);
+    const existing = current.data || [];
+    const updated = existing.map((p: any) => {
+      if (p.id === permissionId) {
+        return {
+          module_code: p.module_code || (data as any).moduleCode || (data as any).module_code,
+          action: data.action || p.action,
+          scope: data.scope,
+        };
+      }
+      return {
+        module_code: p.module_code || p.module?.code,
+        action: p.action,
+        scope: p.scope,
+      };
+    });
+    return await this.setPermissions(roleId, updated);
   }
 
   // ==========================================
   // PERMISOS — OPERACIONES MASIVAS (BULK)
   // ==========================================
 
-  /**
-   * Añade múltiples permisos en lote a un rol
-   */
   async bulkAddPermissions(roleId: string, data: BulkCreatePermissionBody) {
-    const response = await instance.post<{ count: number }>(
-      `/roles/${roleId}/permissions/bulk`,
-      data
-    );
-    return response.data;
+    const current = await this.getPermissions(roleId);
+    const existing = current.data || [];
+    const newItems = data.map((d) => ({
+      module_code: (d as any).moduleCode || (d as any).module_code,
+      action: d.action,
+      scope: d.scope,
+    }));
+    await this.setPermissions(roleId, [
+      ...existing.map((p: any) => ({
+        module_code: p.module_code || p.module?.code,
+        action: p.action,
+        scope: p.scope,
+      })),
+      ...newItems,
+    ]);
+    return { count: newItems.length };
   }
 
-  /**
-   * Revoca múltiples permisos en lote mediante sus IDs
-   */
   async bulkRevokePermissions(roleId: string, permissionIds: string[]) {
-    const response = await instance.delete<{ count: number }>(`/roles/${roleId}/permissions/bulk`, {
-      data: { ids: permissionIds },
-    });
-    return response.data;
+    const idSet = new Set(permissionIds);
+    const current = await this.getPermissions(roleId);
+    const existing = current.data || [];
+    const updated = existing
+      .filter((p: any) => !idSet.has(p.id))
+      .map((p: any) => ({
+        module_code: p.module_code || p.module?.code,
+        action: p.action,
+        scope: p.scope,
+      }));
+    await this.setPermissions(roleId, updated);
+    return { count: permissionIds.length };
   }
 
-  /**
-   * Actualiza los scopes de múltiples permisos en lote
-   */
   async bulkUpdatePermissions(roleId: string, data: BulkUpdatePermissionBody) {
-    const response = await instance.patch<{ count: number }>(
-      `/roles/${roleId}/permissions/bulk`,
-      data
-    );
-    return response.data;
+    const updateMap = new Map(data.map((d) => [d.id, d.scope]));
+    const current = await this.getPermissions(roleId);
+    const existing = current.data || [];
+    const updated = existing.map((p: any) => ({
+      module_code: p.module_code || p.module?.code,
+      action: p.action,
+      scope: updateMap.get(p.id) ?? p.scope,
+    }));
+    await this.setPermissions(roleId, updated);
+    return { count: data.length };
   }
 
   // ==========================================
   // ASIGNACIONES — LECTURA
   // ==========================================
 
-  /**
-   * Obtiene la lista de asignaciones de un rol (usuarios o equipos)
-   */
   async getAssignments(roleId: string, params?: GetAssignmentsQuery) {
-    const response = await instance.get<{ data: RoleAssignmentResponse[]; meta: any }>(
-      `/roles/${roleId}/assignments`,
-      { params }
-    );
-    return response.data;
+    const response = await instance.get<any>(`/rbac/assignments`, {
+      params: { ...params, role_id: roleId },
+    });
+    const assignments = Array.isArray(response.data) ? response.data : response.data?.data ?? [];
+    return {
+      data: assignments as RoleAssignmentResponse[],
+      meta: response.data?.meta ?? {
+        page: 1,
+        limit: assignments.length,
+        total: assignments.length,
+        totalPages: 1,
+      },
+    };
   }
 
-  /**
-   * Obtiene los detalles de una asignación específica dentro de un rol
-   */
   async getAssignmentById(roleId: string, assignmentId: string) {
     const response = await instance.get<RoleAssignmentResponse>(
-      `/roles/${roleId}/assignments/${assignmentId}`
+      `/rbac/assignments/${assignmentId}`
     );
     return response.data;
   }
@@ -156,24 +248,25 @@ class RolesService extends CrudService<
   // ASIGNACIONES — OPERACIONES INDIVIDUALES
   // ==========================================
 
-  /**
-   * Asigna un rol de forma individual a un usuario o equipo
-   */
   async assignRole(roleId: string, data: CreateAssignmentBody) {
-    const response = await instance.post<RoleAssignmentResponse>(
-      `/roles/${roleId}/assignments`,
-      data
-    );
+    const entity_type = data.userId ? 'USER' : 'TEAM';
+    const entity_id = data.userId || data.teamId;
+    const response = await instance.post<RoleAssignmentResponse>(`/rbac/assignments`, {
+      role_id: roleId,
+      entity_type,
+      entity_id,
+    });
     return response.data;
   }
 
-  /**
-   * Remueve de forma individual la asignación de un rol
-   */
   async unassignRole(roleId: string, assignmentId: string) {
-    const response = await instance.delete<RoleAssignmentResponse>(
-      `/roles/${roleId}/assignments/${assignmentId}`
-    );
+    const response = await instance.delete<RoleAssignmentResponse>(`/rbac/assignments`, {
+      data: {
+        role_id: roleId,
+        entity_type: 'USER',
+        entity_id: assignmentId,
+      },
+    });
     return response.data;
   }
 
@@ -181,25 +274,14 @@ class RolesService extends CrudService<
   // ASIGNACIONES — OPERACIONES MASIVAS (BULK)
   // ==========================================
 
-  /**
-   * Crea asignaciones masivas en un rol
-   */
   async bulkAssignRole(roleId: string, data: BulkCreateAssignmentBody) {
-    const response = await instance.post<{ count: number }>(
-      `/roles/${roleId}/assignments/bulk`,
-      data
-    );
-    return response.data;
+    await Promise.all(data.map((item) => this.assignRole(roleId, item)));
+    return { count: data.length };
   }
 
-  /**
-   * Elimina asignaciones masivas de un rol mediante un array de IDs de asignación
-   */
   async bulkUnassignRole(roleId: string, assignmentIds: string[]) {
-    const response = await instance.delete<{ count: number }>(`/roles/${roleId}/assignments/bulk`, {
-      data: { ids: assignmentIds },
-    });
-    return response.data;
+    await Promise.all(assignmentIds.map((id) => this.unassignRole(roleId, id)));
+    return { count: assignmentIds.length };
   }
 }
 

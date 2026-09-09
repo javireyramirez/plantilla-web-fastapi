@@ -2,7 +2,7 @@ import axios from 'axios';
 import qs from 'qs';
 
 const instance = axios.create({
-  baseURL: import.meta.env.VITE_BACK_URL + '/api/v1',
+  baseURL: import.meta.env.VITE_BACK_URL + '/api',
   paramsSerializer: {
     serialize: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
   },

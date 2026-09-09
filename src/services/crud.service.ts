@@ -24,7 +24,7 @@ export abstract class CrudService<
   // ── Lectura ──────────────────────────────────────────────────
 
   getAll = async (query?: TQuery): Promise<TAllResponse> => {
-    const { data } = await instance.get<TAllResponse>(`/${this.entityName}/`, { params: query });
+    const { data } = await instance.get<TAllResponse>(`/${this.entityName}`, { params: query });
     return data;
   };
 
@@ -41,12 +41,12 @@ export abstract class CrudService<
   // ── Escritura individual ──────────────────────────────────────
 
   create = async (body: TCreateBody): Promise<TItem> => {
-    const { data } = await instance.post<TItem>(`/${this.entityName}/`, body);
+    const { data } = await instance.post<TItem>(`/${this.entityName}`, body);
     return data;
   };
 
   update = async (id: TId, body: TUpdateBody): Promise<TItem> => {
-    const { data } = await instance.put<TItem>(`/${this.entityName}/${id}`, body);
+    const { data } = await instance.patch<TItem>(`/${this.entityName}/${id}`, body);
     return data;
   };
 
@@ -58,7 +58,7 @@ export abstract class CrudService<
   };
 
   restore = async (id: TId): Promise<TItem> => {
-    const { data } = await instance.patch<TItem>(`/${this.entityName}/${id}/restore`);
+    const { data } = await instance.post<TItem>(`/${this.entityName}/${id}/restore`);
     return data;
   };
 
@@ -75,12 +75,12 @@ export abstract class CrudService<
   };
 
   softDeleteMany = async (ids: TId[]): Promise<TId[]> => {
-    const { data } = await instance.delete<TId[]>(`/${this.entityName}/bulk`, { data: { ids } });
+    const { data } = await instance.post<TId[]>(`/${this.entityName}/bulk/trash`, { ids });
     return data;
   };
 
   restoreMany = async (ids: TId[]): Promise<TId[]> => {
-    const { data } = await instance.patch<TId[]>(`/${this.entityName}/bulk/restore`, { ids });
+    const { data } = await instance.post<TId[]>(`/${this.entityName}/bulk/restore`, { ids });
     return data;
   };
 

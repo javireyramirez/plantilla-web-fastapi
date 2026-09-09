@@ -3,8 +3,8 @@ services:
     build:
       context: .
       args:
-        VITE_BACK_URL: ${VITE_BACK_URL}
-        VITE_CALLBACK_URL: ${VITE_CALLBACK_URL}
+        VITE_BACK_URL: ${VITE_BACK_URL:-http://localhost:8000}
+        VITE_CALLBACK_URL: ${VITE_CALLBACK_URL:-http://localhost}
     ports:
       - '80:80'
     restart: unless-stopped

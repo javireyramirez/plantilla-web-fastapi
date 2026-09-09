@@ -3,7 +3,7 @@ import { createAuthClient } from 'better-auth/react';
 const backURL = import.meta.env.VITE_BACK_URL;
 
 export const authClient = createAuthClient({
-  baseURL: `${backURL}/api/v1/auth`,
+  baseURL: `${backURL}/api/auth`,
   fetchOptions: {
     credentials: 'include',
   },

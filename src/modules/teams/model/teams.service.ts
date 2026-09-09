@@ -43,7 +43,7 @@ class TeamsService extends CrudService<
   }
 
   private getMembersPath(teamId: string) {
-    return `/teams/${teamId}/users`;
+    return `/teams/${teamId}/members`;
   }
 
   // ── Lectura ────────────────────────────────
@@ -56,7 +56,11 @@ class TeamsService extends CrudService<
 
   // ── Escritura individual ───────────────────
   addMember = async (teamId: string, body: CreateTeamMember) => {
-    const { data } = await instance.post<TeamMember>(this.getMembersPath(teamId), body);
+    const payload = {
+      user_id: (body as any).user_id ?? (body as any).userId,
+      role_id: (body as any).role_id ?? (body as any).roleId,
+    };
+    const { data } = await instance.post<TeamMember>(this.getMembersPath(teamId), payload);
     return data;
   };
 
@@ -67,11 +71,29 @@ class TeamsService extends CrudService<
 
   // ── Bulk ───────────────────────────────────
   addMembersBulk = async (teamId: string, body: BulkUserIdsBody) => {
+    const userIds = (body as any).userIds ?? (body as any).user_ids ?? [];
+    if (Array.isArray(userIds) && userIds.length > 0) {
+      await Promise.all(
+        userIds.map((uid: string) =>
+          instance.post(`${this.getMembersPath(teamId)}`, { user_id: uid })
+        )
+      );
+      return { count: userIds.length };
+    }
     const { data } = await instance.post<BulkResponse>(`${this.getMembersPath(teamId)}/bulk`, body);
     return data;
   };
 
   removeMembersBulk = async (teamId: string, body: BulkUserIdsBody) => {
+    const userIds = (body as any).userIds ?? (body as any).user_ids ?? [];
+    if (Array.isArray(userIds) && userIds.length > 0) {
+      await Promise.all(
+        userIds.map((uid: string) =>
+          instance.delete(`${this.getMembersPath(teamId)}/${uid}`)
+        )
+      );
+      return { count: userIds.length };
+    }
     const { data } = await instance.delete<BulkResponse>(`${this.getMembersPath(teamId)}/bulk`, {
       data: body,
     });

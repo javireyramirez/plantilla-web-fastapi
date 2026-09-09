@@ -6,15 +6,7 @@ import {
   createPaginatedResponseSchema,
 } from '@/schemas/crud.schema.js';
 
-export const AuditActionSchema = z.enum([
-  'CREATE',
-  'UPDATE',
-  'SOFT_DELETE',
-  'RESTORE',
-  'HARD_DELETE',
-  'LOGIN',
-  'LOGOUT',
-]);
+export const AuditActionSchema = z.string();
 
 export const AuditLogSchema = z.object({
   id: z.string(),
