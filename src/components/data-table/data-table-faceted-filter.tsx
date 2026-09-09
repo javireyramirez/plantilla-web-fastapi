@@ -1,0 +1,211 @@
+import { Check, PlusCircle, XCircle } from 'lucide-react';
+
+import * as React from 'react';
+
+import type { Column } from '@tanstack/react-table';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Separator } from '@/components/ui/separator';
+import { useDataTableI18n } from '@/components/data-table/data-table-i18n';
+import { cn } from '@/lib/utils';
+import type { Option } from '@/types/data-table';
+
+interface DataTableFacetedFilterProps<TData, TValue> {
+  column?: Column<TData, TValue>;
+  title?: string;
+  options: Option[];
+  multiple?: boolean;
+  applyButton?: boolean;
+  className?: string;
+}
+
+export function DataTableFacetedFilter<TData, TValue>({
+  column,
+  title,
+  options,
+  multiple,
+  applyButton,
+  className,
+}: DataTableFacetedFilterProps<TData, TValue>) {
+  const [open, setOpen] = React.useState(false);
+  const i18n = useDataTableI18n();
+
+  const columnFilterValue = column?.getFilterValue();
+  const selectedValues = new Set(Array.isArray(columnFilterValue) ? columnFilterValue : []);
+
+  // Pending selection state — only used when applyButton is true
+  const [pendingValues, setPendingValues] = React.useState<Set<any>>(new Set());
+
+  // Sync pendingValues when popover opens
+  React.useEffect(() => {
+    if (open && multiple && applyButton) {
+      setPendingValues(new Set(Array.isArray(columnFilterValue) ? columnFilterValue : []));
+    }
+  }, [open, columnFilterValue, multiple, applyButton]);
+
+  const activeValues = multiple && applyButton ? pendingValues : selectedValues;
+
+  const onItemSelect = React.useCallback(
+    (option: Option, isSelected: boolean) => {
+      if (!column) return;
+
+      if (multiple) {
+        if (applyButton) {
+          setPendingValues((prev) => {
+            const next = new Set(prev);
+            if (isSelected) {
+              next.delete(option.value);
+            } else {
+              next.add(option.value);
+            }
+            return next;
+          });
+        } else {
+          const newSelectedValues = new Set(selectedValues);
+          if (isSelected) {
+            newSelectedValues.delete(option.value);
+          } else {
+            newSelectedValues.add(option.value);
+          }
+          const filterValues = Array.from(newSelectedValues);
+          column.setFilterValue(filterValues.length ? filterValues : undefined);
+        }
+      } else {
+        column.setFilterValue(isSelected ? undefined : [option.value]);
+        setOpen(false);
+      }
+    },
+    [column, multiple, applyButton, selectedValues]
+  );
+
+  const handleApply = React.useCallback(() => {
+    if (!column) return;
+    const filterValues = Array.from(pendingValues);
+    column.setFilterValue(filterValues.length ? filterValues : undefined);
+    setOpen(false);
+  }, [column, pendingValues]);
+
+  const onReset = React.useCallback(
+    (event?: React.MouseEvent) => {
+      event?.stopPropagation();
+      column?.setFilterValue(undefined);
+    },
+    [column]
+  );
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className={cn('border-dashed font-normal h-8', className)}
+        >
+          {selectedValues?.size > 0 ? (
+            <div
+              role="button"
+              aria-label={i18n.facetedFilter.clearFilterAria}
+              tabIndex={0}
+              className="rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              onClick={onReset}
+            >
+              <XCircle />
+            </div>
+          ) : (
+            <PlusCircle />
+          )}
+          {title}
+          {selectedValues?.size > 0 && (
+            <>
+              <Separator
+                orientation="vertical"
+                className="mx-0.5 data-[orientation=vertical]:h-4"
+              />
+              <Badge variant="secondary" className="rounded-sm px-1 font-normal lg:hidden">
+                {selectedValues.size}
+              </Badge>
+              <div className="hidden items-center gap-1 lg:flex">
+                {selectedValues.size > 2 ? (
+                  <Badge variant="secondary" className="rounded-sm px-1 font-normal">
+                    {i18n.facetedFilter.selectedCount(selectedValues.size)}
+                  </Badge>
+                ) : (
+                  options
+                    .filter((option) => selectedValues.has(option.value))
+                    .map((option) => (
+                      <Badge
+                        variant="secondary"
+                        key={option.value}
+                        className="rounded-sm px-1 font-normal"
+                      >
+                        {option.label}
+                      </Badge>
+                    ))
+                )}
+              </div>
+            </>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-50 p-0" align="start">
+        <Command>
+          <CommandInput placeholder={title ?? i18n.facetedFilter.searchPlaceholder} />
+          <CommandList className="max-h-full">
+            <CommandEmpty>{i18n.facetedFilter.emptyMessage}</CommandEmpty>
+            <CommandGroup className="max-h-[300px] scroll-py-1 overflow-y-auto overflow-x-hidden">
+              {options.map((option) => {
+                const isSelected = activeValues.has(option.value);
+
+                return (
+                  <CommandItem key={option.value} onSelect={() => onItemSelect(option, isSelected)}>
+                    <div
+                      className={cn(
+                        'flex size-4 items-center justify-center rounded-sm border border-primary',
+                        isSelected ? 'bg-primary' : 'opacity-50 [&_svg]:invisible'
+                      )}
+                    >
+                      <Check />
+                    </div>
+                    {option.icon && <option.icon />}
+                    <span className="truncate">{option.label}</span>
+                    {option.count && (
+                      <span className="ml-auto font-mono text-xs">{option.count}</span>
+                    )}
+                  </CommandItem>
+                );
+              })}
+            </CommandGroup>
+            {selectedValues.size > 0 && (
+              <>
+                <CommandSeparator />
+                <CommandGroup>
+                  <CommandItem onSelect={() => onReset()} className="justify-center text-center">
+                    {i18n.facetedFilter.clearFilters}
+                  </CommandItem>
+                </CommandGroup>
+              </>
+            )}
+          </CommandList>
+          {multiple && applyButton && (
+            <div className="border-t p-2">
+              <Button size="sm" className="w-full" onClick={handleApply}>
+                {i18n.selector.applyLabel}
+              </Button>
+            </div>
+          )}
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}

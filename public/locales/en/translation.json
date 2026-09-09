@@ -1,0 +1,642 @@
+{
+  "dataTable": {
+    "selector": {
+      "placeholder": "Select...",
+      "searchPlaceholder": "Search...",
+      "emptyMessage": "No results found.",
+      "refineMessage": "more results, refine your search",
+      "applyLabel": "Apply"
+    }
+  },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "auth": {
+    "orContinueWith": "Or continue with",
+    "signInWithGoogle": "Sign in with Google",
+    "signInWithApple": "Sign in with Apple",
+    "signInDescription": "Generic actions are handled here",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot your password?",
+    "rememberMe": "Remember me",
+    "signin": "Sign In",
+    "signing": "Signing in...",
+    "notRegister": "Don't have an account?",
+    "name": "Name",
+    "repeatPassword": "Repeat password",
+    "accept": "Accept the",
+    "terms": "terms and conditions",
+    "create": "Create Account",
+    "yetRegister": "Already have an account?",
+    "recoverPassword": "Recover Password",
+    "toastUnauthorized": "You must sign in to access this page",
+    "toastSessionError": "Error verifying your session",
+    "toastSessionExpired": "Your session has expired, please log in again",
+
+    "recoverInstructions": "Enter your email address and we will send you an email with the steps to follow",
+    "send": "Send",
+    "sending": "Sending...",
+    "toastSuccessForgot": "If the email exists, you will receive instructions to reset your password",
+    "toastErrorForgot": "Error sending the email",
+    "toastSuccessSignIn": "Signed in successfully",
+    "toastErrorSignIN": "Invalid credentials",
+    "toastSuccessSignUp": "Account created successfully",
+    "toastErrorSignUp": "Error creating account",
+
+    "resetPasswordTitle": "Change Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "changing": "Changing...",
+    "changePassword": "Change Password",
+    "toastSuccessReset": "Password changed successfully",
+    "toastErrorReset": "Failed to change password",
+    "unauthorizedReset": "Unauthorized access. Recovery link is required",
+
+    "verifyEmailTitleError": "Verification error",
+    "verifyEmailDescriptionError": "The link is invalid, has expired, or has already been used",
+    "verifyEmailGoToLogin": "Back to login",
+    "verifyEmailTitleSuccess": "Your account has been successfully confirmed.",
+    "redirecting_message_one": "Redirecting to dashboard in {{count}} second...",
+    "redirecting_message_other": "Redirecting to dashboard in {{count}} seconds...",
+    "verifyEmailGoNow": "Go now",
+    "toastSuccessVerifyEmail": "Email verified successfully",
+    "toastErrorVerifyEmail": "Error verifying email"
+  },
+  "nav": {
+    "verifyingSession": "Verifying session...",
+    "profile": "Profile",
+    "closeSession": "Sign Out",
+    "closingSession": "Signing out...",
+    "loadingAria": "Loading"
+  },
+  "theme": {
+    "mode": "Dark mode"
+  },
+  "sidebar": {
+    "home": "Home",
+    "admin": "Administration",
+    "nav": {
+      "page1": "Home",
+      "page2": "Page 1",
+      "companies": "Company",
+      "users": "Users",
+      "roles": "Roles",
+      "teams": "Teams",
+      "organizations": "Organizations",
+      "audit": "Audit",
+      "recovery": "Restore data",
+      "documents": "Retrieve documentation"
+    },
+    "groups": {
+      "group1": "Group",
+      "security": "Security",
+      "audit": "Audit"
+    }
+  },
+  "companies": {
+    "title": "Companies",
+    "subtitle": "Manage and view the list of registered companies.",
+    "import": "Import",
+    "export": "Export",
+    "exportSuccess": "Exported successfully",
+    "new": "New company",
+    "moreActions": "More actions",
+    "createTitle": "Create new company",
+    "editDescription": "Company data in the system.",
+    "createDescription": "Enter the details to register the company.",
+    "save": "Save",
+    "delete": "Delete",
+    "saveAndClose": "Save and close",
+    "tabs": {
+      "detail": "Detail",
+      "docs": "Documentation",
+      "audit": "Audit"
+    },
+    "auditContent": "Audit log goes here...",
+    "basicData": "Basic data",
+    "identificationInfo": "Main identification info.",
+    "name": "Company",
+    "namePlaceholder": "Company name",
+    "cifNif": "CIF / NIF",
+    "sector": "Sector",
+    "selectSector": "Select a sector",
+    "additionalInfo": "Additional Information",
+    "pendingDefine": "Section to be defined.",
+    "metricsSummary": "Metrics / Summary",
+    "entityStats": "Statistical data of the entity.",
+    "deleteConfirmTitle": "Delete this company?",
+    "deleteConfirmDesc": "This action cannot be undone. The company will be permanently deleted from the system.",
+    "cancel": "Cancel",
+    "docsTitle": "Documents",
+    "docsDescription": "Company documents",
+    "sectors": {
+      "tecnologia": "Technology",
+      "banca": "Banking",
+      "seguros": "Insurance",
+      "none": "No sector"
+    },
+    "table": {
+      "delete": "Company/companies successfully deleted",
+      "selectTodo": "Select all",
+      "selectFila": "Select row",
+      "cif": "CIF",
+      "fecha": "Date",
+      "creacion": "Creation"
+    },
+    "form": {
+      "update": "Company successfully updated",
+      "create": "Company successfully created",
+      "delete": "Company successfully deleted",
+      "errors": {
+        "update": "Error updating the company",
+        "create": "Error creating the company",
+        "delete": "Error deleting the company"
+      }
+    }
+  },
+  "organizations": {
+    "title": "Organizations",
+    "subtitle": "Manage and view the list of registered organizations.",
+    "import": "Import",
+    "export": "Export",
+    "new": "New organization",
+    "moreActions": "More actions",
+    "createTitle": "Create new organization",
+    "editDescription": "Organization data in the system.",
+    "createDescription": "Enter the details to register the organization.",
+    "save": "Save",
+    "saveAndClose": "Save and close",
+    "delete": "Delete",
+    "detail": "Detail",
+    "docs": "Documentation",
+    "audit": "Audit",
+    "auditContent": "Audit log goes here...",
+    "basicData": "Basic data",
+    "identificationInfo": "Main identification info.",
+    "name": "Organization",
+    "namePlaceholder": "Organization name",
+    "cifNif": "CIF / NIF",
+    "sector": "Sector",
+    "selectSector": "Select a sector",
+    "additionalInfo": "Additional Information",
+    "pendingDefine": "Section to be defined.",
+    "metricsSummary": "Metrics / Summary",
+    "entityStats": "Statistical data of the entity.",
+    "deleteConfirmTitle": "Delete this organization?",
+    "deleteConfirmDesc": "This action cannot be undone. The organization will be permanently deleted from the system.",
+    "cancel": "Cancel",
+    "users": "Organization users",
+    "sectors": {
+      "tecnologia": "Technology",
+      "banca": "Banking",
+      "seguros": "Insurance",
+      "none": "No sector"
+    },
+    "table": {
+      "delete": "Organization(s) successfully deleted",
+      "selectTodo": "Select all",
+      "selectFila": "Select row",
+      "cif": "CIF",
+      "fecha": "Date",
+      "creacion": "Creation",
+      "name": "Organization"
+    },
+    "form": {
+      "update": "Organization successfully updated",
+      "create": "Organization successfully created",
+      "delete": "Organization successfully deleted",
+      "errors": {
+        "update": "Error updating the organization",
+        "create": "Error creating the organization",
+        "delete": "Error deleting the organization"
+      }
+    }
+  },
+  "users": {
+    "title": "Users",
+    "subtitle": "Manage and view the list of registered users in the system.",
+    "import": "Import",
+    "export": "Export",
+    "exportSuccess": "Exported successfully",
+    "new": "New user",
+    "moreActions": "More actions",
+    "createTitle": "Create new user",
+    "editDescription": "User data in the system.",
+    "createDescription": "Enter the details to register the user.",
+    "save": "Save",
+    "saveAndClose": "Save and close",
+    "delete": "Delete",
+    "tabs": {
+      "detail": "Detail",
+      "teams": "Teams",
+      "roles": "Roles",
+      "audit": "Audit"
+    },
+    "docs": "Documentation",
+    "auditContent": "Audit log goes here...",
+    "basicData": "Basic data",
+    "identificationInfo": "Main identification info.",
+    "name": "User",
+    "namePlaceholder": "User name",
+    "email": "Email",
+    "emailPlaceholder": "User email address",
+    "username": "Username",
+    "usernamePlaceholder": "Unique username",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "role": "Role",
+    "selectRole": "Select a role",
+    "additionalInfo": "Additional Information",
+    "pendingDefine": "Section to be defined.",
+    "metricsSummary": "Metrics / Summary",
+    "entityStats": "Statistical data of the user.",
+    "deleteConfirmTitle": "Delete this user?",
+    "deleteConfirmDesc": "This action cannot be undone. The user will be permanently deleted from the system.",
+    "cancel": "Cancel",
+    "suspend": "Suspend",
+    "unsuspend": "Activate account",
+    "resendInvitation": "Resend invitation",
+    "isActive": "Active",
+    "isSystem": "Is system",
+    "emailVerified": "Email verified",
+    "statusName": {
+      "suspended": "Suspended"
+    },
+    "teams": {
+      "label": "Teams",
+      "assignedTitle": "Assigned Teams",
+      "assignBtn": "Assign Team",
+      "assignTitle": "Assign Teams to User",
+      "assignDescription": "Select the teams you want to add this user to.",
+      "name": "Team",
+      "fecha": "Date",
+      "remove": "Remove",
+      "selectAll": "Select all",
+      "selectRow": "Select row"
+    },
+    "roles": {
+      "label": "Roles",
+      "assignedTitle": "Assigned Roles",
+      "assignBtn": "Assign Role",
+      "assignTitle": "Assign Roles to User",
+      "assignDescription": "Select the roles you want to assign to this user."
+    },
+    "table": {
+      "delete": "User(s) successfully deleted",
+      "selectTodo": "Select all",
+      "selectFila": "Select row",
+      "email": "Email",
+      "username": "Username",
+      "status": "Status",
+      "role": "Role",
+      "fecha": "Date",
+      "creacion": "Creation",
+      "active": "Active",
+      "inactive": "Inactive",
+      "isSystem": "System",
+      "isNotSystem": "Non-system",
+      "emailVerified": "Verified",
+      "emailNoVerified": "Not verified"
+    },
+    "form": {
+      "update": "User successfully updated",
+      "create": "User successfully created",
+      "delete": "User successfully deleted",
+      "suspend": "User successfully suspended",
+      "unsuspend": "User successfully activated",
+      "resendInvitation": "Invitation successfully resent",
+      "errors": {
+        "update": "Error updating the user",
+        "create": "Error creating the user",
+        "delete": "Error deleting the user",
+        "suspend": "Error suspending the user",
+        "unsuspend": "Error activating the user",
+        "resendInvitation": "Error resending the invitation"
+      }
+    }
+  },
+  "roles": {
+    "title": "Roles",
+    "subtitle": "Manage and view the list of roles and their permissions in the system.",
+    "import": "Import",
+    "export": "Export",
+    "exportSuccess": "Exported successfully",
+    "new": "New role",
+    "moreActions": "More actions",
+    "createTitle": "Create new role",
+    "editDescription": "Role data in the system.",
+    "createDescription": "Enter the details to register the role and its permissions.",
+    "save": "Save",
+    "saveAndClose": "Save and close",
+    "delete": "Delete",
+    "tabs": {
+      "detail": "Detail",
+      "permissions": "Permissions",
+      "users": "Users",
+      "audit": "Audit"
+    },
+    "docs": "Documentation",
+    "auditContent": "Audit log goes here...",
+    "basicData": "Basic data",
+    "identificationInfo": "Main identification info.",
+    "name": "Role",
+    "namePlaceholder": "Role name",
+    "description": "Description",
+    "descriptionPlaceholder": "Description of the role and its purpose",
+    "permissionsTab": "Permissions",
+    "selectPermissions": "Select permissions",
+    "searchPermissions": "Search permissions...",
+    "additionalInfo": "Additional Information",
+    "pendingDefine": "Section to be defined.",
+    "metricsSummary": "Metrics / Summary",
+    "entityStats": "Statistical data of the role.",
+    "deleteConfirmTitle": "Delete this role?",
+    "deleteConfirmDesc": "This action cannot be undone. The role will be permanently deleted from the system.",
+    "cancel": "Cancel",
+    "selectRole": "Select a role",
+    "searchRole": "Search role...",
+    "noRolesFound": "No roles found",
+    "remove": "Remove",
+    "usersWithRole": "Users with this role",
+    "members": "Role members",
+    "table": {
+      "delete": "Role(s) successfully deleted",
+      "remove_success": "Role(s) successfully unassigned",
+      "add_success": "Role(s) successfully assigned",
+      "selectTodo": "Select all",
+      "selectFila": "Select row",
+      "name": "Role",
+      "description": "Description",
+      "permissionsCount": "No. of Permissions",
+      "fecha": "Date",
+      "creacion": "Creation"
+    },
+    "form": {
+      "update": "Role successfully updated",
+      "create": "Role successfully created",
+      "delete": "Role successfully deleted",
+      "errors": {
+        "update": "Error updating the role",
+        "create": "Error creating the role",
+        "delete": "Error deleting the role"
+      }
+    },
+    "permissions": {
+      "loading": "Loading permissions matrix...",
+      "matrixTitle": "Permissions Matrix",
+      "matrixDesc": "Assign access levels for each action on system resources.",
+      "saving": "Saving...",
+      "syncing": "Syncing...",
+      "moduleCol": "Module",
+      "noModules": "No modules found.",
+      "unknownModule": "Unknown module",
+      "searchPlaceholder": "Search module..."
+    },
+    "scopes": {
+      "none": "None",
+      "own": "User",
+      "team": "Team",
+      "global": "Global"
+    }
+  },
+  "teams": {
+    "title": "Teams",
+    "subtitle": "Manage and view the list of registered teams.",
+    "import": "Import",
+    "export": "Export",
+    "exportSuccess": "Exported successfully",
+    "new": "New team",
+    "moreActions": "More actions",
+    "createTitle": "Create new team",
+    "editDescription": "Team data in the system.",
+    "createDescription": "Enter the details to register the team.",
+    "save": "Save",
+    "saveAndClose": "Save and close",
+    "delete": "Delete",
+    "tabs": {
+      "detail": "Detail",
+      "members": "Members",
+      "roles": "Roles",
+      "audit": "Audit"
+    },
+    "docs": "Documentation",
+    "auditContent": "Audit log goes here...",
+    "basicData": "Basic data",
+    "identificationInfo": "Main identification info.",
+    "name": "Team",
+    "namePlaceholder": "Team name",
+    "description": "Description",
+    "descriptionPlaceholder": "Description of the team",
+    "additionalInfo": "Additional Information",
+    "pendingDefine": "Section to be defined.",
+    "metricsSummary": "Metrics / Summary",
+    "entityStats": "Statistical data of the entity.",
+    "deleteConfirmTitle": "Delete this team?",
+    "deleteConfirmDesc": "This action cannot be undone. The team will be permanently deleted from the system.",
+    "cancel": "Cancel",
+    "selectTeam": "Select a team",
+    "searchTeam": "Search team...",
+    "noTeamsFound": "No teams found",
+    "members": "Team members",
+    "roles": "Team roles",
+    "table": {
+      "delete": "Team(s) successfully deleted",
+      "remove_success": "Team(s) successfully unassigned",
+      "add_success": "Team(s) successfully assigned",
+      "selectTodo": "Select all",
+      "selectFila": "Select row",
+      "organization": "Organization",
+      "fecha": "Date",
+      "creacion": "Creation",
+      "name": "Team"
+    },
+    "form": {
+      "update": "Team successfully updated",
+      "create": "Team successfully created",
+      "delete": "Team successfully deleted",
+      "errors": {
+        "update": "Error updating the team",
+        "create": "Error creating the team",
+        "delete": "Error deleting the team"
+      }
+    }
+  },
+  "teamMembers": {
+    "add": "Add members",
+    "addTitle": "Add team members",
+    "addDescription": "Select multiple people and apply when you're ready.",
+    "selectUser": "Select users",
+    "searchUser": "Search users",
+    "noUsersFound": "No users found.",
+    "apply": "Apply",
+    "added": "Member added successfully",
+    "addedMany": "Members added successfully",
+    "addError": "Error adding members",
+    "remove": "Remove",
+    "team": "Team",
+    "table": {
+      "removed": "Members removed successfully",
+      "removeError": "Error removing members",
+      "selectAll": "Select all",
+      "selectRow": "Select row",
+      "fecha": "Date",
+      "joinedAt": "Joined at"
+    },
+    "name": "Name",
+    "email": "Email"
+  },
+  "profile": {
+    "emailVerification": "Email verification",
+    "emailVerified": "Email verified",
+    "sending": "Sending...",
+    "sentSuccessfully": "Sent successfully",
+    "sendVerificationLink": "Send verification link",
+    "checkInboxOrSpam": "Check your inbox or spam folder.",
+    "changePassword": "Change password",
+    "currentPassword": "Current Password",
+    "hidePassword": "Hide password",
+    "showPassword": "Show password",
+    "newPassword": "New Password",
+    "repeatPassword": "Repeat Password",
+    "revokeOtherSessions": "Revoke sessions on other devices",
+    "updating": "Updating...",
+    "updatePassword": "Update Password",
+    "toast": {
+      "passwordChanged": "Password changed successfully",
+      "passwordChangeFailed": "Failed to change password",
+      "noEmailFound": "No associated email found",
+      "verificationSent": "Verification email sent",
+      "sendError": "Error sending"
+    }
+  },
+  "home": {
+    "title": "Home"
+  },
+  "storage": {
+    "uploadFile": "Upload file",
+    "uploading": "Uploading...",
+    "dropzone": {
+      "dropActive": "Drop the files here",
+      "clickDragMultiple": "Click or drag files",
+      "clickDragSingle": "Click or drag a file",
+      "maxSizeInfo": "Maximum 5MB per file",
+      "uploadMultipleCount": "Upload {{count}} documents",
+      "uploadSingle": "Upload document"
+    },
+    "types": {
+      "document": "Documents",
+      "spreadsheet": "Spreadsheets",
+      "presentation": "Presentations",
+      "image": "Images",
+      "data": "Data",
+      "archive": "Archives"
+    },
+    "table": {
+      "selectTodo": "Select all",
+      "selectRow": "Select row",
+      "fileName": "File name",
+      "type": "Type",
+      "size": "Size",
+      "date": "Date",
+      "creation": "Creation",
+      "delete": "Delete",
+      "download": "Download"
+    },
+    "toast": {
+      "uploadSuccessMultiple": "Documents successfully uploaded",
+      "uploadSuccessSingle": "Document successfully uploaded",
+      "uploadError": "Error uploading document"
+    }
+  },
+  "audit": {
+    "title": "Audit Trail",
+    "subtitle": "View the system activity log and audits.",
+    "date": "Date & Time",
+    "action": "Action",
+    "entity": "Entity",
+    "description": "Description",
+    "user": "User",
+    "ipAddress": "IP Address",
+    "userAgent": "User Agent",
+    "module": "Module",
+    "detail": "Audit Detail",
+    "details": "Details",
+    "detailsDescription": "General information of the audit log.",
+    "metadata": "Metadata / Additional Data",
+    "metadataDescription": "Changes and JSON payload of the event.",
+    "noMetadata": "No metadata recorded for this event.",
+    "back": "Back",
+    "notFoundTitle": "Log Not Found",
+    "notFoundDesc": "The requested audit log does not exist or you do not have permission to view it.",
+    "actions": {
+      "CREATE": "Create",
+      "UPDATE": "Update",
+      "SOFT_DELETE": "Soft Delete (Trash)",
+      "RESTORE": "Restore",
+      "HARD_DELETE": "Hard Delete (Permanent)",
+      "LOGIN": "Login",
+      "LOGOUT": "Logout"
+    }
+  },
+  "trash": {
+    "title": "Recycle Bin",
+    "subtitle": "Manage items that have been deleted from the system. You can restore them or delete them permanently.",
+    "subtitleDocuments": "Manage documents that have been deleted from the system. You can restore them, download them or delete them permanently.",
+    "tabs": {
+      "entities": "Entities",
+      "documents": "Documents"
+    },
+    "table": {
+      "selectTodo": "Select all",
+      "selectFila": "Select row",
+      "displayName": "Name",
+      "module": "Module",
+      "deletedAt": "Deleted At",
+      "deletedBy": "Deleted By",
+      "expiresAt": "Expires At",
+      "expired": "expired",
+      "today": "today",
+      "daysLeft": "days left",
+      "parentModule": "Entity Module",
+      "parentEntity": "Entity"
+    },
+    "actions": {
+      "restoreSelected": "Restore",
+      "deleteSelectedPermanent": "Delete permanently",
+      "deletePermanent": "Delete permanently"
+    },
+    "dialog": {
+      "deleteTitle": "Permanently delete?",
+      "deleteDescription": "This action is irreversible and will permanently delete the selected items. They cannot be recovered in any way."
+    },
+    "toast": {
+      "restoreSuccess": "Items successfully restored.",
+      "restoreError": "Error restoring items.",
+      "deleteSuccess": "Items permanently deleted.",
+      "deleteError": "Error deleting items."
+    }
+  },
+  "redirecting_message_one": "Redirecting to dashboard in {{count}} second...",
+  "redirecting_message_other": "Redirecting to dashboard in {{count}} seconds...",
+  "modules": {
+    "categories": {
+      "system": "System",
+      "business": "Business",
+      "files": "Files",
+      "security": "Security"
+    },
+    "names": {
+      "audit": "Audit",
+      "companies": "Companies",
+      "documents": "Documents",
+      "roles": "Roles",
+      "storage": "Storage",
+      "teams": "Teams",
+      "trash": "Trash",
+      "users": "Users"
+    }
+  }
+}

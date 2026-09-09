@@ -1,0 +1,653 @@
+{
+  "dataTable": {
+    "selector": {
+      "placeholder": "Seleccionar...",
+      "searchPlaceholder": "Buscar...",
+      "emptyMessage": "Sin resultados.",
+      "refineMessage": "resultados más, refina la búsqueda",
+      "applyLabel": "Aplicar"
+    }
+  },
+  "common": {
+    "cancel": "Cancelar",
+    "save": "Guardar"
+  },
+  "auth": {
+    "orContinueWith": "O continúa con",
+    "signInWithGoogle": "Iniciar sesión con Google",
+    "signInWithApple": "Iniciar sesión con Apple",
+    "signInDescription": "Aquí se hacen cosas genéricas",
+    "email": "Email",
+    "password": "Contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "rememberMe": "Recordarme",
+    "signin": "Iniciar Sesión",
+    "signing": "Iniciando...",
+    "notRegister": "¿Aún no tienes cuenta?",
+    "name": "Nombre",
+    "repeatPassword": "Repetir contraseña",
+    "accept": "Aceptar los",
+    "terms": "términos y condiciones",
+    "create": "Crear Cuenta",
+    "yetRegister": "¿Ya tienes cuenta?",
+    "recoverPassword": "Recuperar Contraseña",
+    "toastUnauthorized": "Debes iniciar sesión para acceder",
+    "toastSessionError": "Error al verificar la sesión",
+    "toastSessionExpired": "Tu sesión ha expirado, por favor entra de nuevo",
+
+    "recoverInstructions": "Introduce tu dirección de email y te enviaremos un correo con los pasos a seguir",
+    "send": "Enviar",
+    "sending": "Enviando...",
+    "toastSuccessForgot": "Si el email existe, recibirás un correo con instrucciones para restablecer tu contraseña",
+    "toastErrorForgot": "Error en el envío del email",
+    "toastSuccessSignIn": "Sesión iniciada correctamente",
+    "toastErrorSignIN": "Credenciales incorrectas",
+    "toastSuccessSignUp": "Cuenta creada correctamente",
+    "toastErrorSignUp": "Error al crear la cuenta",
+
+    "resetPasswordTitle": "Cambiar Contraseña",
+    "newPassword": "Nueva Contraseña",
+    "confirmPassword": "Confirmar Contraseña",
+    "changing": "Cambiando...",
+    "changePassword": "Cambiar Contraseña",
+    "toastSuccessReset": "Contraseña cambiada correctamente",
+    "toastErrorReset": "Fallo al cambiar la contraseña",
+    "unauthorizedReset": "Acceso no autorizado. El enlace de recuperación es necesario",
+
+    "verifyEmailTitleError": "Error en la verificación",
+    "verifyEmailDescriptionError": "El enlace es inválido, ha expirado o ya ha sido utilizado",
+    "verifyEmailGoToLogin": "Volver a inicio de sesión",
+    "verifyEmailTitleSuccess": "Tu cuenta ha sido confirmada con éxito.",
+    "redirecting_message_one": "Redirigiendo al dashboard en {{count}} segundo...",
+    "redirecting_message_other": "Redirigiendo al dashboard en {{count}} segundos...",
+    "verifyEmailGoNow": "Ir ahora",
+    "toastSuccessVerifyEmail": "Email verificado correctamente",
+    "toastErrorVerifyEmail": "Error al verificar el email"
+  },
+  "nav": {
+    "verifyingSession": "Verificando sesión...",
+    "profile": "Perfil",
+    "closeSession": "Cerrar Sesión",
+    "closingSession": "Cerrando sesión...",
+    "loadingAria": "Cargando"
+  },
+  "theme": {
+    "mode": "Modo oscuro"
+  },
+  "sidebar": {
+    "home": "Home",
+    "admin": "Administracion",
+    "nav": {
+      "page1": "Inicio",
+      "page2": "Página 1",
+      "companies": "Compañía",
+      "users": "Usuarios",
+      "roles": "Roles",
+      "teams": "Equipos",
+      "organizations": "Organizaciones",
+      "audit": "Auditoría",
+      "recovery": "Restaurar datos",
+      "documents": "Recuperar documentación"
+    },
+    "groups": {
+      "group1": "Grupo",
+      "security": "Seguridad",
+      "audit": "Auditoría"
+    }
+  },
+  "companies": {
+    "title": "Compañías",
+    "subtitle": "Gestiona y visualiza el listado de empresas registradas.",
+    "import": "Importar",
+    "export": "Exportar",
+    "exportSuccess": "Exportado con éxito",
+    "new": "Nueva compañía",
+    "moreActions": "Más acciones",
+    "createTitle": "Crear nueva compañía",
+    "editDescription": "Datos de la empresa en el sistema.",
+    "createDescription": "Introduce los datos para registrar la empresa.",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "saveAndClose": "Guardar y cerrar",
+    "tabs": {
+      "detail": "Detalle",
+      "docs": "Documentación",
+      "audit": "Auditoría"
+    },
+    "auditContent": "Aquí va la auditoría...",
+    "basicData": "Datos básicos",
+    "identificationInfo": "Información principal de identificación.",
+    "name": "Compañía",
+    "namePlaceholder": "Nombre de la empresa",
+    "cifNif": "CIF / NIF",
+    "sector": "Sector",
+    "selectSector": "Selecciona un sector",
+    "additionalInfo": "Información Adicional",
+    "pendingDefine": "Sección pendiente de definir.",
+    "metricsSummary": "Métricas / Resumen",
+    "entityStats": "Datos estadísticos de la entidad.",
+    "deleteConfirmTitle": "¿Eliminar esta compañía?",
+    "deleteConfirmDesc": "Esta acción no se puede deshacer. La compañía será eliminada permanentemente del sistema.",
+    "cancel": "Cancelar",
+    "docsTitle": "Documentos",
+    "docsDescription": "Documentos de la compañía",
+    "sectors": {
+      "tecnologia": "Tecnología",
+      "banca": "Banca",
+      "seguros": "Seguros",
+      "none": "Sin sector"
+    },
+    "table": {
+      "delete": "Compañía(s) eliminada(s) con éxito",
+      "selectTodo": "Seleccionar todo",
+      "selectFila": "Seleccionar fila",
+      "cif": "CIF",
+      "fecha": "Fecha",
+      "creacion": "Creación"
+    },
+    "form": {
+      "update": "Compañía actualizada con éxito",
+      "create": "Compañía creada con éxito",
+      "delete": "Compañía eliminada con éxito",
+      "errors": {
+        "update": "Error al actualizar la compañía",
+        "create": "Error al crear la compañía",
+        "delete": "Error al eliminar la compañía"
+      }
+    }
+  },
+
+  "organizations": {
+    "title": "Organizaciones",
+    "subtitle": "Gestiona y visualiza el listado de organizaciones registradas.",
+    "import": "Importar",
+    "export": "Exportar",
+    "new": "Nueva organización",
+    "moreActions": "Más acciones",
+    "createTitle": "Crear nueva organización",
+    "editDescription": "Datos de la organización en el sistema.",
+    "createDescription": "Introduce los datos para registrar la organización.",
+    "save": "Guardar",
+    "saveAndClose": "Guardar y cerrar",
+    "delete": "Eliminar",
+    "detail": "Detalle",
+    "docs": "Documentación",
+    "audit": "Auditoría",
+    "auditContent": "Aquí va la auditoría...",
+    "basicData": "Datos básicos",
+    "identificationInfo": "Información principal de identificación.",
+    "name": "Organización",
+    "namePlaceholder": "Nombre de la organización",
+    "cifNif": "CIF / NIF",
+    "sector": "Sector",
+    "selectSector": "Selecciona un sector",
+    "additionalInfo": "Información Adicional",
+    "pendingDefine": "Sección pendiente de definir.",
+    "metricsSummary": "Métricas / Resumen",
+    "entityStats": "Datos estadísticos de la entidad.",
+    "deleteConfirmTitle": "¿Eliminar esta organización?",
+    "deleteConfirmDesc": "Esta acción no se puede deshacer. La organización será eliminada permanentemente del sistema.",
+    "cancel": "Cancelar",
+    "users": "Usuarios de la organización",
+    "sectors": {
+      "tecnologia": "Tecnología",
+      "banca": "Banca",
+      "seguros": "Seguros",
+      "none": "Sin sector"
+    },
+    "table": {
+      "delete": "Organización(es) eliminada(s) con éxito",
+      "selectTodo": "Seleccionar todo",
+      "selectFila": "Seleccionar fila",
+      "cif": "CIF",
+      "fecha": "Fecha",
+      "creacion": "Creación",
+      "name": "Organización"
+    },
+    "form": {
+      "update": "Organización actualizada con éxito",
+      "create": "Organización creada con éxito",
+      "delete": "Organización eliminada con éxito",
+      "errors": {
+        "update": "Error al actualizar la organización",
+        "create": "Error al crear la organización",
+        "delete": "Error al eliminar la organización"
+      }
+    }
+  },
+
+  "users": {
+    "title": "Usuarios",
+    "subtitle": "Gestiona y visualiza el listado de usuarios registrados en el sistema.",
+    "import": "Importar",
+    "export": "Exportar",
+    "exportSuccess": "Exportado con éxito",
+    "new": "Nuevo usuario",
+    "moreActions": "Más acciones",
+    "createTitle": "Crear nuevo usuario",
+    "editDescription": "Datos del usuario en el sistema.",
+    "createDescription": "Introduce los datos para registrar el usuario.",
+    "save": "Guardar",
+    "saveAndClose": "Guardar y cerrar",
+    "delete": "Eliminar",
+    "tabs": {
+      "detail": "Detalle",
+      "teams": "Equipos",
+      "roles": "Roles",
+      "audit": "Auditoría"
+    },
+    "docs": "Documentación",
+    "auditContent": "Aquí va la auditoría...",
+    "basicData": "Datos básicos",
+    "identificationInfo": "Información principal de identificación.",
+    "name": "Usuario",
+    "namePlaceholder": "Nombre del usuario",
+    "email": "Email",
+    "emailPlaceholder": "Correo electrónico del usuario",
+    "username": "Nombre de usuario",
+    "usernamePlaceholder": "Nombre de usuario único",
+    "status": "Estado",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "role": "Rol",
+    "selectRole": "Selecciona un rol",
+    "additionalInfo": "Información Adicional",
+    "pendingDefine": "Sección pendiente de definir.",
+    "metricsSummary": "Métricas / Resumen",
+    "entityStats": "Datos estadísticos del usuario.",
+    "deleteConfirmTitle": "¿Eliminar este usuario?",
+    "deleteConfirmDesc": "Esta acción no se puede deshacer. El usuario será eliminado permanentemente del sistema.",
+    "cancel": "Cancelar",
+    "suspend": "Suspender",
+    "unsuspend": "Activar cuenta",
+    "resendInvitation": "Reenviar invitación",
+    "isActive": "Activo",
+    "isSystem": "Es del sistema",
+    "emailVerified": "Email verificado",
+    "statusName": {
+      "suspended": "Suspendido"
+    },
+    "teams": {
+      "label": "Equipos",
+      "assignedTitle": "Equipos Asignados",
+      "assignBtn": "Asignar Equipo",
+      "assignTitle": "Asignar Equipos al Usuario",
+      "assignDescription": "Selecciona los equipos a los que deseas agregar este usuario.",
+      "name": "Equipo",
+      "fecha": "Fecha",
+      "remove": "Eliminar",
+      "selectAll": "Seleccionar todo",
+      "selectRow": "Seleccionar fila"
+    },
+    "roles": {
+      "label": "Roles",
+      "assignedTitle": "Roles Asignados",
+      "assignBtn": "Asignar Rol",
+      "assignTitle": "Asignar Roles al Usuario",
+      "assignDescription": "Selecciona los roles que deseas asignar a este usuario."
+    },
+    "table": {
+      "delete": "Usuario(s) eliminado(s) con éxito",
+      "selectTodo": "Seleccionar todo",
+      "selectFila": "Seleccionar fila",
+      "email": "Email",
+      "username": "Usuario",
+      "status": "Estado",
+      "role": "Rol",
+      "fecha": "Fecha",
+      "creacion": "Creación",
+      "active": "Activo",
+      "inactive": "Inactivo",
+
+      "isSystem": "Sistema",
+      "isNotSystem": "No sistema",
+
+      "emailVerified": "Verificado",
+      "emailNoVerified": "No verificado"
+    },
+    "form": {
+      "update": "Usuario actualizado con éxito",
+      "create": "Usuario creado con éxito",
+      "delete": "Usuario eliminado con éxito",
+      "suspend": "Usuario suspendido con éxito",
+      "unsuspend": "Usuario activado con éxito",
+      "resendInvitation": "Invitación reenviada con éxito",
+      "errors": {
+        "update": "Error al actualizar el usuario",
+        "create": "Error al crear el usuario",
+        "delete": "Error al eliminar el usuario",
+        "suspend": "Error al suspender el usuario",
+        "unsuspend": "Error al activar el usuario",
+        "resendInvitation": "Error al reenviar la invitación"
+      }
+    }
+  },
+
+  "roles": {
+    "title": "Roles",
+    "subtitle": "Gestiona y visualiza el listado de roles y sus permisos en el sistema.",
+    "import": "Importar",
+    "export": "Exportar",
+    "exportSuccess": "Exportado con éxito",
+    "new": "Nuevo rol",
+    "moreActions": "Más acciones",
+    "createTitle": "Crear nuevo rol",
+    "editDescription": "Datos del rol en el sistema.",
+    "createDescription": "Introduce los datos para registrar el rol y sus permisos.",
+    "save": "Guardar",
+    "saveAndClose": "Guardar y cerrar",
+    "delete": "Eliminar",
+    "tabs": {
+      "detail": "Detalle",
+      "permissions": "Permisos",
+      "users": "Usuarios",
+      "audit": "Auditoría"
+    },
+    "docs": "Documentación",
+    "auditContent": "Aquí va la auditoría...",
+    "basicData": "Datos básicos",
+    "identificationInfo": "Información principal de identificación.",
+    "name": "Rol",
+    "namePlaceholder": "Nombre del rol",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Descripción del rol y su propósito",
+    "permissionsTab": "Permisos",
+    "selectPermissions": "Selecciona los permisos",
+    "searchPermissions": "Buscar permisos...",
+    "additionalInfo": "Información Adicional",
+    "pendingDefine": "Sección pendiente de definir.",
+    "metricsSummary": "Métricas / Resumen",
+    "entityStats": "Datos estadísticos del rol.",
+    "deleteConfirmTitle": "¿Eliminar este rol?",
+    "deleteConfirmDesc": "Esta acción no se puede deshacer. El rol será eliminado permanentemente del sistema.",
+    "cancel": "Cancelar",
+    "selectRole": "Selecciona un rol",
+    "searchRole": "Buscar rol...",
+    "noRolesFound": "No se encontraron roles",
+    "remove": "Eliminar",
+    "usersWithRole": "Usuarios con este rol",
+    "members": "Miembros del rol",
+    "table": {
+      "delete": "Rol(es) eliminado(s) con éxito",
+      "remove_success": "Rol(es) desasignado(s) con éxito",
+      "add_success": "Rol(es) asignado(s) con éxito",
+      "selectTodo": "Seleccionar todo",
+      "selectFila": "Seleccionar fila",
+      "name": "Rol",
+      "description": "Descripción",
+      "permissionsCount": "Nº Permisos",
+      "fecha": "Fecha",
+      "creacion": "Creación"
+    },
+    "form": {
+      "update": "Rol actualizado con éxito",
+      "create": "Rol creado con éxito",
+      "delete": "Rol eliminado con éxito",
+      "errors": {
+        "update": "Error al actualizar el rol",
+        "create": "Error al crear el rol",
+        "delete": "Error al eliminar el rol"
+      }
+    },
+    "permissions": {
+      "loading": "Cargando matriz de permisos...",
+      "matrixTitle": "Matriz de Permisos",
+      "matrixDesc": "Asigna el nivel de acceso para cada acción sobre los recursos del sistema.",
+      "saving": "Guardando...",
+      "syncing": "Sincronizando...",
+      "moduleCol": "Módulo",
+      "noModules": "No se encontraron módulos disponibles.",
+      "unknownModule": "Módulo desconocido",
+      "searchPlaceholder": "Buscar módulo..."
+    },
+    "scopes": {
+      "none": "Ninguno",
+      "own": "Usuario",
+      "team": "Equipo",
+      "global": "Global"
+    }
+  },
+
+  "teams": {
+    "title": "Equipos",
+    "subtitle": "Gestiona y visualiza el listado de equipos registrados.",
+    "import": "Importar",
+    "export": "Exportar",
+    "exportSuccess": "Exportado con éxito",
+    "new": "Nuevo equipo",
+    "moreActions": "Más acciones",
+    "createTitle": "Crear nuevo equipo",
+    "editDescription": "Datos del equipo en el sistema.",
+    "createDescription": "Introduce los datos para registrar el equipo.",
+    "save": "Guardar",
+    "saveAndClose": "Guardar y cerrar",
+    "delete": "Eliminar",
+    "tabs": {
+      "detail": "Detalle",
+      "members": "Miembros",
+      "roles": "Roles",
+      "audit": "Auditoría"
+    },
+    "docs": "Documentación",
+    "auditContent": "Aquí va la auditoría...",
+    "basicData": "Datos básicos",
+    "identificationInfo": "Información principal de identificación.",
+    "name": "Equipo",
+    "namePlaceholder": "Nombre del equipo",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Descripción del equipo",
+    "cifNif": "CIF / NIF",
+    "sector": "Sector",
+    "selectSector": "Selecciona un sector",
+    "additionalInfo": "Información Adicional",
+    "pendingDefine": "Sección pendiente de definir.",
+    "metricsSummary": "Métricas / Resumen",
+    "entityStats": "Datos estadísticos de la entidad.",
+    "deleteConfirmTitle": "¿Eliminar este equipo?",
+    "deleteConfirmDesc": "Esta acción no se puede deshacer. El equipo será eliminado permanentemente del sistema.",
+    "cancel": "Cancelar",
+    "selectTeam": "Selecciona un equipo",
+    "searchTeam": "Buscar equipo...",
+    "noTeamsFound": "No se encontraron equipos",
+    "members": "Miembros del equipo",
+    "roles": "Roles del equipo",
+    "table": {
+      "delete": "Equipo(s) eliminado(s) con éxito",
+      "remove_success": "Equipo(s) desasignado(s) con éxito",
+      "add_success": "Equipo(s) asignado(s) con éxito",
+      "selectTodo": "Seleccionar todo",
+      "selectFila": "Seleccionar fila",
+      "organization": "Organización",
+      "fecha": "Fecha",
+      "creacion": "Creación",
+      "name": "Equipo"
+    },
+
+    "form": {
+      "update": "Equipo actualizado con éxito",
+      "create": "Equipo creado con éxito",
+      "delete": "Equipo eliminado con éxito",
+      "errors": {
+        "update": "Error al actualizar el equipo",
+        "create": "Error al crear el equipo",
+        "delete": "Error al eliminar el equipo"
+      }
+    }
+  },
+
+  "teamMembers": {
+    "add": "Añadir miembros",
+    "addTitle": "Añadir miembros al equipo",
+    "addDescription": "Selecciona varias personas y aplí­calo cuando estéss listo.",
+    "selectUser": "Selecciona usuarios",
+    "searchUser": "Buscar usuarios",
+    "noUsersFound": "No se encontraron usuarios.",
+    "apply": "Aplicar",
+    "added": "Miembro añadido con Ã©xito",
+    "addedMany": "Miembros añadidos con Ã©xito",
+    "addError": "Error al añadir miembros",
+    "remove": "Eliminar",
+    "team": "Equipo",
+    "table": {
+      "removed": "Miembros eliminados con Ã©xito",
+      "removeError": "Error al eliminar los miembros",
+      "selectAll": "Seleccionar todo",
+      "selectRow": "Seleccionar fila",
+      "fecha": "Fecha",
+      "joinedAt": "Fecha de alta"
+    },
+    "name": "Nombre",
+    "email": "Email"
+  },
+  "profile": {
+    "emailVerification": "Verificación email",
+    "emailVerified": "Email verificado",
+    "sending": "Enviando...",
+    "sentSuccessfully": "Enviado correctamente",
+    "sendVerificationLink": "Enviar link de verificación",
+    "checkInboxOrSpam": "Revisa tu bandeja de entrada o spam.",
+    "changePassword": "Cambio de contraseña",
+    "currentPassword": "Contraseña Actual",
+    "hidePassword": "Ocultar contraseña",
+    "showPassword": "Mostrar contraseña",
+    "newPassword": "Nueva Contraseña",
+    "repeatPassword": "Repetir Contraseña",
+    "revokeOtherSessions": "Eliminar sesiones en el resto de dispositivos",
+    "updating": "Actualizando...",
+    "updatePassword": "Actualizar Contraseña",
+    "toast": {
+      "passwordChanged": "Contraseña cambiada correctamente",
+      "passwordChangeFailed": "Fallo al cambiar la contraseña",
+      "noEmailFound": "No se encontró un correo asociado",
+      "verificationSent": "Email de verificación enviado",
+      "sendError": "Error al enviar"
+    }
+  },
+  "home": {
+    "title": "Inicio"
+  },
+  "storage": {
+    "uploadFile": "Subir archivo",
+    "uploading": "Subiendo...",
+    "dropzone": {
+      "dropActive": "Suelta los archivos aquí",
+      "clickDragMultiple": "Haz clic o arrastra los archivos",
+      "clickDragSingle": "Haz clic o arrastra un archivo",
+      "maxSizeInfo": "Máximo 5MB por archivo",
+      "uploadMultipleCount": "Subir {{count}} documentos",
+      "uploadSingle": "Subir documento"
+    },
+    "types": {
+      "document": "Documentos",
+      "spreadsheet": "Hojas de Cálculo",
+      "presentation": "Presentaciones",
+      "image": "Imágenes",
+      "data": "Datos",
+      "archive": "Archivos"
+    },
+    "table": {
+      "selectTodo": "Seleccionar todo",
+      "selectRow": "Seleccionar fila",
+      "fileName": "Nombre de archivo",
+      "type": "Tipo",
+      "size": "Tamaño",
+      "date": "Fecha",
+      "creation": "Creación",
+      "delete": "Eliminar",
+      "download": "Descargar"
+    },
+    "toast": {
+      "uploadSuccessMultiple": "Documentos subidos con éxito",
+      "uploadSuccessSingle": "Documento subido con éxito",
+      "uploadError": "Error al subir el documento"
+    }
+  },
+  "audit": {
+    "title": "Auditoría",
+    "subtitle": "Visualiza el registro de actividades y auditorías del sistema.",
+    "date": "Fecha y hora",
+    "action": "Acción",
+    "entity": "Entidad",
+    "description": "Descripción",
+    "user": "Usuario",
+    "ipAddress": "Dirección IP",
+    "userAgent": "Agente de usuario",
+    "module": "Módulo",
+    "detail": "Detalle de Auditoría",
+    "details": "Detalles",
+    "detailsDescription": "Información general del registro de auditoría.",
+    "metadata": "Metadatos / Datos adicionales",
+    "metadataDescription": "Cambios y payload JSON del evento.",
+    "noMetadata": "No hay metadatos registrados para este evento.",
+    "back": "Volver",
+    "notFoundTitle": "Registro no encontrado",
+    "notFoundDesc": "El registro de auditoría solicitado no existe o no tiene permisos para verlo.",
+    "actions": {
+      "CREATE": "Crear",
+      "UPDATE": "Actualizar",
+      "SOFT_DELETE": "Eliminar (Papelera)",
+      "RESTORE": "Restaurar",
+      "HARD_DELETE": "Eliminar Permanente",
+      "LOGIN": "Iniciar Sesión",
+      "LOGOUT": "Cerrar Sesión"
+    }
+  },
+  "trash": {
+    "title": "Papelera de reciclaje",
+    "subtitle": "Gestiona los elementos que han sido eliminados del sistema. Puedes restaurarlos o eliminarlos definitivamente.",
+    "subtitleDocuments": "Gestiona los documentos que han sido eliminados del sistema. Puedes restaurarlos, descargarlos o eliminarlos definitivamente.",
+    "tabs": {
+      "entities": "Entidades",
+      "documents": "Documentos"
+    },
+    "table": {
+      "selectTodo": "Seleccionar todos",
+      "selectFila": "Seleccionar fila",
+      "displayName": "Nombre",
+      "module": "Módulo",
+      "deletedAt": "Fecha de eliminación",
+      "deletedBy": "Eliminado por",
+      "expiresAt": "Fecha de expiración",
+      "expired": "expirado",
+      "today": "hoy",
+      "daysLeft": "días restantes",
+      "parentModule": "Módulo de la entidad",
+      "parentEntity": "Entidad"
+    },
+    "actions": {
+      "restoreSelected": "Restaurar",
+      "deleteSelectedPermanent": "Eliminar permanentemente",
+      "deletePermanent": "Eliminar de forma permanente"
+    },
+    "dialog": {
+      "deleteTitle": "¿Eliminar permanentemente?",
+      "deleteDescription": "Esta acción es irreversible y eliminará de forma definitiva los elementos seleccionados. No se podrán recuperar de ninguna manera."
+    },
+    "toast": {
+      "restoreSuccess": "Elementos restaurados correctamente.",
+      "restoreError": "Error al restaurar los elementos.",
+      "deleteSuccess": "Elementos eliminados permanentemente.",
+      "deleteError": "Error al eliminar los elementos."
+    }
+  },
+  "redirecting_message_one": "Redirigiendo al dashboard en {{count}} segundo...",
+  "redirecting_message_other": "Redirigiendo al dashboard en {{count}} segundos...",
+  "modules": {
+    "categories": {
+      "system": "Sistema",
+      "business": "Negocio",
+      "files": "Archivos",
+      "security": "Seguridad"
+    },
+    "names": {
+      "audit": "Auditoría",
+      "companies": "Compañías",
+      "documents": "Documentos",
+      "roles": "Roles",
+      "storage": "Almacenamiento",
+      "teams": "Equipos",
+      "trash": "Papelera",
+      "users": "Usuarios"
+    }
+  }
+}

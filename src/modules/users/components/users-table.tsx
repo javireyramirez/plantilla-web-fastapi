@@ -1,0 +1,292 @@
+import { Ban, CalendarIcon, Download, Send, Trash2, UserCheck } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+
+import * as React from 'react';
+
+import { type ColumnDef } from '@tanstack/react-table';
+
+import { DataTable } from '@/components/data-table/data-table';
+import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
+import { DataTableFloatingBar } from '@/components/data-table/data-table-floating-bar';
+import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
+import { DataTableToolbar } from '@/components/data-table/data-table-toolbar-desktop';
+import { DataTableToolbarMobile } from '@/components/data-table/data-table-toolbar-mobile';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import { formatDate } from '@/lib/format';
+import { cn } from '@/lib/utils';
+import useUsers from '@/modules/users//model/use-users-table';
+import { UsersResponse } from '@/modules/users/model/users.schema';
+
+export function UsersTable() {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  const columns = React.useMemo<ColumnDef<UsersResponse>[]>(
+    () => [
+      {
+        id: 'select',
+        maxSize: 40,
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && 'indeterminate')
+            }
+            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            aria-label={t('users.table.selectTodo')}
+            className="translate-y-0.5"
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label={t('users.table.selectFila')}
+            className="translate-y-0.5"
+          />
+        ),
+        enableSorting: false,
+        enableHiding: false,
+      },
+      {
+        accessorKey: 'name',
+        enableColumnFilter: true,
+        enableSorting: true,
+        header: ({ column }) => <DataTableColumnHeader column={column} label={t('users.name')} />,
+        cell: ({ row }) => {
+          return (
+            <div className="flex items-center gap-2 min-w-0">
+              <button
+                className="truncate font-medium max-w-xs text-blue-500 hover:text-blue-700 hover:underline text-left"
+                onClick={() => navigate(`/users/edit/${row.original.id}`)}
+              >
+                {row.getValue('name')}
+              </button>
+            </div>
+          );
+        },
+        meta: {
+          label: t('users.name'),
+          variant: 'text',
+        },
+      },
+
+      {
+        accessorKey: 'email',
+        enableColumnFilter: true,
+        enableSorting: true,
+        header: ({ column }) => <DataTableColumnHeader column={column} label={t('users.email')} />,
+        cell: ({ row }) => {
+          return (
+            <div className="flex items-center gap-2 min-w-0">
+              <button
+                className="truncate font-medium max-w-xs text-blue-500 hover:text-blue-700 hover:underline text-left"
+                onClick={() => navigate(`/users/edit/${row.original.id}`)}
+              >
+                {row.getValue('email')}
+              </button>
+            </div>
+          );
+        },
+        meta: {
+          label: t('users.email'),
+          variant: 'text',
+        },
+      },
+
+      {
+        accessorKey: 'isActive',
+        enableColumnFilter: true,
+        enableSorting: true,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} label={t('users.isActive')} />
+        ),
+        cell: ({ row }) => {
+          const isActive = row.getValue('isActive') as boolean;
+          return (
+            <div className="flex items-center gap-2 min-w-0">
+              <Badge variant={isActive ? 'default' : 'secondary'}>
+                {isActive ? t('users.table.active') : t('users.table.inactive')}
+              </Badge>
+            </div>
+          );
+        },
+        meta: {
+          label: t('users.isActive'),
+          variant: 'boolean',
+          options: [
+            { label: t('users.table.active'), value: 'true' },
+            { label: t('users.table.inactive'), value: 'false' },
+          ],
+        },
+      },
+
+      {
+        accessorKey: 'isSystem',
+        enableColumnFilter: true,
+        enableSorting: true,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} label={t('users.isSystem')} />
+        ),
+        cell: ({ row }) => {
+          const isSystem = row.getValue('isSystem') as boolean;
+          return (
+            <div className="flex items-center gap-2 min-w-0">
+              <Badge variant={isSystem ? 'default' : 'secondary'}>
+                {isSystem ? t('users.table.isSystem') : t('users.table.isNotSystem')}
+              </Badge>
+            </div>
+          );
+        },
+        meta: {
+          label: t('users.isSystem'),
+          variant: 'boolean',
+          options: [
+            { label: t('users.table.isSystem'), value: 'true' },
+            { label: t('users.table.isNotSystem'), value: 'false' },
+          ],
+        },
+      },
+
+      {
+        accessorKey: 'emailVerified',
+        enableColumnFilter: true,
+        enableSorting: true,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} label={t('users.emailVerified')} />
+        ),
+        cell: ({ row }) => {
+          const emailVerified = row.getValue('emailVerified') as boolean;
+          return (
+            <div className="flex items-center gap-2 min-w-0">
+              <Badge variant={emailVerified ? 'default' : 'secondary'}>
+                {emailVerified ? t('users.table.emailVerified') : t('users.table.emailNoVerified')}
+              </Badge>
+            </div>
+          );
+        },
+        meta: {
+          label: t('users.emailVerified'),
+          variant: 'boolean',
+          options: [
+            { label: t('users.table.emailVerified'), value: 'true' },
+            { label: t('users.table.emailNoVerified'), value: 'false' },
+          ],
+        },
+      },
+
+      {
+        accessorKey: 'createdAt',
+        enableColumnFilter: true,
+        enableSorting: true,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} label={t('users.table.fecha')} />
+        ),
+        cell: ({ row }) => (
+          <span className="text-muted-foreground tabular-nums text-sm">
+            {formatDate(row.getValue('createdAt'))}
+          </span>
+        ),
+        meta: {
+          label: t('users.table.creacion'),
+          variant: 'dateRange',
+          icon: CalendarIcon,
+        },
+      },
+    ],
+    [t, navigate]
+  );
+
+  const {
+    table,
+    totalRows,
+    isLoading,
+    isFetching,
+    isMobile,
+    limit,
+    handleDelete,
+    handleSuspend,
+    handleUnsuspend,
+    handleResendInvitation,
+    handleExport,
+    isPendingActions,
+  } = useUsers(columns);
+
+  // Skeleton
+  if (isLoading) {
+    return (
+      <DataTableSkeleton
+        columnCount={columns.length}
+        rowCount={limit}
+        filterCount={4}
+        withPagination={true}
+      />
+    );
+  }
+
+  // Tabla
+  return (
+    <div
+      className={cn(
+        'transition-opacity duration-200',
+        isFetching && !isLoading ? 'opacity-50 pointer-events-none' : 'opacity-100'
+      )}
+    >
+      <DataTable
+        table={table}
+        totalCount={totalRows}
+        mobileConfig={{
+          primaryColumn: 'name',
+          stackedColumns: ['createdAt'],
+        }}
+        actionBar={
+          <DataTableFloatingBar
+            table={table}
+            actions={[
+              {
+                label: t('users.export'),
+                icon: <Download className="h-4 w-4" />,
+                disabled: isPendingActions,
+                onClick: (rows) => handleExport(rows),
+              },
+              {
+                label: t('users.resendInvitation'),
+                icon: <Send className="h-4 w-4" />,
+                disabled: isPendingActions,
+                onClick: (rows) => handleResendInvitation(rows),
+              },
+              {
+                label: t('users.suspend'),
+                icon: <Ban className="h-4 w-4" />,
+                disabled: isPendingActions,
+                onClick: (rows) => handleSuspend(rows),
+                className: 'border-amber-500 text-amber-600 hover:bg-amber-500 hover:text-white',
+              },
+              {
+                label: t('users.unsuspend'),
+                icon: <UserCheck className="h-4 w-4" />,
+                disabled: isPendingActions,
+                onClick: (rows) => handleUnsuspend(rows),
+                className:
+                  'border-emerald-500 text-emerald-600 hover:bg-emerald-500 hover:text-white',
+              },
+              {
+                label: t('users.delete'),
+                icon: <Trash2 className="h-4 w-4" />,
+                disabled: isPendingActions,
+                onClick: (rows) => handleDelete(rows),
+                className:
+                  'border-destructive text-destructive hover:bg-destructive hover:text-white',
+              },
+            ]}
+          />
+        }
+      >
+        {isMobile ? <DataTableToolbarMobile table={table} /> : <DataTableToolbar table={table} />}
+      </DataTable>
+    </div>
+  );
+}

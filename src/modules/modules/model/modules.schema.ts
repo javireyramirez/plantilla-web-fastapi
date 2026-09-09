@@ -1,0 +1,107 @@
+// @/modules/modules/model/modules.schema.ts
+import { z } from 'zod';
+
+import {
+  AuditFieldsSchema,
+  GetPaginatedQueryBaseSchema,
+  createPaginatedResponseSchema,
+} from '@/schemas/crud.schema.js';
+
+// ==========================================
+// CORE SCHEMA
+// ==========================================
+export const ModuleSchema = z
+  .object({
+    id: z.uuidv7(),
+    name: z.string().min(1),
+    slug: z.string().min(1),
+    category: z.string().min(1),
+    description: z.string().optional().nullable(),
+    icon: z.string().optional().nullable(),
+    isActive: z.boolean().default(true),
+    sortOrder: z.number().default(0),
+    defaultPermissions: z.any().optional().nullable(),
+  })
+  .extend(AuditFieldsSchema.shape);
+
+// ==========================================
+// PARAMS
+// ==========================================
+
+export const ModuleParamsSchema = z.object({
+  id: z.uuidv7(),
+});
+
+// ==========================================
+// QUERIES
+// ==========================================
+
+export const GetModulesQuerySchema = GetPaginatedQueryBaseSchema.extend({
+  isActive: z.preprocess((val) => val === 'true' || val === true, z.boolean()).optional(),
+  sortBy: z.string().optional().default('createdAt'),
+  slug: z.string().optional(),
+  category: z.string().optional(),
+});
+
+export const GetListQuery = z.object({
+  limit: z.coerce.number().int().positive().max(100).default(20),
+  sortBy: z.string().optional().default('slug'),
+  sortOrder: z.enum(['asc', 'desc']).optional().default('asc'),
+  slug: z.string().optional(),
+  category: z.string().optional(),
+});
+
+// ==========================================
+// BODIES
+// ==========================================
+
+export const CreateModuleBodySchema = ModuleSchema.omit({
+  id: true,
+  status: true,
+  createdAt: true,
+  updatedAt: true,
+  deletedAt: true,
+  restoredAt: true,
+  createdBy: true,
+  deletedBy: true,
+  restoredBy: true,
+  updatedBy: true,
+});
+
+export const UpdateModuleBodySchema = CreateModuleBodySchema.partial();
+
+export const BulkCreateModuleBodySchema = z.array(CreateModuleBodySchema);
+
+export const BulkIdsBodySchema = z.object({
+  ids: z.array(z.uuidv7()),
+});
+
+// ==========================================
+// RESPONSES
+// ==========================================
+
+export const ModuleResponseSchema = ModuleSchema;
+
+export const ResponseListSchema = z.array(
+  z.object({
+    id: z.uuidv7(),
+    slug: z.string(),
+    category: z.string(),
+  })
+);
+
+export const ModulesListResponseSchema = createPaginatedResponseSchema(ModuleSchema);
+
+export const BulkResponseSchema = z.object({
+  count: z.number(),
+});
+
+// ==========================================
+// TYPES INFERIDOS
+// ==========================================
+export type Modules = z.infer<typeof ModuleSchema>;
+export type GetModulesQuery = z.infer<typeof GetModulesQuerySchema>;
+export type GetListQueryType = z.infer<typeof GetListQuery>;
+export type CreateModules = z.infer<typeof CreateModuleBodySchema>;
+export type UpdateModules = z.infer<typeof UpdateModuleBodySchema>;
+export type ModulesListResponse = z.infer<typeof ModulesListResponseSchema>;
