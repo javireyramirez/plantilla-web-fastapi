@@ -58,13 +58,22 @@ const ACTIONS = [
 ] as const;
 
 const CATEGORY_ICONS: Record<string, React.ComponentType<any>> = {
+  briefcase: Briefcase,
+  'file-text': FileText,
+  file: FileText,
+  shield: Shield,
+  cpu: Cpu,
   business: Briefcase,
   files: FileText,
   security: Shield,
   system: Cpu,
 };
 
-const CATEGORY_ORDER = ['business', 'files', 'security', 'system'];
+function getCategoryIcon(iconName?: string | null, fallbackKey?: string): React.ComponentType<any> {
+  if (iconName && CATEGORY_ICONS[iconName]) return CATEGORY_ICONS[iconName];
+  if (fallbackKey && CATEGORY_ICONS[fallbackKey]) return CATEGORY_ICONS[fallbackKey];
+  return Cpu;
+}
 
 export function RolePermissionsMatrix({ roleId }: { roleId: string }) {
   const { t } = useTranslation();
@@ -94,25 +103,43 @@ export function RolePermissionsMatrix({ roleId }: { roleId: string }) {
     });
   }, [modules, searchQuery, t]);
 
-  // Group filtered modules by category
-  const groupedModules = React.useMemo(() => {
-    const groups: Record<string, typeof filteredModules> = {};
-    filteredModules.forEach((mod: any) => {
-      const cat = mod.category || 'system';
-      if (!groups[cat]) {
-        groups[cat] = [];
+  // Group filtered modules by category using backend metadata (name, order, icon)
+  const categoryGroups = React.useMemo(() => {
+    const map = new Map<
+      string,
+      {
+        code: string;
+        name: string;
+        iconName?: string | null;
+        order: number;
+        modules: any[];
       }
-      groups[cat].push(mod);
-    });
-    return groups;
-  }, [filteredModules]);
+    >();
 
-  const sortedCategories = React.useMemo(() => {
-    const categories = Object.keys(groupedModules);
-    return CATEGORY_ORDER.filter((c) => categories.includes(c)).concat(
-      categories.filter((c) => !CATEGORY_ORDER.includes(c))
-    );
-  }, [groupedModules]);
+    filteredModules.forEach((mod: any) => {
+      const catCode = mod.category || 'system';
+      if (!map.has(catCode)) {
+        map.set(catCode, {
+          code: catCode,
+          name:
+            mod.categoryName ||
+            mod.category_name ||
+            t(`modules.categories.${catCode}`, { defaultValue: catCode }),
+          iconName: mod.categoryIcon || mod.category_icon,
+          order: mod.categoryOrder ?? mod.category_order ?? 99,
+          modules: [],
+        });
+      }
+      map.get(catCode)!.modules.push(mod);
+    });
+
+    return Array.from(map.values()).sort((a, b) => a.order - b.order);
+  }, [filteredModules, t]);
+
+  const defaultAccordionValues = React.useMemo(
+    () => categoryGroups.map((c) => c.code),
+    [categoryGroups]
+  );
 
   if (isLoading) {
     return (
@@ -195,13 +222,13 @@ export function RolePermissionsMatrix({ roleId }: { roleId: string }) {
           </span>
         </div>
       ) : (
-        <Accordion type="multiple" defaultValue={sortedCategories} className="w-full">
-          {sortedCategories.map((category) => {
-            const categoryModules = groupedModules[category] || [];
-            const Icon = CATEGORY_ICONS[category] || Cpu;
+        <Accordion type="multiple" defaultValue={defaultAccordionValues} className="w-full">
+          {categoryGroups.map((catGroup) => {
+            const categoryModules = catGroup.modules;
+            const Icon = getCategoryIcon(catGroup.iconName, catGroup.code);
 
             return (
-              <AccordionItem key={category} value={category} className="border-b last:border-b-0">
+              <AccordionItem key={catGroup.code} value={catGroup.code} className="border-b last:border-b-0">
                 <AccordionTrigger className="px-4 hover:bg-muted/10 hover:no-underline transition-all">
                   <div className="flex items-center gap-2.5">
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -209,7 +236,7 @@ export function RolePermissionsMatrix({ roleId }: { roleId: string }) {
                     </div>
                     <div>
                       <span className="text-sm font-semibold text-foreground uppercase tracking-wider">
-                        {t(`modules.categories.${category}`)}
+                        {catGroup.name}
                       </span>
                       <span className="ml-2 text-xs text-muted-foreground font-normal">
                         ({categoryModules.length}{' '}

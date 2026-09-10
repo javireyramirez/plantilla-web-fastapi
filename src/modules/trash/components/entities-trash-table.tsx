@@ -26,13 +26,14 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { formatDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { getAuditModuleLabel, getEntityLink } from '@/modules/audit/model/audit.types';
-import { useModulesOptions } from '@/modules/modules/model/modules.query';
+import { useEntityTrashModulesOptions, useModules } from '@/modules/modules/model/modules.query';
 
 import { TrashBinItemS } from '../model/trash.schema';
 import useTrashTable from '../model/use-trash-table';
 
 export function EntitiesTrashTable() {
   const { t } = useTranslation();
+  const { modulesMap } = useModules();
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
   const [selectedRows, setSelectedRows] = React.useState<Row<TrashBinItemS>[]>([]);
 
@@ -103,14 +104,14 @@ export function EntitiesTrashTable() {
           const slug = row.getValue('moduleSlug') as string;
           return (
             <span className="text-foreground font-medium">
-              {getAuditModuleLabel(t, slug)}
+              {getAuditModuleLabel(t, slug, modulesMap)}
             </span>
           );
         },
         meta: {
           label: t('trash.table.module'),
           variant: 'asyncMultiSelect',
-          useGetList: useModulesOptions,
+          useGetList: useEntityTrashModulesOptions,
         },
       },
       {

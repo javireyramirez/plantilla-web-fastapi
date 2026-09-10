@@ -23,8 +23,7 @@ import {
 } from '@/modules/audit/model/audit.types';
 import useAuditTable from '@/modules/audit/model/use-audit-table';
 import { usersQueries } from '@/modules/users/model/users.query';
-import { GetUsersQuery } from '@/modules/users/model/users.schema';
-import { useModulesOptions } from '@/modules/modules/model/modules.query';
+import { useModules, useModulesOptions } from '@/modules/modules/model/modules.query';
 
 interface AuditTableProps {
   moduleSlug?: string;
@@ -59,6 +58,7 @@ function useUsersOptions(params: {
 
 export function AuditTable({ moduleSlug, entityId }: AuditTableProps) {
   const { t } = useTranslation();
+  const { modulesMap } = useModules();
 
   const columns = React.useMemo<ColumnDef<AuditLogType>[]>(
     () => [
@@ -119,7 +119,7 @@ export function AuditTable({ moduleSlug, entityId }: AuditTableProps) {
           const slug = row.getValue('moduleSlug') as string;
           return (
             <span className="text-foreground font-medium">
-              {getAuditModuleLabel(t, slug)}
+              {getAuditModuleLabel(t, slug, modulesMap)}
             </span>
           );
         },

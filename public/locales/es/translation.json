@@ -12,6 +12,31 @@
     "cancel": "Cancelar",
     "save": "Guardar"
   },
+  "modules": {
+    "categories": {
+      "business": "Negocio",
+      "files": "Archivos",
+      "security": "Seguridad",
+      "system": "Sistema"
+    },
+    "names": {
+      "audit": "Auditoría",
+      "companies": "Compañías",
+      "company": "Compañías",
+      "documents": "Documentos",
+      "document": "Documentos",
+      "rbac": "Roles y Permisos",
+      "roles": "Roles",
+      "role": "Roles",
+      "storage": "Almacenamiento",
+      "teams": "Equipos",
+      "team": "Equipos",
+      "trash": "Papelera",
+      "users": "Usuarios",
+      "user": "Usuarios",
+      "auth": "Autenticación"
+    }
+  },
   "auth": {
     "orContinueWith": "O continúa con",
     "signInWithGoogle": "Iniciar sesión con Google",

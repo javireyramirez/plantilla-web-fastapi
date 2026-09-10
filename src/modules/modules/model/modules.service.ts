@@ -38,6 +38,10 @@ class ModulesService extends CrudService<
       ...m,
       code: m.code || m.slug,
       slug: m.slug || m.code,
+      isTrasheable: m.is_trasheable ?? m.isTrasheable ?? false,
+      categoryName: m.category_name ?? m.categoryName ?? null,
+      categoryIcon: m.category_icon ?? m.categoryIcon ?? null,
+      categoryOrder: m.category_order ?? m.categoryOrder ?? 0,
     }));
   };
 
@@ -48,6 +52,10 @@ class ModulesService extends CrudService<
         ...m,
         code: m.code || m.slug,
         slug: m.slug || m.code,
+        isTrasheable: m.is_trasheable ?? m.isTrasheable ?? false,
+        categoryName: m.category_name ?? m.categoryName ?? null,
+        categoryIcon: m.category_icon ?? m.categoryIcon ?? null,
+        categoryOrder: m.category_order ?? m.categoryOrder ?? 0,
       }));
       return {
         data: items,
@@ -66,6 +74,10 @@ class ModulesService extends CrudService<
           ...m,
           code: m.code || m.slug,
           slug: m.slug || m.code,
+          isTrasheable: m.is_trasheable ?? m.isTrasheable ?? false,
+          categoryName: m.category_name ?? m.categoryName ?? null,
+          categoryIcon: m.category_icon ?? m.categoryIcon ?? null,
+          categoryOrder: m.category_order ?? m.categoryOrder ?? 0,
         })),
       };
     }

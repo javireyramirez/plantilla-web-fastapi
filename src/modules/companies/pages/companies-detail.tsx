@@ -203,31 +203,6 @@ export default function CompanyDetail() {
             {isEditing ? (
               <div className="flex flex-wrap items-center gap-2">
                 <span className="truncate text-primary">{companyName}</span>
-                {data?.sector && (() => {
-                  const s = SECTOR_OPTIONS.find((opt) => opt.value === data.sector?.toLowerCase());
-                  return (
-                    <Badge variant="secondary" className="font-normal text-xs">
-                      {s ? t(`companies.sectors.${s.value}`) : data.sector}
-                    </Badge>
-                  );
-                })()}
-                {isTrashed ? (
-                  <Badge variant="destructive" className="gap-1 text-xs font-normal">
-                    <Trash2 className="h-3 w-3" />
-                    {t('trash.table.expired') || 'Eliminado'}
-                  </Badge>
-                ) : data?.status ? (
-                  <Badge
-                    variant={data.status === 'ACTIVE' ? 'outline' : 'secondary'}
-                    className={
-                      data.status === 'ACTIVE'
-                        ? 'border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 text-xs font-normal'
-                        : 'text-xs font-normal'
-                    }
-                  >
-                    {data.status}
-                  </Badge>
-                ) : null}
               </div>
             ) : (
               t('companies.createTitle')

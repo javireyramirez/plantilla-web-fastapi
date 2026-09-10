@@ -16,9 +16,13 @@ export const ModuleSchema = z
     name: z.string().min(1),
     slug: z.string().min(1),
     category: z.string().min(1),
+    categoryName: z.string().optional().nullable(),
+    categoryIcon: z.string().optional().nullable(),
+    categoryOrder: z.number().optional().default(0),
     description: z.string().optional().nullable(),
     icon: z.string().optional().nullable(),
     isActive: z.boolean().default(true),
+    isTrasheable: z.boolean().default(false),
     sortOrder: z.number().default(0),
     defaultPermissions: z.any().optional().nullable(),
   })

@@ -22,6 +22,7 @@ import { cn } from '@/lib/utils';
 export interface EntityOption {
   id: string;
   name: string;
+  group?: string;
 }
 
 interface UseGetListParams {
@@ -135,6 +136,26 @@ export function Selector({
     () => (excludeIds?.length ? entities.filter((e) => !excludeIds.includes(e.id)) : entities),
     [entities, excludeIds]
   );
+
+  const hasGroups = React.useMemo(
+    () => filtered.some((entity) => Boolean(entity.group)),
+    [filtered]
+  );
+
+  const groupedEntities = React.useMemo(() => {
+    if (!hasGroups) return null;
+    const map = new Map<string | undefined, EntityOption[]>();
+    for (const entity of filtered) {
+      const g = entity.group;
+      const list = map.get(g);
+      if (list) {
+        list.push(entity);
+      } else {
+        map.set(g, [entity]);
+      }
+    }
+    return Array.from(map.entries());
+  }, [filtered, hasGroups]);
 
   // The "active" value for rendering check marks: pending when applyButton, real otherwise
   const activeValue = multiple && applyButton ? pendingValue : value;
@@ -266,23 +287,45 @@ export function Selector({
             ) : (
               <>
                 <CommandEmpty>{_emptyMessage}</CommandEmpty>
-                <CommandGroup>
-                  {filtered.map((entity) => (
-                    <CommandItem
-                      key={entity.id}
-                      value={entity.id}
-                      onSelect={() => handleSelect(entity)}
-                    >
-                      <Check
-                        className={cn(
-                          'mr-2 h-4 w-4',
-                          isSelected(entity.id, activeValue) ? 'opacity-100' : 'opacity-0'
-                        )}
-                      />
-                      {entity.name}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
+                {hasGroups ? (
+                  groupedEntities?.map(([groupName, groupItems]) => (
+                    <CommandGroup key={groupName ?? 'other'} heading={groupName}>
+                      {groupItems.map((entity) => (
+                        <CommandItem
+                          key={entity.id}
+                          value={entity.id}
+                          onSelect={() => handleSelect(entity)}
+                        >
+                          <Check
+                            className={cn(
+                              'mr-2 h-4 w-4',
+                              isSelected(entity.id, activeValue) ? 'opacity-100' : 'opacity-0'
+                            )}
+                          />
+                          {entity.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  ))
+                ) : (
+                  <CommandGroup>
+                    {filtered.map((entity) => (
+                      <CommandItem
+                        key={entity.id}
+                        value={entity.id}
+                        onSelect={() => handleSelect(entity)}
+                      >
+                        <Check
+                          className={cn(
+                            'mr-2 h-4 w-4',
+                            isSelected(entity.id, activeValue) ? 'opacity-100' : 'opacity-0'
+                          )}
+                        />
+                        {entity.name}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                )}
                 {total > 20 && (
                   <p className="px-3 py-2 text-center text-xs text-muted-foreground">
                     {total - 20} {_refineMessage}

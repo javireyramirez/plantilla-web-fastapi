@@ -15,14 +15,14 @@ class TrashService {
     if (params?.category) {
       apiParams.category = params.category;
     }
-    if (params?.moduleSlug) {
+    if (params?.category === 'documents') {
+      apiParams.entity_type = 'document';
+    } else if (params?.moduleSlug) {
       apiParams.entity_type = Array.isArray(params.moduleSlug)
         ? params.moduleSlug.join(',')
         : params.moduleSlug;
     } else if (params?.moduleId) {
       apiParams.entity_type = params.moduleId;
-    } else if (params?.category === 'documents') {
-      apiParams.entity_type = 'document';
     }
 
     const response = await instance.get<any>(`/trash`, { params: apiParams });
@@ -49,6 +49,7 @@ class TrashService {
       ownerId: item.owner_id ?? item.ownerId ?? null,
       createdBy: item.created_by ?? item.createdBy ?? null,
       metadata: item.data_backup ?? item.metadata ?? null,
+      modulePrincipalEntity: item.module_principal_entity ?? null,
     }));
 
     return {

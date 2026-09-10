@@ -27,12 +27,14 @@ import { useDownloadUrl } from '@/features/storage/model/use-storage';
 import { formatDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { getAuditModuleLabel, getEntityLink } from '@/modules/audit/model/audit.types';
+import { useModules } from '@/modules/modules/model/modules.query';
 
 import { TrashBinItemS } from '../model/trash.schema';
 import useTrashTable from '../model/use-trash-table';
 
 export function DocumentsTrashTable() {
   const { t } = useTranslation();
+  const { modulesMap } = useModules();
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
   const [selectedRows, setSelectedRows] = React.useState<Row<TrashBinItemS>[]>([]);
 
@@ -99,44 +101,24 @@ export function DocumentsTrashTable() {
         },
       },
       {
-        accessorKey: 'moduleSlug',
-        enableColumnFilter: true,
-        enableSorting: true,
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} label={t('trash.table.module')} />
-        ),
-        cell: ({ row }) => {
-          const slug = row.getValue('moduleSlug') as string;
-          return (
-            <span className="text-foreground font-medium">
-              {getAuditModuleLabel(t, slug || 'documents')}
-            </span>
-          );
-        },
-        meta: {
-          label: t('trash.table.module'),
-          variant: 'multiSelect',
-          options: [
-            {
-              value: 'documents',
-              label: t('modules.names.documents', { defaultValue: 'Documentos' }),
-            },
-          ],
-        },
-      },
-      {
         id: 'parentModule',
         header: ({ column }) => (
           <DataTableColumnHeader column={column} label={t('trash.table.parentModule')} />
         ),
         cell: ({ row }) => {
+          const mod = row.original.modulePrincipalEntity;
+          if (mod) {
+            return (
+              <span className="text-foreground font-medium">
+                {mod.name || getAuditModuleLabel(t, mod.code, modulesMap)}
+              </span>
+            );
+          }
           const type = row.original.metadata?.entityType || row.original.metadata?.parentType;
           if (!type) return '-';
-          const translationKey = `modules.names.${type}`;
-          const translated = t(translationKey);
           return (
-            <span className="text-foreground font-medium capitalize">
-              {translated !== translationKey ? translated : type}
+            <span className="text-foreground font-medium">
+              {getAuditModuleLabel(t, type, modulesMap)}
             </span>
           );
         },
@@ -147,13 +129,34 @@ export function DocumentsTrashTable() {
           <DataTableColumnHeader column={column} label={t('trash.table.parentEntity')} />
         ),
         cell: ({ row }) => {
+          const mod = row.original.modulePrincipalEntity;
+          if (mod) {
+            const name = mod.entity_name || mod.entity_id || '-';
+            const link = getEntityLink(mod.code, mod.entity_id);
+
+            if (link && name !== '-') {
+              return (
+                <Link
+                  to={link}
+                  className="font-medium text-blue-500 hover:text-blue-700 hover:underline block truncate max-w-[200px]"
+                >
+                  {name}
+                </Link>
+              );
+            }
+
+            return (
+              <span className="font-medium text-foreground block truncate max-w-[200px]">{name}</span>
+            );
+          }
+
           const metadata = row.original.metadata;
           const type = metadata?.entityType || metadata?.parentType;
           const id = metadata?.entityId || metadata?.parentId;
           const name = metadata?.entityName || metadata?.parentName || id || '-';
           const link = getEntityLink(type, id);
 
-          if (link) {
+          if (link && name !== '-') {
             return (
               <Link
                 to={link}
@@ -302,7 +305,7 @@ export function DocumentsTrashTable() {
         totalCount={totalRows}
         mobileConfig={{
           primaryColumn: 'displayName',
-          stackedColumns: ['moduleSlug', 'deletedAt'],
+          stackedColumns: ['parentModule', 'deletedAt'],
         }}
         actionBar={
           <DataTableFloatingBar

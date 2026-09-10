@@ -44,6 +44,15 @@ export const TrashBinItemSchema = z.object({
   ownerId: z.string().nullable(),
   createdBy: z.string().nullable(),
   metadata: z.any().nullable().optional(),
+  modulePrincipalEntity: z
+    .object({
+      code: z.string(),
+      name: z.string(),
+      entity_name: z.string().nullable().optional(),
+      entity_id: z.string().nullable().optional(),
+    })
+    .nullable()
+    .optional(),
 });
 
 export const TrashListResponseSchema = createPaginatedResponseSchema(TrashBinItemSchema);

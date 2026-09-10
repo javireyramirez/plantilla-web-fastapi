@@ -15,11 +15,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuditDetail } from '../model/use-audit-detail';
 import { getAuditActionLabel, getAuditModuleLabel, getEntityLink } from '../model/audit.types';
+import { useModules } from '@/modules/modules/model/modules.query';
 
 export default function AuditDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { modulesMap } = useModules();
   const { auditLog, isLoading } = useAuditDetail(id);
 
   if (isLoading) {
@@ -181,7 +183,7 @@ export default function AuditDetail() {
                 {t('audit.module')}
               </span>
               <span className="text-foreground font-medium">
-                {getAuditModuleLabel(t, auditLog.moduleSlug)}
+                {getAuditModuleLabel(t, auditLog.moduleSlug, modulesMap)}
               </span>
             </div>
 
