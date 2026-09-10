@@ -34,6 +34,12 @@ export const permissionActionSchema = z.enum(PermissionAction);
 // BASE SCHEMAS
 // ==========================================
 
+export const RolePermissionItemSchema = z.object({
+  module_code: z.string(),
+  action: permissionActionSchema,
+  scope: permissionScopeSchema.default('OWN'),
+});
+
 export const RoleSchema = z.object({
   id: z.uuidv7(),
   name: z.string().min(1),
@@ -43,6 +49,7 @@ export const RoleSchema = z.object({
   icon: z.string().optional().nullable(),
   color: z.string().optional().nullable(),
   status: recordStatusSchema,
+  permissions: z.array(RolePermissionItemSchema).optional().default([]),
   // Auditoría
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -55,14 +62,15 @@ export const RoleSchema = z.object({
 });
 
 export const RolePermissionSchema = z.object({
-  id: z.uuidv7(),
-  roleId: z.uuidv7(),
-  moduleId: z.uuidv7(),
+  id: z.string().optional(),
+  roleId: z.string().optional(),
+  moduleId: z.string().optional(),
+  module_code: z.string().optional(),
   action: permissionActionSchema,
   scope: permissionScopeSchema.default('OWN'),
-  grantedAt: z.date(),
+  grantedAt: z.date().optional(),
   grantedBy: z.string().optional().nullable(),
-  updatedAt: z.date(),
+  updatedAt: z.date().optional(),
   updatedBy: z.string().optional().nullable(),
 });
 
@@ -176,6 +184,7 @@ export const CreateRoleBodySchema = RoleSchema.omit({
   deletedBy: true,
   restoreBy: true,
   updatedBy: true,
+  permissions: true,
 });
 
 export const UpdateRoleBodySchema = CreateRoleBodySchema.partial();
@@ -297,6 +306,7 @@ export type CreatePermissionBody = z.infer<typeof CreatePermissionBodySchema>;
 export type BulkCreatePermissionBody = z.infer<typeof BulkCreatePermissionBodySchema>;
 export type BulkUpdatePermissionBody = z.infer<typeof BulkUpdatePermissionBodySchema>;
 export type RolePermission = z.infer<typeof RolePermissionResponseSchema>;
+export type RolePermissionItem = z.infer<typeof RolePermissionItemSchema>;
 export type PermissionScopeParams = z.infer<typeof PermissionScopeParamsSchema>;
 export type PermissionScopeType = z.infer<typeof permissionScopeSchema>;
 

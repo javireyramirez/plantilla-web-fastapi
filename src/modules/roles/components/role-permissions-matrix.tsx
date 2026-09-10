@@ -81,16 +81,16 @@ export function RolePermissionsMatrix({ roleId }: { roleId: string }) {
     isMutating,
   } = useRolePermissionsMatrix(roleId);
 
-  // Filter modules by search query (translated name or slug)
+  // Filter modules by search query (translated name or slug/code)
   const filteredModules = React.useMemo(() => {
     if (!searchQuery.trim()) return modules;
     const query = searchQuery.toLowerCase().trim();
     return modules.filter((mod: any) => {
-      const moduleName = t(`modules.names.${mod.slug}`, {
+      const code = mod.code || mod.slug || '';
+      const moduleName = t(`modules.names.${code}`, {
         defaultValue: mod.name || '',
       }).toLowerCase();
-      const slug = mod.slug.toLowerCase();
-      return moduleName.includes(query) || slug.includes(query);
+      return moduleName.includes(query) || code.toLowerCase().includes(query);
     });
   }, [modules, searchQuery, t]);
 
@@ -241,12 +241,13 @@ export function RolePermissionsMatrix({ roleId }: { roleId: string }) {
                       </TableHeader>
                       <TableBody>
                         {categoryModules.map((mod: any) => {
-                          const moduleName = t(`modules.names.${mod.slug}`, {
+                          const moduleCode = mod.code || mod.slug;
+                          const moduleName = t(`modules.names.${moduleCode}`, {
                             defaultValue: mod.name || t('roles.permissions.unknownModule'),
                           });
 
                           return (
-                            <TableRow key={mod.id} className="hover:bg-muted/20 transition-colors">
+                            <TableRow key={mod.id || moduleCode} className="hover:bg-muted/20 transition-colors">
                               <TableCell className="font-medium min-w-[200px]">
                                 <div className="flex flex-col">
                                   <span className="text-sm font-semibold text-foreground">
@@ -256,7 +257,7 @@ export function RolePermissionsMatrix({ roleId }: { roleId: string }) {
                               </TableCell>
 
                               {ACTIONS.map((action) => {
-                                const currentValue = getEffectiveScope(mod.id, action);
+                                const currentValue = getEffectiveScope(moduleCode, action);
 
                                 return (
                                   <TableCell key={action} className="p-2 text-center">
@@ -265,7 +266,7 @@ export function RolePermissionsMatrix({ roleId }: { roleId: string }) {
                                       value={currentValue}
                                       onValueChange={(val) =>
                                         setPendingScope(
-                                          mod.id,
+                                          moduleCode,
                                           action,
                                           val as PermissionScopeType | 'NONE'
                                         )

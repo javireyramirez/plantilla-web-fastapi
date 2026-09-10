@@ -104,6 +104,48 @@ export function DataTableFacetedFilter<TData, TValue>({
     [column]
   );
 
+  const hasGroups = React.useMemo(
+    () => options.some((option) => Boolean(option.group)),
+    [options]
+  );
+
+  const groupedOptions = React.useMemo(() => {
+    if (!hasGroups) return null;
+    const map = new Map<string | undefined, Option[]>();
+    for (const option of options) {
+      const g = option.group;
+      const list = map.get(g);
+      if (list) {
+        list.push(option);
+      } else {
+        map.set(g, [option]);
+      }
+    }
+    return Array.from(map.entries());
+  }, [options, hasGroups]);
+
+  const renderOptionItem = (option: Option) => {
+    const isSelected = activeValues.has(option.value);
+
+    return (
+      <CommandItem key={option.value} onSelect={() => onItemSelect(option, isSelected)}>
+        <div
+          className={cn(
+            'flex size-4 items-center justify-center rounded-sm border border-primary',
+            isSelected ? 'bg-primary' : 'opacity-50 [&_svg]:invisible'
+          )}
+        >
+          <Check />
+        </div>
+        {option.icon && <option.icon />}
+        <span className="truncate">{option.label}</span>
+        {option.count && (
+          <span className="ml-auto font-mono text-xs">{option.count}</span>
+        )}
+      </CommandItem>
+    );
+  };
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -158,34 +200,22 @@ export function DataTableFacetedFilter<TData, TValue>({
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-50 p-0" align="start">
+      <PopoverContent className="w-56 p-0" align="start">
         <Command>
           <CommandInput placeholder={title ?? i18n.facetedFilter.searchPlaceholder} />
-          <CommandList className="max-h-full">
+          <CommandList className="max-h-[300px] scroll-py-1 overflow-y-auto overflow-x-hidden">
             <CommandEmpty>{i18n.facetedFilter.emptyMessage}</CommandEmpty>
-            <CommandGroup className="max-h-[300px] scroll-py-1 overflow-y-auto overflow-x-hidden">
-              {options.map((option) => {
-                const isSelected = activeValues.has(option.value);
-
-                return (
-                  <CommandItem key={option.value} onSelect={() => onItemSelect(option, isSelected)}>
-                    <div
-                      className={cn(
-                        'flex size-4 items-center justify-center rounded-sm border border-primary',
-                        isSelected ? 'bg-primary' : 'opacity-50 [&_svg]:invisible'
-                      )}
-                    >
-                      <Check />
-                    </div>
-                    {option.icon && <option.icon />}
-                    <span className="truncate">{option.label}</span>
-                    {option.count && (
-                      <span className="ml-auto font-mono text-xs">{option.count}</span>
-                    )}
-                  </CommandItem>
-                );
-              })}
-            </CommandGroup>
+            {groupedOptions ? (
+              groupedOptions.map(([groupName, groupOpts], idx) => (
+                <CommandGroup key={groupName ?? `group-${idx}`} heading={groupName}>
+                  {groupOpts.map(renderOptionItem)}
+                </CommandGroup>
+              ))
+            ) : (
+              <CommandGroup>
+                {options.map(renderOptionItem)}
+              </CommandGroup>
+            )}
             {selectedValues.size > 0 && (
               <>
                 <CommandSeparator />

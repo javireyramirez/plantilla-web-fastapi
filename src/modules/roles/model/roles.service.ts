@@ -16,6 +16,7 @@ import {
   RoleListResponse,
   // Si necesitas tiparlo explícitamente
   RolePermission,
+  RolePermissionItem,
   RolePermissionsListResponseSchema,
   RoleResponse,
   UpdateRole,
@@ -80,7 +81,12 @@ class RolesService extends CrudService<
    */
   async getPermissions(roleId: string, _params?: GetPermissionsQuery) {
     const response = await instance.get<any>(`/rbac/roles/${roleId}`);
-    const permissions = response.data?.permissions ?? [];
+    const rawPermissions = response.data?.permissions ?? [];
+    const permissions = rawPermissions.map((p: any) => ({
+      ...p,
+      module_code: p.module_code || p.moduleCode || p.module?.code,
+      moduleId: p.moduleId || p.module_code || p.moduleCode || p.module?.code,
+    }));
     return {
       data: permissions as RolePermission[],
       meta: {
@@ -95,9 +101,14 @@ class RolesService extends CrudService<
   /**
    * Reemplaza todos los permisos de un rol en FastAPI (/rbac/roles/{roleId}/permissions)
    */
-  async setPermissions(roleId: string, permissions: any[]) {
+  async setPermissions(roleId: string, permissions: RolePermissionItem[] | any[]) {
+    const payload = permissions.map((p: any) => ({
+      module_code: p.module_code || p.moduleCode || p.module?.code || p.moduleId,
+      action: p.action,
+      scope: p.scope,
+    }));
     const response = await instance.put<any>(`/rbac/roles/${roleId}/permissions`, {
-      permissions,
+      permissions: payload,
     });
     return response.data;
   }
@@ -112,14 +123,14 @@ class RolesService extends CrudService<
   async addPermission(roleId: string, data: CreatePermissionBody) {
     const current = await this.getPermissions(roleId);
     const existing = current.data || [];
+    const moduleCode = (data as any).moduleCode || (data as any).module_code || (data as any).moduleId;
     const updated = [
-      ...existing.map((p) => ({
-        module_code: (p as any).module_code || (p as any).module?.code,
-        action: p.action,
-        scope: p.scope,
-      })),
+      ...existing.filter(
+        (p: any) =>
+          !((p.module_code || p.moduleId) === moduleCode && p.action === data.action)
+      ),
       {
-        module_code: (data as any).moduleCode || (data as any).module_code,
+        module_code: moduleCode,
         action: data.action,
         scope: data.scope,
       },
@@ -133,13 +144,11 @@ class RolesService extends CrudService<
   async revokePermission(roleId: string, permissionId: string) {
     const current = await this.getPermissions(roleId);
     const existing = current.data || [];
-    const updated = existing
-      .filter((p: any) => p.id !== permissionId)
-      .map((p: any) => ({
-        module_code: p.module_code || p.module?.code,
-        action: p.action,
-        scope: p.scope,
-      }));
+    const updated = existing.filter((p: any) => {
+      if (p.id && p.id === permissionId) return false;
+      const key = `${p.module_code || p.moduleId}::${p.action}`;
+      return key !== permissionId && p.module_code !== permissionId;
+    });
     return await this.setPermissions(roleId, updated);
   }
 
@@ -149,16 +158,19 @@ class RolesService extends CrudService<
   async updatePermissionScope(roleId: string, permissionId: string, data: CreatePermissionBody) {
     const current = await this.getPermissions(roleId);
     const existing = current.data || [];
+    const targetCode = (data as any).moduleCode || (data as any).module_code || (data as any).moduleId;
     const updated = existing.map((p: any) => {
-      if (p.id === permissionId) {
+      const code = p.module_code || p.moduleId;
+      const key = `${code}::${p.action}`;
+      if (p.id === permissionId || key === permissionId || (code === targetCode && p.action === data.action)) {
         return {
-          module_code: p.module_code || (data as any).moduleCode || (data as any).module_code,
+          module_code: targetCode || code,
           action: data.action || p.action,
           scope: data.scope,
         };
       }
       return {
-        module_code: p.module_code || p.module?.code,
+        module_code: code,
         action: p.action,
         scope: p.scope,
       };

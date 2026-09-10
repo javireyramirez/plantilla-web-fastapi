@@ -43,6 +43,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DocumentsTable, FileUploadButton } from '@/features/storage';
 import { AuditTable } from '@/modules/audit/components/audit-table';
@@ -50,6 +51,7 @@ import { companiesQueries } from '@/modules/companies/model/companies.query';
 import { useCompanyForm } from '@/modules/companies/model/use-companies-detail';
 
 import { CompaniesDetailForm } from '../components/companies-form';
+import { SECTOR_OPTIONS } from '../model/companies.types';
 
 export default function CompanyDetail() {
   const { t } = useTranslation();
@@ -199,9 +201,34 @@ export default function CompanyDetail() {
           <h1 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <Building2 className="h-5 w-5 text-muted-foreground flex-shrink-0" />
             {isEditing ? (
-              <span className="truncate">
-                <span className="text-primary">{companyName}</span>
-              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="truncate text-primary">{companyName}</span>
+                {data?.sector && (() => {
+                  const s = SECTOR_OPTIONS.find((opt) => opt.value === data.sector?.toLowerCase());
+                  return (
+                    <Badge variant="secondary" className="font-normal text-xs">
+                      {s ? t(`companies.sectors.${s.value}`) : data.sector}
+                    </Badge>
+                  );
+                })()}
+                {isTrashed ? (
+                  <Badge variant="destructive" className="gap-1 text-xs font-normal">
+                    <Trash2 className="h-3 w-3" />
+                    {t('trash.table.expired') || 'Eliminado'}
+                  </Badge>
+                ) : data?.status ? (
+                  <Badge
+                    variant={data.status === 'ACTIVE' ? 'outline' : 'secondary'}
+                    className={
+                      data.status === 'ACTIVE'
+                        ? 'border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 text-xs font-normal'
+                        : 'text-xs font-normal'
+                    }
+                  >
+                    {data.status}
+                  </Badge>
+                ) : null}
+              </div>
             ) : (
               t('companies.createTitle')
             )}
@@ -396,7 +423,7 @@ export default function CompanyDetail() {
         <TabsContent value="detail" className="outline-none">
           <div className={isTrashed ? 'pointer-events-none select-none opacity-70' : ''}>
             <FormProvider {...form}>
-              <CompaniesDetailForm isEditing={isEditing} />
+              <CompaniesDetailForm isEditing={isEditing} company={data} />
             </FormProvider>
           </div>
         </TabsContent>

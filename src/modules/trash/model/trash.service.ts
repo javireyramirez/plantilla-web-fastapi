@@ -12,8 +12,18 @@ class TrashService {
     if (params?.deletedAtFrom) apiParams.deleted_at_from = params.deletedAtFrom;
     if (params?.deletedAtTo) apiParams.deleted_at_to = params.deletedAtTo;
     if (params?.expiresAtFrom) apiParams.expires_at_from = params.expiresAtFrom;
-    if (params?.expiresAtTo) apiParams.expires_at_to = params.expiresAtTo;
-    if (params?.moduleId) apiParams.entity_type = params.moduleId;
+    if (params?.category) {
+      apiParams.category = params.category;
+    }
+    if (params?.moduleSlug) {
+      apiParams.entity_type = Array.isArray(params.moduleSlug)
+        ? params.moduleSlug.join(',')
+        : params.moduleSlug;
+    } else if (params?.moduleId) {
+      apiParams.entity_type = params.moduleId;
+    } else if (params?.category === 'documents') {
+      apiParams.entity_type = 'document';
+    }
 
     const response = await instance.get<any>(`/trash`, { params: apiParams });
     const raw = response.data;

@@ -1,4 +1,3 @@
-// @/modules/roles/model/use-role-permissions-matrix.ts
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
@@ -7,37 +6,39 @@ import * as React from 'react';
 import { modulesQueries } from '@/modules/modules/model/modules.query';
 
 import { rolesQueries } from './roles.query';
-import { PermissionScopeType } from './roles.schema';
+import { PermissionScopeType, RolePermissionItem } from './roles.schema';
 
 export function useRolePermissionsMatrix(roleId: string) {
   const { t } = useTranslation();
 
-  // 1. Cargamos todos los módulos utilizando tu método genérico optimizado de listas (Retorna array plano)
+  // 1. Cargamos todos los módulos
   const { data: modules = [], isLoading: isLoadingModules } = modulesQueries.useGetList();
 
-  // 2. Cargamos los permisos actuales asignados solucionando el error de tipado de TypeScript
+  // 2. Cargamos los permisos actuales asignados al rol desde FastAPI
   const { data: permissionsData, isLoading: isLoadingPermissions } = rolesQueries.useGetPermissions(
     roleId,
     {
       page: 1,
-      limit: 1000, // Traemos todos para evitar cortes en la matriz
+      limit: 1000,
       sortBy: 'grantedAt',
       sortOrder: 'desc',
     }
   );
   const currentPermissions = permissionsData?.data ?? [];
 
-  // 3. Mutaciones de la API
-  const addPermissionMutation = rolesQueries.useAddPermission(roleId);
-  const revokePermissionMutation = rolesQueries.useRevokePermission(roleId);
-  const updateScopeMutation = rolesQueries.useUpdatePermissionScope(roleId, '');
+  // 3. Mutación atómica para reemplazar todos los permisos
+  const setPermissionsMutation = rolesQueries.useSetPermissions(roleId);
 
   const isLoading = isLoadingModules || isLoadingPermissions;
 
-  // Helper para buscar si existe un permiso asignado comparando el moduleId
+  // Helper para buscar si existe un permiso asignado comparando el module_code
   const getPermissionCell = React.useCallback(
-    (moduleId: string, action: string) => {
-      return currentPermissions.find((p) => p.moduleId === moduleId && p.action === action);
+    (moduleCode: string, action: string) => {
+      return currentPermissions.find(
+        (p: any) =>
+          ((p.module_code || p.moduleId || p.moduleCode) === moduleCode) &&
+          p.action === action
+      );
     },
     [currentPermissions]
   );
@@ -46,24 +47,23 @@ export function useRolePermissionsMatrix(roleId: string) {
   const [pendingEdits, setPendingEdits] = React.useState<Record<string, PermissionScopeType | 'NONE'>>({});
   const [isSaving, setIsSaving] = React.useState(false);
 
-
   const getEffectiveScope = React.useCallback(
-    (moduleId: string, action: string) => {
-      const key = `${moduleId}::${action}`;
+    (moduleCode: string, action: string) => {
+      const key = `${moduleCode}::${action}`;
       if (key in pendingEdits) {
         return pendingEdits[key];
       }
-      const existing = getPermissionCell(moduleId, action);
-      return existing ? existing.scope : 'NONE';
+      const existing = getPermissionCell(moduleCode, action);
+      return existing ? (existing.scope as PermissionScopeType) : 'NONE';
     },
     [pendingEdits, getPermissionCell]
   );
 
   const setPendingScope = React.useCallback(
-    (moduleId: string, action: string, newScope: PermissionScopeType | 'NONE') => {
-      const key = `${moduleId}::${action}`;
-      const existing = getPermissionCell(moduleId, action);
-      const originalScope = existing ? existing.scope : 'NONE';
+    (moduleCode: string, action: string, newScope: PermissionScopeType | 'NONE') => {
+      const key = `${moduleCode}::${action}`;
+      const existing = getPermissionCell(moduleCode, action);
+      const originalScope = existing ? (existing.scope as PermissionScopeType) : 'NONE';
 
       setPendingEdits((prev) => {
         const next = { ...prev };
@@ -85,36 +85,35 @@ export function useRolePermissionsMatrix(roleId: string) {
   const handleSave = React.useCallback(async () => {
     setIsSaving(true);
     try {
-      const keys = Object.keys(pendingEdits);
-      
-      // Perform all mutations in parallel
-      const promises = keys.map(async (key) => {
-        const [moduleId, action] = key.split('::');
-        const newScope = pendingEdits[key];
-        const existingPermission = getPermissionCell(moduleId, action);
+      const permMap = new Map<string, PermissionScopeType>();
 
-        if (newScope === 'NONE') {
-          if (existingPermission) {
-            await revokePermissionMutation.mutateAsync(existingPermission.id);
-          }
-        } else if (!existingPermission) {
-          await addPermissionMutation.mutateAsync({
-            moduleId,
-            action,
-            scope: newScope,
-          });
-        } else if (existingPermission.scope !== newScope) {
-          await updateScopeMutation.mutateAsync({
-            ...existingPermission,
-            id: existingPermission.id,
-            scope: newScope,
-            moduleId,
-            action,
-          } as any);
+      for (const p of currentPermissions) {
+        const code = (p as any).module_code || (p as any).moduleId || (p as any).moduleCode;
+        if (code && p.action && p.scope) {
+          permMap.set(`${code}::${p.action}`, p.scope as PermissionScopeType);
         }
-      });
+      }
 
-      await Promise.all(promises);
+      for (const [key, newScope] of Object.entries(pendingEdits)) {
+        if (newScope === 'NONE') {
+          permMap.delete(key);
+        } else {
+          permMap.set(key, newScope);
+        }
+      }
+
+      const updatedPermissions: RolePermissionItem[] = Array.from(permMap.entries()).map(
+        ([key, scope]) => {
+          const [module_code, action] = key.split('::');
+          return {
+            module_code,
+            action: action as any,
+            scope,
+          };
+        }
+      );
+
+      await setPermissionsMutation.mutateAsync(updatedPermissions);
       setPendingEdits({});
       toast.success(t('roles.permissions.savedAll', { defaultValue: 'Matriz de permisos guardada correctamente' }));
     } catch (error) {
@@ -122,7 +121,7 @@ export function useRolePermissionsMatrix(roleId: string) {
     } finally {
       setIsSaving(false);
     }
-  }, [pendingEdits, getPermissionCell, addPermissionMutation, revokePermissionMutation, updateScopeMutation, t]);
+  }, [currentPermissions, pendingEdits, setPermissionsMutation, t]);
 
   return {
     modules,
@@ -133,10 +132,6 @@ export function useRolePermissionsMatrix(roleId: string) {
     handleCancel,
     hasChanges: Object.keys(pendingEdits).length > 0,
     isSaving,
-    isMutating:
-      addPermissionMutation.isPending ||
-      revokePermissionMutation.isPending ||
-      updateScopeMutation.isPending ||
-      isSaving,
+    isMutating: setPermissionsMutation.isPending || isSaving,
   };
 }

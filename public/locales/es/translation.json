@@ -126,6 +126,20 @@
     "pendingDefine": "Sección pendiente de definir.",
     "metricsSummary": "Métricas / Resumen",
     "entityStats": "Datos estadísticos de la entidad.",
+    "auditInfo": "Auditoría y Registro",
+    "auditInfoDesc": "Historial de registro y trazabilidad del sistema.",
+    "systemInfo": "Estado y Gobernanza",
+    "systemInfoDesc": "Información de estado y asignación.",
+    "createdAt": "Fecha de creación",
+    "createdBy": "Creado por",
+    "updatedAt": "Última modificación",
+    "updatedBy": "Modificado por",
+    "version": "Versión",
+    "owner": "Propietario",
+    "status": "Estado",
+    "identifier": "Identificador (ID)",
+    "noAuditData": "Los datos de auditoría se generarán automáticamente al crear la compañía.",
+    "newCompanyNotice": "Asigna los datos básicos para iniciar el ciclo de vida de la entidad.",
     "deleteConfirmTitle": "¿Eliminar esta compañía?",
     "deleteConfirmDesc": "Esta acción no se puede deshacer. La compañía será eliminada permanentemente del sistema.",
     "cancel": "Cancelar",
@@ -582,12 +596,23 @@
     "back": "Volver",
     "notFoundTitle": "Registro no encontrado",
     "notFoundDesc": "El registro de auditoría solicitado no existe o no tiene permisos para verlo.",
+    "actionGroups": {
+      "createUpdate": "Creación y Edición",
+      "status": "Estado",
+      "deletion": "Papelera y Eliminación",
+      "session": "Sesiones y Accesos"
+    },
     "actions": {
       "CREATE": "Crear",
       "UPDATE": "Actualizar",
-      "SOFT_DELETE": "Eliminar (Papelera)",
+      "DELETE": "Eliminar",
+      "TRASH": "Enviar a papelera",
       "RESTORE": "Restaurar",
+      "PERMANENT_DELETE": "Eliminar permanente",
+      "SOFT_DELETE": "Eliminar (Papelera)",
       "HARD_DELETE": "Eliminar Permanente",
+      "SUSPEND": "Suspender",
+      "REACTIVATE": "Reactivar",
       "LOGIN": "Iniciar Sesión",
       "LOGOUT": "Cerrar Sesión"
     }
@@ -641,13 +666,21 @@
     },
     "names": {
       "audit": "Auditoría",
-      "companies": "Compañías",
+      "companies": "Empresas",
+      "company": "Empresas",
+      "companie": "Empresas",
       "documents": "Documentos",
+      "document": "Documentos",
       "roles": "Roles",
+      "role": "Roles",
       "storage": "Almacenamiento",
       "teams": "Equipos",
+      "team": "Equipos",
       "trash": "Papelera",
-      "users": "Usuarios"
+      "users": "Usuarios",
+      "user": "Usuarios",
+      "rbac": "Roles y Permisos",
+      "auth": "Autenticación"
     }
   }
 }

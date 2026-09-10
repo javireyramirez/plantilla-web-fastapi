@@ -10,7 +10,7 @@ class AuditService {
     };
     if (params?.moduleSlug) {
       apiParams.entity_type = Array.isArray(params.moduleSlug)
-        ? params.moduleSlug[0]
+        ? params.moduleSlug.join(',')
         : params.moduleSlug;
     }
     if (params?.entityId) apiParams.entity_id = params.entityId;

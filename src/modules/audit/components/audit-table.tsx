@@ -16,12 +16,15 @@ import { cn } from '@/lib/utils';
 import { AuditLogType } from '@/modules/audit/model/audit.schema';
 import {
   getActionOptions,
+  getAuditActionLabel,
+  getAuditModuleLabel,
   getEntityLink,
   getModuleOptions,
 } from '@/modules/audit/model/audit.types';
 import useAuditTable from '@/modules/audit/model/use-audit-table';
 import { usersQueries } from '@/modules/users/model/users.query';
 import { GetUsersQuery } from '@/modules/users/model/users.schema';
+import { useModulesOptions } from '@/modules/modules/model/modules.query';
 
 interface AuditTableProps {
   moduleSlug?: string;
@@ -96,8 +99,7 @@ export function AuditTable({ moduleSlug, entityId }: AuditTableProps) {
                 to={`/audit/${row.original.id}`}
                 className="font-medium text-blue-500 hover:text-blue-700 hover:underline block truncate max-w-[200px]"
               >
-                {' '}
-                {t(`audit.actions.${action}`) || action}
+                {getAuditActionLabel(t, action)}
               </Link>
             </span>
           );
@@ -115,19 +117,16 @@ export function AuditTable({ moduleSlug, entityId }: AuditTableProps) {
         header: ({ column }) => <DataTableColumnHeader column={column} label={t('audit.module')} />,
         cell: ({ row }) => {
           const slug = row.getValue('moduleSlug') as string;
-          if (!slug) return '-';
-          const translationKey = `modules.names.${slug}`;
-          const translated = t(translationKey);
           return (
-            <span className="text-foreground font-medium capitalize">
-              {translated !== translationKey ? translated : slug}
+            <span className="text-foreground font-medium">
+              {getAuditModuleLabel(t, slug)}
             </span>
           );
         },
         meta: {
           label: t('audit.module'),
-          variant: 'multiSelect',
-          options: getModuleOptions(t),
+          variant: 'asyncMultiSelect',
+          useGetList: useModulesOptions,
         },
       },
       {

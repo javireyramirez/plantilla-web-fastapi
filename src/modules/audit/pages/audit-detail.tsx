@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuditDetail } from '../model/use-audit-detail';
-import { getEntityLink } from '../model/audit.types';
+import { getAuditActionLabel, getAuditModuleLabel, getEntityLink } from '../model/audit.types';
 
 export default function AuditDetail() {
   const { id } = useParams<{ id: string }>();
@@ -151,7 +151,7 @@ export default function AuditDetail() {
                 {t('audit.action')}
               </span>
               <span className="text-foreground font-medium">
-                {t(`audit.actions.${auditLog.action}`) || auditLog.action}
+                {getAuditActionLabel(t, auditLog.action)}
               </span>
             </div>
 
@@ -180,14 +180,8 @@ export default function AuditDetail() {
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {t('audit.module')}
               </span>
-              <span className="text-foreground capitalize font-medium">
-                {(() => {
-                  const slug = auditLog.moduleSlug;
-                  if (!slug) return '-';
-                  const translationKey = `modules.names.${slug}`;
-                  const translated = t(translationKey);
-                  return translated !== translationKey ? translated : slug;
-                })()}
+              <span className="text-foreground font-medium">
+                {getAuditModuleLabel(t, auditLog.moduleSlug)}
               </span>
             </div>
 

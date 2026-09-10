@@ -9,7 +9,14 @@ export const GetTrashQuerySchema = z.object({
   category: z.enum(['entities', 'documents']).default('entities'),
   sortBy: z.enum(['deletedAt', 'expiresAt', 'displayName']).default('deletedAt'),
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
-  moduleId: z.uuidv7().optional(),
+  moduleId: z.string().optional(),
+  moduleSlug: z
+    .preprocess((val) => {
+      if (typeof val === 'string') return val.split(',');
+      if (Array.isArray(val)) return val;
+      return undefined;
+    }, z.array(z.string()))
+    .optional(),
   deletedAtFrom: dateQueryBase,
   deletedAtTo: dateQueryBase,
   expiresAtFrom: dateQueryBase,

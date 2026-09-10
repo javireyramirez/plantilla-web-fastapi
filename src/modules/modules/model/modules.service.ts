@@ -33,24 +33,41 @@ class ModulesService extends CrudService<
 
   getList = async (_query?: ListQueryParams): Promise<Item[]> => {
     const { data } = await instance.get<any>('/rbac/modules');
-    if (Array.isArray(data)) {
-      return data;
-    }
-    return (data as any)?.data ?? [];
+    const items = Array.isArray(data) ? data : (data as any)?.data ?? [];
+    return items.map((m: any) => ({
+      ...m,
+      code: m.code || m.slug,
+      slug: m.slug || m.code,
+    }));
   };
 
   getAll = async (query?: QueryParams): Promise<AllResponse> => {
     const { data } = await instance.get<any>('/rbac/modules', { params: query });
     if (Array.isArray(data)) {
+      const items = data.map((m: any) => ({
+        ...m,
+        code: m.code || m.slug,
+        slug: m.slug || m.code,
+      }));
       return {
-        data,
+        data: items,
         meta: {
           page: (query as any)?.page ?? 1,
-          limit: (query as any)?.limit ?? data.length,
-          total: data.length,
+          limit: (query as any)?.limit ?? items.length,
+          total: items.length,
           totalPages: 1,
         },
       } as AllResponse;
+    }
+    if (data?.data && Array.isArray(data.data)) {
+      return {
+        ...data,
+        data: data.data.map((m: any) => ({
+          ...m,
+          code: m.code || m.slug,
+          slug: m.slug || m.code,
+        })),
+      };
     }
     return data;
   };

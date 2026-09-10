@@ -14,7 +14,7 @@ export function useCompanyForm(id?: string) {
   const { t } = useTranslation();
   const isEditing = !!id;
 
-  const { data, isLoading, isFetching } = companiesQueries.useGetById(id as string, {
+  const { data, isLoading } = companiesQueries.useGetById(id as string, {
     enabled: isEditing,
   });
 
@@ -83,19 +83,35 @@ export function useCompanyForm(id?: string) {
   const form = useForm<CreateCompany>({
     resolver: zodResolver(CreateCompanyBodySchema),
     mode: 'onBlur',
-    defaultValues: data ?? { name: '', nif: '', sector: '' },
+    values:
+      isEditing && data
+        ? {
+            name: data.name ?? '',
+            nif: data.nif ?? '',
+            sector: data.sector ?? '',
+          }
+        : undefined,
+    defaultValues: {
+      name: '',
+      nif: '',
+      sector: '',
+    },
   });
 
   // --- Sincronización del formulario con el backend ---
   useEffect(() => {
     if (isEditing) {
-      if (!isLoading && !isFetching && data) {
-        form.reset(data);
+      if (data) {
+        form.reset({
+          name: data.name ?? '',
+          nif: data.nif ?? '',
+          sector: data.sector ?? '',
+        });
       }
     } else {
       form.reset({ name: '', nif: '', sector: '' });
     }
-  }, [isEditing, data, isLoading, isFetching, form]);
+  }, [isEditing, data, form]);
 
   const companyName = useWatch({ control: form.control, name: 'name' });
 

@@ -64,23 +64,7 @@ export const useUploadFile = () => {
       if (filesToProcess.length === 0) throw new Error('No se han proporcionado archivos');
 
       const uploadPromises = filesToProcess.map(async (currentFile) => {
-        // Paso A: Pedir URL
-        const { uploadUrl, documentId } = await storageService.requestUploadUrl(
-          entityType,
-          entityId,
-          {
-            fileName: currentFile.name,
-            mimeType: currentFile.type,
-            size: currentFile.size,
-            isPublic: false,
-          }
-        );
-
-        // Paso B: Subir al bucket
-        await storageService.uploadToBucket(uploadUrl, currentFile);
-
-        // Paso C: Confirmar
-        return await storageService.confirmDocument(entityType, entityId, documentId);
+        return await storageService.uploadDirect(entityType, entityId, currentFile);
       });
 
       return await Promise.all(uploadPromises);

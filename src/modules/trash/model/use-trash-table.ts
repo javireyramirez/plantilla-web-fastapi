@@ -60,6 +60,14 @@ export default function useTrashTable(
     ? expiresAtCol.value
     : [undefined, undefined];
 
+  const moduleSlugCol = columnFilters.find((f) => f.id === 'moduleSlug');
+  const moduleSlug =
+    Array.isArray(moduleSlugCol?.value) && moduleSlugCol.value.length > 0
+      ? (moduleSlugCol.value as string[])
+      : typeof moduleSlugCol?.value === 'string'
+        ? [moduleSlugCol.value]
+        : undefined;
+
   const { data, isLoading, isFetching } = trashQueries.useGetTrash({
     page,
     limit,
@@ -67,6 +75,7 @@ export default function useTrashTable(
     sortBy,
     sortOrder,
     ...(search && { search }),
+    ...(moduleSlug && { moduleSlug }),
     ...(deletedAtFrom && { deletedAtFrom }),
     ...(deletedAtTo && { deletedAtTo }),
     ...(expiresAtFrom && { expiresAtFrom }),

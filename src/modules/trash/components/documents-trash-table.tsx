@@ -26,24 +26,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useDownloadUrl } from '@/features/storage/model/use-storage';
 import { formatDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { getEntityLink } from '@/modules/audit/model/audit.types';
-import { modulesQueries } from '@/modules/modules/model/modules.query';
+import { getAuditModuleLabel, getEntityLink } from '@/modules/audit/model/audit.types';
 
 import { TrashBinItemS } from '../model/trash.schema';
 import useTrashTable from '../model/use-trash-table';
-
-function useModulesOptions() {
-  const { data, isLoading } = modulesQueries.useGetList();
-
-  return {
-    data:
-      data?.map((m: { id: string; slug: string; name: string }) => ({
-        id: m.slug,
-        name: m.name ?? m.slug,
-      })) ?? [],
-    isLoading,
-  };
-}
 
 export function DocumentsTrashTable() {
   const { t } = useTranslation();
@@ -110,6 +96,32 @@ export function DocumentsTrashTable() {
         meta: {
           label: t('trash.table.displayName'),
           variant: 'text',
+        },
+      },
+      {
+        accessorKey: 'moduleSlug',
+        enableColumnFilter: true,
+        enableSorting: true,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} label={t('trash.table.module')} />
+        ),
+        cell: ({ row }) => {
+          const slug = row.getValue('moduleSlug') as string;
+          return (
+            <span className="text-foreground font-medium">
+              {getAuditModuleLabel(t, slug || 'documents')}
+            </span>
+          );
+        },
+        meta: {
+          label: t('trash.table.module'),
+          variant: 'multiSelect',
+          options: [
+            {
+              value: 'documents',
+              label: t('modules.names.documents', { defaultValue: 'Documentos' }),
+            },
+          ],
         },
       },
       {

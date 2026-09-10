@@ -25,24 +25,11 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { formatDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { getEntityLink } from '@/modules/audit/model/audit.types';
-import { modulesQueries } from '@/modules/modules/model/modules.query';
+import { getAuditModuleLabel, getEntityLink } from '@/modules/audit/model/audit.types';
+import { useModulesOptions } from '@/modules/modules/model/modules.query';
 
 import { TrashBinItemS } from '../model/trash.schema';
 import useTrashTable from '../model/use-trash-table';
-
-function useModulesOptions() {
-  const { data, isLoading } = modulesQueries.useGetList();
-
-  return {
-    data:
-      data?.map((m: any) => ({
-        id: m.code ?? m.slug,
-        name: m.name ?? m.code ?? m.slug,
-      })) ?? [],
-    isLoading,
-  };
-}
 
 export function EntitiesTrashTable() {
   const { t } = useTranslation();
@@ -114,12 +101,9 @@ export function EntitiesTrashTable() {
         ),
         cell: ({ row }) => {
           const slug = row.getValue('moduleSlug') as string;
-          if (!slug) return '-';
-          const translationKey = `modules.names.${slug}`;
-          const translated = t(translationKey);
           return (
-            <span className="text-foreground font-medium capitalize">
-              {translated !== translationKey ? translated : slug}
+            <span className="text-foreground font-medium">
+              {getAuditModuleLabel(t, slug)}
             </span>
           );
         },

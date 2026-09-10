@@ -126,6 +126,20 @@
     "pendingDefine": "Section to be defined.",
     "metricsSummary": "Metrics / Summary",
     "entityStats": "Statistical data of the entity.",
+    "auditInfo": "Audit & Registration",
+    "auditInfoDesc": "Registration history and system traceability.",
+    "systemInfo": "Status & Governance",
+    "systemInfoDesc": "Status and ownership information.",
+    "createdAt": "Creation date",
+    "createdBy": "Created by",
+    "updatedAt": "Last modification",
+    "updatedBy": "Modified by",
+    "version": "Version",
+    "owner": "Owner",
+    "status": "Status",
+    "identifier": "Identifier (ID)",
+    "noAuditData": "Audit details will be generated automatically upon creating the company.",
+    "newCompanyNotice": "Fill in the basic data to begin the entity lifecycle.",
     "deleteConfirmTitle": "Delete this company?",
     "deleteConfirmDesc": "This action cannot be undone. The company will be permanently deleted from the system.",
     "cancel": "Cancel",
@@ -571,12 +585,23 @@
     "back": "Back",
     "notFoundTitle": "Log Not Found",
     "notFoundDesc": "The requested audit log does not exist or you do not have permission to view it.",
+    "actionGroups": {
+      "createUpdate": "Creation & Edit",
+      "status": "Status",
+      "deletion": "Trash & Deletion",
+      "session": "Sessions & Access"
+    },
     "actions": {
       "CREATE": "Create",
       "UPDATE": "Update",
-      "SOFT_DELETE": "Soft Delete (Trash)",
+      "DELETE": "Delete",
+      "TRASH": "Move to Trash",
       "RESTORE": "Restore",
+      "PERMANENT_DELETE": "Permanent Delete",
+      "SOFT_DELETE": "Soft Delete (Trash)",
       "HARD_DELETE": "Hard Delete (Permanent)",
+      "SUSPEND": "Suspend",
+      "REACTIVATE": "Reactivate",
       "LOGIN": "Login",
       "LOGOUT": "Logout"
     }
@@ -631,12 +656,20 @@
     "names": {
       "audit": "Audit",
       "companies": "Companies",
+      "company": "Companies",
+      "companie": "Companies",
       "documents": "Documents",
+      "document": "Documents",
       "roles": "Roles",
+      "role": "Roles",
       "storage": "Storage",
       "teams": "Teams",
+      "team": "Teams",
       "trash": "Trash",
-      "users": "Users"
+      "users": "Users",
+      "user": "Users",
+      "rbac": "Roles & Permissions",
+      "auth": "Authentication"
     }
   }
 }

@@ -11,14 +11,41 @@ import {
 
 export const CompanySchema = z
   .object({
-    id: z.uuidv7(),
+    id: z.string(),
     name: z.string().min(1),
     nif: z.string().min(1),
     sector: z.string().optional().nullable(),
-    website: z.url().optional().nullable(),
+    website: z.string().optional().nullable(),
+    description: z.string().optional().nullable(),
+    ownerId: z.string().optional().nullable(),
     owner: OwnerSchema.optional().nullable(),
+    creator: z
+      .object({
+        id: z.string().optional(),
+        name: z.string().optional().nullable(),
+        email: z.string().optional().nullable(),
+        image: z.string().optional().nullable(),
+      })
+      .optional()
+      .nullable(),
+    updater: z
+      .object({
+        id: z.string().optional(),
+        name: z.string().optional().nullable(),
+        email: z.string().optional().nullable(),
+        image: z.string().optional().nullable(),
+      })
+      .optional()
+      .nullable(),
+    createdByName: z.string().optional().nullable(),
+    updatedByName: z.string().optional().nullable(),
+    created_by_name: z.string().optional().nullable(),
+    updated_by_name: z.string().optional().nullable(),
+    created_at: z.string().optional().nullable(),
+    updated_at: z.string().optional().nullable(),
+    version: z.number().optional().nullable(),
   })
-  .extend(AuditFieldsSchema.omit({ restoredAt: true }).shape);
+  .extend(AuditFieldsSchema.omit({ restoredAt: true }).partial().shape);
 
 // PARAMS
 export const CompanyIdParamsSchema = z.object({
@@ -51,6 +78,15 @@ export const CreateCompanyBodySchema = CompanySchema.omit({
   deletedBy: true,
   restoredBy: true,
   updatedBy: true,
+  creator: true,
+  updater: true,
+  createdByName: true,
+  updatedByName: true,
+  created_by_name: true,
+  updated_by_name: true,
+  created_at: true,
+  updated_at: true,
+  version: true,
 }).extend({
   ownerId: z.string().optional().nullable(),
 });

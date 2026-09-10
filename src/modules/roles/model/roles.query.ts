@@ -9,6 +9,7 @@ import {
   CreatePermissionBody,
   GetAssignmentsQuery,
   GetPermissionsQuery,
+  RolePermissionItem,
 } from '@/modules/roles/model/roles.schema';
 
 import { rolesService } from './roles.service';
@@ -57,6 +58,17 @@ export const rolesQueries = {
   // ==========================================
   // HOOKS DE ESCRITURA (MUTATIONS) — PERMISOS
   // ==========================================
+
+  useSetPermissions: (roleId: string) => {
+    const queryClient = useQueryClient();
+    return useMutation({
+      mutationFn: (permissions: RolePermissionItem[]) =>
+        rolesService.setPermissions(roleId, permissions),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['roles', roleId] });
+      },
+    });
+  },
 
   useAddPermission: (roleId: string) => {
     const queryClient = useQueryClient();

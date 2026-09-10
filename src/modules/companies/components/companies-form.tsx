@@ -12,19 +12,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+
+import { Company } from '../model/companies.schema';
 import { SECTOR_OPTIONS } from '../model/companies.types';
 
 interface CompaniesDetailFormProps {
   isEditing: boolean;
+  company?: Company | null;
 }
 
-export function CompaniesDetailForm({ isEditing }: CompaniesDetailFormProps) {
+
+export function CompaniesDetailForm({ isEditing, company }: CompaniesDetailFormProps) {
   const { t } = useTranslation();
   const form = useFormContext();
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-      {/* Formulario de Datos Básicos */}
+      {/* Columna 1: Formulario de Datos Básicos */}
       <Card className="lg:col-span-1 shadow-sm">
         <CardHeader>
           <CardTitle className="text-base font-semibold">
@@ -86,61 +89,52 @@ export function CompaniesDetailForm({ isEditing }: CompaniesDetailFormProps) {
               <Controller
                 name="sector"
                 control={form.control}
-                render={({ field, fieldState }) => (
-                  <FormFieldWrapper fieldState={fieldState}>
-                    <FieldLabel
-                      htmlFor="company-sector"
-                      className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
-                    >
-                      {t('companies.sector')}
-                    </FieldLabel>
-                    <Select value={field.value ?? undefined} onValueChange={field.onChange}>
-                      <SelectTrigger
-                        id="company-sector"
-                        className="mt-1.5 focus-visible:ring-primary w-full"
-                        aria-invalid={fieldState.invalid}
-                        data-invalid={fieldState.invalid}
+                render={({ field, fieldState }) => {
+                  const sectorValue = (field.value || '').trim().toLowerCase();
+                  const selectedSector = SECTOR_OPTIONS.find(
+                    (option) => option.value.toLowerCase() === sectorValue
+                  );
+                  const sectorLabel = selectedSector
+                    ? t(`companies.sectors.${selectedSector.value}`)
+                    : field.value || undefined;
+
+                  return (
+                    <FormFieldWrapper fieldState={fieldState}>
+                      <FieldLabel
+                        htmlFor="company-sector"
+                        className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
                       >
-                        <SelectValue placeholder={t('companies.selectSector')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {SECTOR_OPTIONS.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {t(`companies.sectors.${option.value}`)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormFieldWrapper>
-                )}
+                        {t('companies.sector')}
+                      </FieldLabel>
+                      <Select
+                        key={field.value || 'empty'}
+                        value={selectedSector ? selectedSector.value : field.value || ''}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger
+                          id="company-sector"
+                          className="mt-1.5 focus-visible:ring-primary w-full"
+                          aria-invalid={fieldState.invalid}
+                          data-invalid={fieldState.invalid}
+                        >
+                          <SelectValue placeholder={t('companies.selectSector')}>
+                            {sectorLabel}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {SECTOR_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {t(`companies.sectors.${option.value}`)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormFieldWrapper>
+                  );
+                }}
               />
             </FieldGroup>
           </form>
-        </CardContent>
-      </Card>
-
-      {/* Tarjetas Secundarias Estatales */}
-      <Card className="shadow-sm">
-        <CardHeader>
-          <CardTitle className="text-base font-semibold">
-            {t('companies.additionalInfo')}
-          </CardTitle>
-          <CardDescription>{t('companies.pendingDefine')}</CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground leading-relaxed">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam at porttitor sem.
-        </CardContent>
-      </Card>
-
-      <Card className="shadow-sm">
-        <CardHeader>
-          <CardTitle className="text-base font-semibold">
-            {t('companies.metricsSummary')}
-          </CardTitle>
-          <CardDescription>{t('companies.entityStats')}</CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground leading-relaxed">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque eget elit nec.
         </CardContent>
       </Card>
     </div>
