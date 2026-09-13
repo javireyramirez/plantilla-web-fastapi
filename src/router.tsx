@@ -1,10 +1,8 @@
 // src/router.tsx
 import { Navigate, Route, Routes } from 'react-router-dom';
 
-import AdminLayout from '@/components/layout/admin-layout';
 import PrivateLayout from '@/components/layout/private-layout';
 import PublicLayout from '@/components/layout/public-layout';
-import AdminRoute from '@/components/routes/admin-route';
 import GuestRoute from '@/components/routes/guest-route';
 import ProtectedRoute from '@/components/routes/protected-route';
 import ForgotPassword from '@/modules/auth/pages/forgot-password';
@@ -24,8 +22,7 @@ import TeamsView from '@/modules/teams/pages/teams-view';
 import UsersDetail from '@/modules/users/pages/users-detail';
 import UsersView from '@/modules/users/pages/users-view';
 import RecoveryView from '@/modules/trash/pages/recovery-view';
-import Admin from '@/pages/Admin';
-import Home from '@/pages/Home';
+import StorageView from '@/modules/storage/pages/storage-view';
 
 export default function Router() {
   return (
@@ -45,41 +42,55 @@ export default function Router() {
         <Route path="/verify-email" element={<VerifyEmail />} />
       </Route>
 
-      {/* Rutas privadas */}
+      {/* Rutas privadas unificadas */}
       <Route element={<ProtectedRoute />}>
         <Route element={<PrivateLayout />}>
-          <Route path="/home" element={<Home />} />
-
+          {/* Negocio */}
           <Route path="/companies" element={<CompaniesView />} />
           <Route path="/companies/new" element={<CompanyDetail />} />
           <Route path="/companies/edit/:id" element={<CompanyDetail />} />
 
+          {/* Administración: Seguridad */}
+          <Route path="/admin/users" element={<UsersView />} />
+          <Route path="/admin/users/new" element={<UsersDetail />} />
+          <Route path="/admin/users/edit/:id" element={<UsersDetail />} />
+
+          <Route path="/admin/teams" element={<TeamsView />} />
+          <Route path="/admin/teams/new" element={<TeamDetail />} />
+          <Route path="/admin/teams/edit/:id" element={<TeamDetail />} />
+
+          <Route path="/admin/roles" element={<RolesView />} />
+          <Route path="/admin/roles/new" element={<RoleDetail />} />
+          <Route path="/admin/roles/edit/:id" element={<RoleDetail />} />
+
+          {/* Administración: Sistema y Archivos */}
+          <Route path="/admin/audit" element={<AuditView />} />
+          <Route path="/admin/audit/:id" element={<AuditDetail />} />
+
+          <Route path="/admin/recovery" element={<RecoveryView />} />
+          <Route path="/admin/documents" element={<RecoveryView />} />
+
+          <Route path="/admin/storage" element={<StorageView />} />
+
+          {/* Redirecciones de retrocompatibilidad */}
+          <Route path="/users" element={<Navigate to="/admin/users" replace />} />
+          <Route path="/users/*" element={<Navigate to="/admin/users" replace />} />
+          <Route path="/teams" element={<Navigate to="/admin/teams" replace />} />
+          <Route path="/teams/*" element={<Navigate to="/admin/teams" replace />} />
+          <Route path="/roles" element={<Navigate to="/admin/roles" replace />} />
+          <Route path="/roles/*" element={<Navigate to="/admin/roles" replace />} />
+          <Route path="/audit" element={<Navigate to="/admin/audit" replace />} />
+          <Route path="/audit/*" element={<Navigate to="/admin/audit" replace />} />
+          <Route path="/recovery" element={<Navigate to="/admin/recovery" replace />} />
+          <Route path="/documents" element={<Navigate to="/admin/recovery" replace />} />
+          <Route path="/storage" element={<Navigate to="/admin/storage" replace />} />
+          <Route path="/storage/*" element={<Navigate to="/admin/storage" replace />} />
+
           <Route path="/profile" element={<Profile />} />
-        </Route>
-      </Route>
 
-      {/* Rutas administración */}
-      <Route element={<AdminRoute />}>
-        <Route element={<AdminLayout />}>
-          <Route path="/admin" element={<Admin />} />
-
-          <Route path="/users" element={<UsersView />} />
-          <Route path="/users/new" element={<UsersDetail />} />
-          <Route path="/users/edit/:id" element={<UsersDetail />} />
-
-          <Route path="/teams" element={<TeamsView />} />
-          <Route path="/teams/new" element={<TeamDetail />} />
-          <Route path="/teams/edit/:id" element={<TeamDetail />} />
-
-          <Route path="/roles" element={<RolesView />} />
-          <Route path="/roles/new" element={<RoleDetail />} />
-          <Route path="/roles/edit/:id" element={<RoleDetail />} />
-
-          <Route path="/audit" element={<AuditView />} />
-          <Route path="/audit/:id" element={<AuditDetail />} />
-
-          <Route path="/recovery" element={<RecoveryView />} />
-          <Route path="/documents" element={<RecoveryView />} />
+          {/* Redirecciones de conveniencia */}
+          <Route path="/home" element={<Navigate to="/companies" replace />} />
+          <Route path="/admin" element={<Navigate to="/admin/users" replace />} />
         </Route>
       </Route>
 
@@ -88,3 +99,4 @@ export default function Router() {
     </Routes>
   );
 }
+

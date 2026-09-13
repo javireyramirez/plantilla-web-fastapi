@@ -3,11 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
+import usePermissions from '@/hooks/use-permissions';
 
 import { TeamsTable } from '../components/teams-table';
 
 export default function TeamsView() {
   const { t } = useTranslation();
+  const { can } = usePermissions();
+  const canCreate = can('teams', 'CREATE');
 
   return (
     <div className="flex flex-col space-y-6">
@@ -19,14 +22,16 @@ export default function TeamsView() {
           <p className="text-sm text-muted-foreground">{t('teams.subtitle')}</p>
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-          <Button asChild size="sm" className="gap-2 shadow-sm flex-1 sm:flex-none justify-center">
-            <Link to="/teams/new">
-              <Plus className="h-4 w-4" />
-              {t('teams.new')}
-            </Link>
-          </Button>
-        </div>
+        {canCreate && (
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+            <Button asChild size="sm" className="gap-2 shadow-sm flex-1 sm:flex-none justify-center">
+              <Link to="/admin/teams/new">
+                <Plus className="h-4 w-4" />
+                {t('teams.new')}
+              </Link>
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="rounded-xl border bg-card shadow-sm">

@@ -60,7 +60,7 @@ export function TeamsTable() {
             <div className="flex items-center gap-2 min-w-0">
               <button
                 className="truncate font-medium max-w-xs text-blue-500 hover:text-blue-700 hover:underline text-left"
-                onClick={() => navigate(`/teams/edit/${row.original.id}`)}
+                onClick={() => navigate(`/admin/teams/edit/${row.original.id}`)}
               >
                 {row.getValue('name')}
               </button>
@@ -74,7 +74,8 @@ export function TeamsTable() {
       },
 
       {
-        accessorKey: 'createdAt',
+        id: 'created_at',
+        accessorKey: 'created_at',
         enableColumnFilter: true,
         enableSorting: true,
         header: ({ column }) => (
@@ -82,7 +83,7 @@ export function TeamsTable() {
         ),
         cell: ({ row }) => (
           <span className="text-muted-foreground tabular-nums text-sm">
-            {formatDate(row.getValue('createdAt'))}
+            {formatDate((row.getValue('created_at') ?? (row.original as any).createdAt) as string)}
           </span>
         ),
         meta: {
@@ -132,7 +133,7 @@ export function TeamsTable() {
         totalCount={totalRows}
         mobileConfig={{
           primaryColumn: 'name',
-          stackedColumns: ['createdAt'],
+          stackedColumns: ['created_at'],
         }}
         actionBar={
           <DataTableFloatingBar

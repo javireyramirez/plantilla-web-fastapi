@@ -141,7 +141,7 @@ export function useStorageTable({
 
   const handleDelete = (rows: Row<Document>[]) => {
     mutateDelete(
-      { entityType, entityId, documentIds: rows.map((item) => item.original.id) },
+      { entityType: entityType ?? '', entityId: entityId ?? '', documentIds: rows.map((item) => item.original.id) },
       { onSuccess: () => setRowSelection([]) }
     );
   };
@@ -149,7 +149,7 @@ export function useStorageTable({
   const { mutate: mutateDownloadUrl } = useDownloadUrl();
 
   const handleDownloadUrl = (documentId: string) => {
-    mutateDownloadUrl({ entityType, entityId, documentId });
+    mutateDownloadUrl({ entityType: entityType ?? '', entityId: entityId ?? '', documentId });
   };
 
   const { mutateAsync: downloadUrls, isPending: isPendingDownloadUrls } = useBulkDownloadUrls();
@@ -159,9 +159,9 @@ export function useStorageTable({
     const documentIds = rows.map((r) => r.original.id);
 
     if (documentIds.length <= 5) {
-      await downloadUrls({ entityType, entityId, documentIds });
+      await downloadUrls({ entityType: entityType ?? '', entityId: entityId ?? '', documentIds });
     } else {
-      await downloadZip({ entityType, entityId, documentIds });
+      await downloadZip({ entityType: entityType ?? '', entityId: entityId ?? '', documentIds });
     }
   };
 

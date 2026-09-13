@@ -14,6 +14,7 @@ import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar-desktop';
 import { DataTableToolbarMobile } from '@/components/data-table/data-table-toolbar-mobile';
 import { Checkbox } from '@/components/ui/checkbox';
+import usePermissions from '@/hooks/use-permissions';
 import { formatDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { Company } from '@/modules/companies/model/companies.schema';
@@ -23,6 +24,7 @@ import useCompanies from '@/modules/companies/model/use-companies-table';
 export function CompaniesTable() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { can } = usePermissions();
 
   const columns = React.useMemo<ColumnDef<Company>[]>(
     () => [
@@ -85,12 +87,7 @@ export function CompaniesTable() {
         cell: ({ row }) => {
           return (
             <div className="flex items-center gap-2 min-w-0">
-              <button
-                className="truncate font-medium max-w-xs text-blue-500 hover:text-blue-700 hover:underline text-left"
-                onClick={() => console.log(row.original.id)}
-              >
                 {row.getValue('nif')}
-              </button>
             </div>
           );
         },
@@ -132,7 +129,8 @@ export function CompaniesTable() {
         },
       },
       {
-        accessorKey: 'createdAt',
+        id: 'created_at',
+        accessorKey: 'created_at',
         enableColumnFilter: true,
         enableSorting: true,
         header: ({ column }) => (
@@ -140,7 +138,7 @@ export function CompaniesTable() {
         ),
         cell: ({ row }) => (
           <span className="text-muted-foreground tabular-nums text-sm">
-            {formatDate(row.getValue('createdAt'))}
+            {formatDate((row.getValue('created_at') ?? (row.original as any).createdAt) as string)}
           </span>
         ),
         meta: {
@@ -164,6 +162,28 @@ export function CompaniesTable() {
     handleExport,
     isPendingActions,
   } = useCompanies(columns);
+
+  const floatingActions = React.useMemo(() => {
+    const list = [];
+    if (can('companies', 'EXPORT')) {
+      list.push({
+        label: t('companies.export'),
+        icon: <Download className="h-4 w-4" />,
+        disabled: isPendingActions,
+        onClick: (rows: any) => handleExport(rows),
+      });
+    }
+    if (can('companies', 'DELETE')) {
+      list.push({
+        label: t('companies.delete'),
+        icon: <Trash2 className="h-4 w-4" />,
+        disabled: isPendingActions,
+        onClick: (rows: any) => handleDelete(rows),
+        className: 'border-destructive text-destructive hover:bg-destructive hover:text-white',
+      });
+    }
+    return list;
+  }, [can, t, isPendingActions, handleExport, handleDelete]);
 
   // Skeleton
   if (isLoading) {
@@ -190,28 +210,12 @@ export function CompaniesTable() {
         totalCount={totalRows}
         mobileConfig={{
           primaryColumn: 'name',
-          stackedColumns: ['sector', 'createdAt'],
+          stackedColumns: ['sector', 'created_at'],
         }}
         actionBar={
-          <DataTableFloatingBar
-            table={table}
-            actions={[
-              {
-                label: t('companies.export'),
-                icon: <Download className="h-4 w-4" />,
-                disabled: isPendingActions,
-                onClick: (rows) => handleExport(rows),
-              },
-              {
-                label: t('companies.delete'),
-                icon: <Trash2 className="h-4 w-4" />,
-                disabled: isPendingActions,
-                onClick: (rows) => handleDelete(rows),
-                className:
-                  'border-destructive text-destructive hover:bg-destructive hover:text-white',
-              },
-            ]}
-          />
+          floatingActions.length > 0 ? (
+            <DataTableFloatingBar table={table} actions={floatingActions} />
+          ) : undefined
         }
       >
         {isMobile ? <DataTableToolbarMobile table={table} /> : <DataTableToolbar table={table} />}

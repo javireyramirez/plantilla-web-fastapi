@@ -7,9 +7,9 @@ import { GetDocumentsQuery } from '@/schemas/storage.schema';
 // 1. CONSULTAS Y LECTURA
 // ==========================================
 
-export const useGetDocuments = (entityType: string, entityId: string, query: GetDocumentsQuery) => {
+export const useGetDocuments = (entityType?: string, entityId?: string, query?: GetDocumentsQuery) => {
   return useQuery({
-    queryKey: ['documents', entityType, entityId, query],
+    queryKey: ['documents', entityType ?? '', entityId ?? '', query],
     queryFn: () => storageService.getDocuments(entityType, entityId, query),
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 5,

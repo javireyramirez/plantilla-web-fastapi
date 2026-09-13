@@ -1,39 +1,62 @@
 import {
   Briefcase,
   Building2,
-  Building2Icon,
+  Cpu,
   FileText,
-  History as HistoryIcon,
-  Home,
-  HomeIcon,
+  HardDrive,
+  History,
+  LayoutGrid,
   RotateCcw,
-  Settings as SettingsIcon,
   Shield,
   User,
   Users,
+  UsersRound,
+  type LucideIcon,
 } from 'lucide-react';
 
-export const commonItems = [
-  { titleKey: 'sidebar.nav.page1', url: '/home', icon: Home },
-  { titleKey: 'sidebar.nav.companies', url: '/companies', icon: Building2 },
-];
+export const MODULE_ROUTE_MAP: Record<string, string> = {
+  companies: '/companies',
+  users: '/admin/users',
+  teams: '/admin/teams',
+  roles: '/admin/roles',
+  audit: '/admin/audit',
+  storage: '/admin/storage',
+  documents: '/admin/recovery',
+  trash: '/admin/recovery',
+  recovery: '/admin/recovery',
+};
 
-export const adminItems = [
-  {
-    groupKey: 'sidebar.groups.security',
-    items: [
-      { titleKey: 'sidebar.nav.users', url: '/users', icon: User },
-      { titleKey: 'sidebar.nav.teams', url: '/teams', icon: Users },
+export const MODULE_ICON_MAP: Record<string, LucideIcon> = {
+  briefcase: Briefcase,
+  building: Building2,
+  companies: Building2,
+  users: User,
+  'users-round': UsersRound,
+  teams: Users,
+  shield: Shield,
+  roles: Shield,
+  file: FileText,
+  'file-text': FileText,
+  documents: FileText,
+  'hard-drive': HardDrive,
+  storage: HardDrive,
+  history: History,
+  audit: History,
+  'trash-2': RotateCcw,
+  trash: RotateCcw,
+  recovery: RotateCcw,
+  cpu: Cpu,
+  system: Cpu,
+};
 
-      { titleKey: 'sidebar.nav.roles', url: '/roles', icon: Shield },
-    ],
-  },
-  {
-    groupKey: 'sidebar.groups.audit',
-    items: [
-      { titleKey: 'sidebar.nav.audit', url: '/audit', icon: HistoryIcon },
-      { titleKey: 'sidebar.nav.recovery', url: '/recovery', icon: RotateCcw },
-      { titleKey: 'sidebar.nav.documents', url: '/documents', icon: FileText },
-    ],
-  },
-];
+export function getModuleIcon(iconName?: string | null, moduleCode?: string): LucideIcon {
+  if (iconName && MODULE_ICON_MAP[iconName]) return MODULE_ICON_MAP[iconName];
+  if (moduleCode && MODULE_ICON_MAP[moduleCode]) return MODULE_ICON_MAP[moduleCode];
+  return LayoutGrid;
+}
+
+export function getModuleRoute(moduleCode: string): string {
+  const clean = (moduleCode || '').toLowerCase().trim();
+  return MODULE_ROUTE_MAP[clean] || `/${clean}`;
+}
+

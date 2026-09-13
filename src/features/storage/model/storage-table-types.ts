@@ -9,11 +9,19 @@ export interface Document {
   createdAt: string;
   updatedAt: string;
   isTrash: boolean;
+  entityType?: string;
+  entityId?: string;
+  modulePrincipalEntity?: {
+    code: string;
+    name: string;
+    entity_name?: string | null;
+    entity_id?: string | null;
+  } | null;
 }
 
 export interface DocumentsTableProps {
-  entityType: string;
-  entityId: string;
+  entityType?: string;
+  entityId?: string;
   isTrash?: boolean;
   columns: ColumnDef<Document>[];
 }

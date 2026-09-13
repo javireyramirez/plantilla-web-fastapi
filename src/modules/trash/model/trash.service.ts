@@ -1,28 +1,13 @@
 import instance from '@/config/api';
+import { cleanApiParams } from '@/services/crud.service';
 
 import { BulkIdsBody, BulkResponse, GetTrashQuery, TrashListResponse } from './trash.schema';
 
 class TrashService {
   async getTrash(params?: GetTrashQuery): Promise<TrashListResponse> {
-    const apiParams: Record<string, any> = {
-      page: params?.page ?? 1,
-      limit: params?.limit ?? 10,
-    };
-    if (params?.search) apiParams.q = params.search;
-    if (params?.deletedAtFrom) apiParams.deleted_at_from = params.deletedAtFrom;
-    if (params?.deletedAtTo) apiParams.deleted_at_to = params.deletedAtTo;
-    if (params?.expiresAtFrom) apiParams.expires_at_from = params.expiresAtFrom;
-    if (params?.category) {
-      apiParams.category = params.category;
-    }
+    const apiParams = cleanApiParams(params as Record<string, any>);
     if (params?.category === 'documents') {
       apiParams.entity_type = 'document';
-    } else if (params?.moduleSlug) {
-      apiParams.entity_type = Array.isArray(params.moduleSlug)
-        ? params.moduleSlug.join(',')
-        : params.moduleSlug;
-    } else if (params?.moduleId) {
-      apiParams.entity_type = params.moduleId;
     }
 
     const response = await instance.get<any>(`/trash`, { params: apiParams });
@@ -30,13 +15,22 @@ class TrashService {
     const items = (raw?.data || []).map((item: any) => ({
       id: item.id,
       moduleId: item.module_id ?? item.moduleId ?? item.id,
+      module_id: item.module_id ?? item.moduleId ?? item.id,
       moduleSlug: item.entity_type ?? item.moduleSlug ?? '',
+      module_slug: item.entity_type ?? item.moduleSlug ?? '',
       entityId: item.entity_id ?? item.entityId ?? '',
+      entity_id: item.entity_id ?? item.entityId ?? '',
       displayName: item.name ?? item.displayName ?? item.details ?? '-',
+      display_name: item.name ?? item.displayName ?? item.details ?? '-',
+      name: item.name ?? item.displayName ?? item.details ?? '-',
       deletedAt: new Date(item.deleted_at ?? item.deletedAt),
+      deleted_at: item.deleted_at ?? item.deletedAt,
       deletedBy: item.deleted_by ?? item.deletedBy ?? null,
+      deleted_by: item.deleted_by ?? item.deletedBy ?? null,
       deletedByName: item.deleted_by_name ?? item.deletedByName ?? null,
+      deleted_by_name: item.deleted_by_name ?? item.deletedByName ?? null,
       deletedByEmail: item.deleted_by_email ?? item.deletedByEmail ?? null,
+      deleted_by_email: item.deleted_by_email ?? item.deletedByEmail ?? null,
       deletor:
         item.deletor ??
         (item.deleted_by
@@ -46,8 +40,11 @@ class TrashService {
             }
           : null),
       expiresAt: new Date(item.expires_at ?? item.expiresAt),
+      expires_at: item.expires_at ?? item.expiresAt,
       ownerId: item.owner_id ?? item.ownerId ?? null,
+      owner_id: item.owner_id ?? item.ownerId ?? null,
       createdBy: item.created_by ?? item.createdBy ?? null,
+      created_by: item.created_by ?? item.createdBy ?? null,
       metadata: item.data_backup ?? item.metadata ?? null,
       modulePrincipalEntity: item.module_principal_entity ?? null,
     }));

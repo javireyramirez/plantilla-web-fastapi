@@ -1,5 +1,6 @@
 import * as React from 'react';
 
+import { useSession } from '@/config/auth-client';
 import { createGenericQueries } from '@/hooks/use-crud';
 
 import { modulesService } from './modules.service';
@@ -12,7 +13,13 @@ const MODULES_QUERY_OPTIONS = {
 } as const;
 
 export function useModules() {
-  const { data: modules = [], isLoading } = modulesQueries.useGetList(undefined, MODULES_QUERY_OPTIONS);
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
+
+  const { data: modules = [], isLoading } = modulesQueries.useGetList(undefined, {
+    ...MODULES_QUERY_OPTIONS,
+    enabled: !!userId,
+  });
 
   const modulesMap = React.useMemo(() => {
     const map = new Map<string, string>();

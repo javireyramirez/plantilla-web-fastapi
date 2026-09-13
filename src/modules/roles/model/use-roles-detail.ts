@@ -39,7 +39,7 @@ export function useRoleForm(id?: string) {
         {
           onSuccess: () => {
             toast.success(t('roles.form.update'));
-            if (shouldClose) navigate('/roles');
+            if (shouldClose) navigate('/admin/roles');
           },
           onError: (error: any) => {
             const serverMessage = error?.response?.data?.message || error?.message;
@@ -53,11 +53,11 @@ export function useRoleForm(id?: string) {
           toast.success(t('roles.form.create'));
 
           if (shouldClose) {
-            navigate('/roles');
+            navigate('/admin/roles');
           } else if (newRole?.id) {
-            navigate(`/roles/edit/${newRole.id}`);
+            navigate(`/admin/roles/edit/${newRole.id}`);
           } else {
-            navigate('/roles');
+            navigate('/admin/roles');
           }
         },
         onError: (error: any) => {
@@ -74,7 +74,7 @@ export function useRoleForm(id?: string) {
     softDelete(id, {
       onSuccess: () => {
         toast.success(t('roles.form.delete'));
-        navigate('/roles');
+        navigate('/admin/roles');
       },
       onError: (error: any) => {
         const serverMessage = error?.response?.data?.message || error?.message;

@@ -42,13 +42,17 @@ export default function useRoles(columns: ColumnDef<Role>[]) {
 
   const [sort] = sorting;
 
-  const sortBy = (sort ? sort.id : 'createdAt') as GetRoleQuery['sortBy'];
+  const sortBy = (sort ? sort.id : 'created_at') as GetRoleQuery['sort_by'];
   const sortOrder = sort ? (sort.desc ? 'desc' : 'asc') : 'desc';
 
   const nameCol = columnFilters.find((f) => f.id === 'name');
   const name = typeof nameCol?.value === 'string' ? nameCol.value : undefined;
 
-  const createdAtCol = columnFilters.find((f) => f.id === 'createdAt');
+  const isSystemCol = columnFilters.find((f) => f.id === 'is_system' || f.id === 'isSystem');
+  const isSystemRaw = Array.isArray(isSystemCol?.value) ? isSystemCol.value[0] : isSystemCol?.value;
+  const isSystem = isSystemRaw === 'true' ? true : isSystemRaw === 'false' ? false : undefined;
+
+  const createdAtCol = columnFilters.find((f) => f.id === 'created_at' || f.id === 'createdAt');
   const [createdFrom, createdTo] = Array.isArray(createdAtCol?.value)
     ? createdAtCol.value
     : [undefined, undefined];
@@ -56,12 +60,13 @@ export default function useRoles(columns: ColumnDef<Role>[]) {
   const { data, isLoading, isFetching } = rolesQueries.useGetAll({
     page,
     limit,
-    isTrash: false,
-    sortBy,
-    sortOrder,
+    is_trash: false,
+    sort_by: sortBy,
+    sort_order: sortOrder,
     ...(name && { name }),
-    createdAtFrom: createdFrom ? createdFrom : undefined,
-    createdAtTo: createdTo ? createdTo : undefined,
+    ...(isSystem !== undefined && { is_system: isSystem }),
+    created_at_from: createdFrom ? createdFrom : undefined,
+    created_at_to: createdTo ? createdTo : undefined,
   });
 
   const roles: Role[] = data?.data ?? [];

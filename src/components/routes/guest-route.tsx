@@ -10,7 +10,7 @@ interface GuestRouteProps extends PropsWithChildren {
   redirectTo?: string;
 }
 
-function GuestRoute({ redirectTo = '/home' }: GuestRouteProps) {
+function GuestRoute({ redirectTo = '/companies' }: GuestRouteProps) {
   const { data: session, isPending, error, isRefetching } = useSession();
   const location = useLocation();
   const { t } = useTranslation();

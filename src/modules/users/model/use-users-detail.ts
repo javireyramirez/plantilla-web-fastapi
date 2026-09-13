@@ -43,7 +43,7 @@ export function useUsersForm(id?: string) {
         {
           onSuccess: () => {
             toast.success(t('users.form.update'));
-            if (shouldClose) navigate('/users');
+            if (shouldClose) navigate('/admin/users');
           },
           onError: (error: any) => {
             const serverMessage = error?.response?.data?.message || error?.message;
@@ -57,11 +57,11 @@ export function useUsersForm(id?: string) {
           toast.success(t('users.form.create'));
 
           if (shouldClose) {
-            navigate('/users');
+            navigate('/admin/users');
           } else if (newUsers?.id) {
-            navigate(`/users/edit/${newUsers.id}`);
+            navigate(`/admin/users/edit/${newUsers.id}`);
           } else {
-            navigate('/users');
+            navigate('/admin/users');
           }
         },
         onError: (error: any) => {
@@ -78,7 +78,7 @@ export function useUsersForm(id?: string) {
     softDelete(id, {
       onSuccess: () => {
         toast.success(t('users.form.delete'));
-        navigate('/users');
+        navigate('/admin/users');
       },
       onError: (error: any) => {
         const serverMessage = error?.response?.data?.message || error?.message;

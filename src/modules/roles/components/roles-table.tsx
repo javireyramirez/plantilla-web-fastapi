@@ -13,6 +13,7 @@ import { DataTableFloatingBar } from '@/components/data-table/data-table-floatin
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar-desktop';
 import { DataTableToolbarMobile } from '@/components/data-table/data-table-toolbar-mobile';
+import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { formatDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -60,7 +61,7 @@ export function RolesTable() {
             <div className="flex items-center gap-2 min-w-0">
               <button
                 className="truncate font-medium max-w-xs text-blue-500 hover:text-blue-700 hover:underline text-left"
-                onClick={() => navigate(`/roles/edit/${row.original.id}`)}
+                onClick={() => navigate(`/admin/roles/edit/${row.original.id}`)}
               >
                 {row.getValue('name')}
               </button>
@@ -72,9 +73,39 @@ export function RolesTable() {
           variant: 'text',
         },
       },
+      {
+        id: 'is_system',
+        accessorKey: 'is_system',
+        enableColumnFilter: true,
+        enableSorting: true,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} label={t('users.isSystem', { defaultValue: 'Tipo' })} />
+        ),
+        cell: ({ row }) => {
+          const isSystem = (row.getValue('is_system') ?? (row.original as any).isSystem) as boolean;
+          return (
+            <div className="flex items-center gap-2 min-w-0">
+              <Badge variant={isSystem ? 'default' : 'secondary'}>
+                {isSystem
+                  ? t('users.table.isSystem', { defaultValue: 'Sistema' })
+                  : t('users.table.isNotSystem', { defaultValue: 'Personalizado' })}
+              </Badge>
+            </div>
+          );
+        },
+        meta: {
+          label: t('users.isSystem', { defaultValue: 'Tipo' }),
+          variant: 'boolean',
+          options: [
+            { label: t('users.table.isSystem', { defaultValue: 'Sistema' }), value: 'true' },
+            { label: t('users.table.isNotSystem', { defaultValue: 'Personalizado' }), value: 'false' },
+          ],
+        },
+      },
 
       {
-        accessorKey: 'createdAt',
+        id: 'created_at',
+        accessorKey: 'created_at',
         enableColumnFilter: true,
         enableSorting: true,
         header: ({ column }) => (
@@ -82,7 +113,7 @@ export function RolesTable() {
         ),
         cell: ({ row }) => (
           <span className="text-muted-foreground tabular-nums text-sm">
-            {formatDate(row.getValue('createdAt'))}
+            {formatDate((row.getValue('created_at') ?? (row.original as any).createdAt) as string)}
           </span>
         ),
         meta: {
@@ -132,7 +163,7 @@ export function RolesTable() {
         totalCount={totalRows}
         mobileConfig={{
           primaryColumn: 'name',
-          stackedColumns: ['createdAt'],
+          stackedColumns: ['created_at'],
         }}
         actionBar={
           <DataTableFloatingBar

@@ -42,13 +42,13 @@ export default function useTeams(columns: ColumnDef<Team>[]) {
 
   const [sort] = sorting;
 
-  const sortBy = (sort ? sort.id : 'createdAt') as GetTeamQuery['sortBy'];
+  const sortBy = (sort ? sort.id : 'created_at') as GetTeamQuery['sort_by'];
   const sortOrder = sort ? (sort.desc ? 'desc' : 'asc') : 'desc';
 
   const nameCol = columnFilters.find((f) => f.id === 'name');
   const name = typeof nameCol?.value === 'string' ? nameCol.value : undefined;
 
-  const createdAtCol = columnFilters.find((f) => f.id === 'createdAt');
+  const createdAtCol = columnFilters.find((f) => f.id === 'created_at' || f.id === 'createdAt');
   const [createdFrom, createdTo] = Array.isArray(createdAtCol?.value)
     ? createdAtCol.value
     : [undefined, undefined];
@@ -56,12 +56,12 @@ export default function useTeams(columns: ColumnDef<Team>[]) {
   const { data, isLoading, isFetching } = teamsQueries.useGetAll({
     page,
     limit,
-    isTrash: false,
-    sortBy,
-    sortOrder,
+    is_trash: false,
+    sort_by: sortBy,
+    sort_order: sortOrder,
     ...(name && { name }),
-    createdAtFrom: createdFrom ? createdFrom : undefined,
-    createdAtTo: createdTo ? createdTo : undefined,
+    created_at_from: createdFrom ? createdFrom : undefined,
+    created_at_to: createdTo ? createdTo : undefined,
   });
 
   const teams: Team[] = data?.data ?? [];

@@ -44,23 +44,27 @@ export default function useTrashTable(
 
   const [sort] = sorting;
 
-  const sortBy = (sort ? sort.id : 'deletedAt') as GetTrashQuery['sortBy'];
+  const sortBy = (sort ? sort.id : 'deleted_at') as GetTrashQuery['sort_by'];
   const sortOrder = sort ? (sort.desc ? 'desc' : 'asc') : 'desc';
 
-  const searchCol = columnFilters.find((f) => f.id === 'displayName');
+  const searchCol = columnFilters.find(
+    (f) => f.id === 'display_name' || f.id === 'displayName' || f.id === 'name'
+  );
   const search = typeof searchCol?.value === 'string' ? searchCol.value : undefined;
 
-  const deletedAtCol = columnFilters.find((f) => f.id === 'deletedAt');
+  const deletedAtCol = columnFilters.find((f) => f.id === 'deleted_at' || f.id === 'deletedAt');
   const [deletedAtFrom, deletedAtTo] = Array.isArray(deletedAtCol?.value)
     ? deletedAtCol.value
     : [undefined, undefined];
 
-  const expiresAtCol = columnFilters.find((f) => f.id === 'expiresAt');
+  const expiresAtCol = columnFilters.find((f) => f.id === 'expires_at' || f.id === 'expiresAt');
   const [expiresAtFrom, expiresAtTo] = Array.isArray(expiresAtCol?.value)
     ? expiresAtCol.value
     : [undefined, undefined];
 
-  const moduleSlugCol = columnFilters.find((f) => f.id === 'moduleSlug');
+  const moduleSlugCol = columnFilters.find(
+    (f) => f.id === 'module_slug' || f.id === 'moduleSlug' || f.id === 'entity_type'
+  );
   const moduleSlug =
     Array.isArray(moduleSlugCol?.value) && moduleSlugCol.value.length > 0
       ? (moduleSlugCol.value as string[])
@@ -72,14 +76,14 @@ export default function useTrashTable(
     page,
     limit,
     category,
-    sortBy,
-    sortOrder,
+    sort_by: sortBy,
+    sort_order: sortOrder,
     ...(search && { search }),
-    ...(moduleSlug && { moduleSlug }),
-    ...(deletedAtFrom && { deletedAtFrom }),
-    ...(deletedAtTo && { deletedAtTo }),
-    ...(expiresAtFrom && { expiresAtFrom }),
-    ...(expiresAtTo && { expiresAtTo }),
+    ...(moduleSlug && { entity_type: moduleSlug }),
+    ...(deletedAtFrom && { deleted_at_from: deletedAtFrom }),
+    ...(deletedAtTo && { deleted_at_to: deletedAtTo }),
+    ...(expiresAtFrom && { expires_at_from: expiresAtFrom }),
+    ...(expiresAtTo && { expires_at_to: expiresAtTo }),
   });
 
   const trashItems: TrashBinItemS[] = data?.data ?? [];

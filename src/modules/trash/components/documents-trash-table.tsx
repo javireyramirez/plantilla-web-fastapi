@@ -40,10 +40,17 @@ export function DocumentsTrashTable() {
 
   const { mutate: downloadUrl, isPending: isDownloading } = useDownloadUrl();
 
-  const handleDownload = (metadata: any) => {
-    if (!metadata) return;
-    const { entityType, entityId, documentId } = metadata;
-    if (entityType && entityId && documentId) {
+  const handleDownload = (item: TrashBinItemS) => {
+    if (!item) return;
+    const documentId = item.entity_id || item.entityId || item.metadata?.documentId || item.id;
+    const entityType =
+      item.modulePrincipalEntity?.code || item.metadata?.entityType || 'documents';
+    const entityId =
+      (item.modulePrincipalEntity?.entity_id as string) ||
+      item.metadata?.entityId ||
+      '';
+
+    if (documentId) {
       downloadUrl({ entityType, entityId, documentId });
     }
   };
@@ -76,19 +83,19 @@ export function DocumentsTrashTable() {
         enableHiding: false,
       },
       {
-        accessorKey: 'displayName',
+        id: 'display_name',
+        accessorKey: 'display_name',
         enableColumnFilter: true,
         enableSorting: true,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} label={t('trash.table.displayName')} />
         ),
         cell: ({ row }) => {
-          const metadata = row.original.metadata;
-          const name = (row.getValue('displayName') as string) || '-';
+          const name = (row.getValue('display_name') ?? (row.original as any).displayName) || '-';
           return (
             <button
               className="font-medium text-blue-500 hover:text-blue-700 hover:underline block truncate max-w-[250px] text-left cursor-pointer disabled:opacity-50"
-              onClick={() => handleDownload(metadata)}
+              onClick={() => handleDownload(row.original)}
               disabled={isDownloading}
             >
               {name}
@@ -173,7 +180,8 @@ export function DocumentsTrashTable() {
         },
       },
       {
-        accessorKey: 'deletedAt',
+        id: 'deleted_at',
+        accessorKey: 'deleted_at',
         enableColumnFilter: true,
         enableSorting: true,
         header: ({ column }) => (
@@ -181,7 +189,7 @@ export function DocumentsTrashTable() {
         ),
         cell: ({ row }) => (
           <span className="text-muted-foreground tabular-nums text-sm">
-            {formatDate(row.getValue('deletedAt') as string)}
+            {formatDate((row.getValue('deleted_at') ?? (row.original as any).deletedAt) as string)}
           </span>
         ),
         meta: {
@@ -191,7 +199,8 @@ export function DocumentsTrashTable() {
         },
       },
       {
-        accessorKey: 'deletedBy',
+        id: 'deleted_by',
+        accessorKey: 'deleted_by',
         enableColumnFilter: false,
         enableSorting: false,
         header: ({ column }) => (
@@ -199,8 +208,8 @@ export function DocumentsTrashTable() {
         ),
         cell: ({ row }) => {
           const deletor = row.original.deletor;
-          const name = deletor?.name || row.original.deletedByName;
-          const email = deletor?.email || row.original.deletedByEmail;
+          const name = deletor?.name || row.original.deleted_by_name || row.original.deletedByName;
+          const email = deletor?.email || row.original.deleted_by_email || row.original.deletedByEmail;
           if (name && email) {
             return (
               <span className="text-foreground text-sm font-medium">
@@ -210,20 +219,21 @@ export function DocumentsTrashTable() {
           }
           return (
             <span className="text-foreground text-sm font-medium">
-              {name || email || row.original.deletedBy || '-'}
+              {name || email || row.original.deleted_by || row.original.deletedBy || '-'}
             </span>
           );
         },
       },
       {
-        accessorKey: 'expiresAt',
+        id: 'expires_at',
+        accessorKey: 'expires_at',
         enableColumnFilter: true,
         enableSorting: true,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} label={t('trash.table.expiresAt')} />
         ),
         cell: ({ row }) => {
-          const dateVal = row.getValue('expiresAt');
+          const dateVal = row.getValue('expires_at') ?? (row.original as any).expiresAt;
           if (!dateVal) return '';
           const formattedDate = formatDate(dateVal as string);
 
@@ -304,8 +314,8 @@ export function DocumentsTrashTable() {
         table={table}
         totalCount={totalRows}
         mobileConfig={{
-          primaryColumn: 'displayName',
-          stackedColumns: ['parentModule', 'deletedAt'],
+          primaryColumn: 'display_name',
+          stackedColumns: ['parentModule', 'deleted_at'],
         }}
         actionBar={
           <DataTableFloatingBar

@@ -39,7 +39,7 @@ export function useTeamForm(id?: string) {
         {
           onSuccess: () => {
             toast.success(t('teams.form.update'));
-            if (shouldClose) navigate('/teams');
+            if (shouldClose) navigate('/admin/teams');
           },
           onError: (error: any) => {
             const serverMessage = error?.response?.data?.message || error?.message;
@@ -53,11 +53,11 @@ export function useTeamForm(id?: string) {
           toast.success(t('teams.form.create'));
 
           if (shouldClose) {
-            navigate('/teams');
+            navigate('/admin/teams');
           } else if (newTeam?.id) {
-            navigate(`/teams/edit/${newTeam.id}`);
+            navigate(`/admin/teams/edit/${newTeam.id}`);
           } else {
-            navigate('/teams');
+            navigate('/admin/teams');
           }
         },
         onError: (error: any) => {
@@ -74,7 +74,7 @@ export function useTeamForm(id?: string) {
     softDelete(id, {
       onSuccess: () => {
         toast.success(t('teams.form.delete'));
-        navigate('/teams');
+        navigate('/admin/teams');
       },
       onError: (error: any) => {
         const serverMessage = error?.response?.data?.message || error?.message;

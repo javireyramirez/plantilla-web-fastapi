@@ -1,12 +1,112 @@
 import instance from '@/config/api';
 
+const KEY_MAP: Record<string, string> = {
+  sortBy: 'sort_by',
+  sortOrder: 'sort_order',
+  isTrash: 'is_trash',
+  isActive: 'is_active',
+  isSystem: 'is_system',
+  emailVerified: 'email_verified',
+  createdAtFrom: 'created_at_from',
+  createdAtTo: 'created_at_to',
+  deletedAtFrom: 'deleted_at_from',
+  deletedAtTo: 'deleted_at_to',
+  expiresAtFrom: 'expires_at_from',
+  expiresAtTo: 'expires_at_to',
+  assignedFrom: 'assigned_from',
+  assignedTo: 'assigned_to',
+  moduleSlug: 'entity_type',
+  moduleId: 'entity_type',
+  userId: 'actor_id',
+  entityId: 'entity_id',
+  displayName: 'entity_name',
+};
+
+const SORT_VALUE_MAP: Record<string, string> = {
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
+  deletedAt: 'deleted_at',
+  expiresAt: 'expires_at',
+  assignedAt: 'assigned_at',
+  emailVerified: 'email_verified',
+  isActive: 'is_active',
+  isSystem: 'is_system',
+  moduleSlug: 'entity_type',
+  displayName: 'entity_name',
+  userId: 'actor_name',
+};
+
+function parseDateValue(val: any): Date | null {
+  if (val instanceof Date) return isNaN(val.getTime()) ? null : new Date(val.getTime());
+  if (typeof val === 'number') {
+    const d = new Date(val);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  if (typeof val === 'string' && val.trim()) {
+    const trimmed = val.trim();
+    if (/^\d{10,}$/.test(trimmed)) {
+      const d = new Date(Number(trimmed));
+      return isNaN(d.getTime()) ? null : d;
+    }
+    const d = new Date(trimmed);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  return null;
+}
+
+export function cleanApiParams(query?: Record<string, any>): Record<string, any> {
+  if (!query) return {};
+  const cleaned: Record<string, any> = {};
+
+  for (const [key, value] of Object.entries(query)) {
+    if (value === undefined || value === null || value === '') continue;
+    const targetKey = KEY_MAP[key] || key;
+
+    const isToDateKey = targetKey.endsWith('_to') || targetKey === 'to_date';
+    const isFromDateKey = targetKey.endsWith('_from') || targetKey === 'from_date';
+
+    if (isToDateKey) {
+      const d = parseDateValue(value);
+      if (d) {
+        if (d.getHours() === 0 && d.getMinutes() === 0 && d.getSeconds() === 0 && d.getMilliseconds() === 0) {
+          d.setHours(23, 59, 59, 999);
+        }
+        cleaned[targetKey] = d.toISOString();
+        continue;
+      }
+    } else if (isFromDateKey) {
+      const d = parseDateValue(value);
+      if (d) {
+        cleaned[targetKey] = d.toISOString();
+        continue;
+      }
+    }
+
+    if (value instanceof Date) {
+      cleaned[targetKey] = value.toISOString();
+    } else if (targetKey === 'sort_by' && typeof value === 'string') {
+      cleaned[targetKey] = SORT_VALUE_MAP[value] || value;
+    } else if (targetKey === 'actor_id' && Array.isArray(value)) {
+      cleaned[targetKey] = value[0];
+    } else if (targetKey === 'entity_type' && Array.isArray(value)) {
+      cleaned[targetKey] = value.join(',');
+    } else {
+      cleaned[targetKey] = value;
+    }
+  }
+  return cleaned;
+}
+
 export interface ExportRequest<TQuery = Record<string, unknown>, TId = string> {
   ids?: TId[];
   filters?: TQuery;
   columns?: string[];
   format?: 'csv' | 'excel' | 'json';
+  sort_by?: string;
   sortBy?: string;
+  sort_order?: 'asc' | 'desc';
   sortOrder?: 'asc' | 'desc';
+  is_trash?: boolean;
   isTrash?: boolean;
 }
 
@@ -24,7 +124,8 @@ export abstract class CrudService<
   // ── Lectura ──────────────────────────────────────────────────
 
   getAll = async (query?: TQuery): Promise<TAllResponse> => {
-    const { data } = await instance.get<TAllResponse>(`/${this.entityName}`, { params: query });
+    const params = cleanApiParams(query as Record<string, any>);
+    const { data } = await instance.get<TAllResponse>(`/${this.entityName}`, { params });
     return data;
   };
 
@@ -94,7 +195,14 @@ export abstract class CrudService<
   // ── Exportación con autodescarga ──────────────────────────────
 
   export = async (body: ExportRequest<TQuery, TId>): Promise<Blob> => {
-    const response = await instance.post<Blob>(`/${this.entityName}/export`, body, {
+    const payload = {
+      ...body,
+      sort_by: body.sort_by ?? (body.sortBy ? (SORT_VALUE_MAP[body.sortBy] || body.sortBy) : undefined),
+      sort_order: body.sort_order ?? body.sortOrder,
+      is_trash: body.is_trash ?? body.isTrash,
+      filters: body.filters ? cleanApiParams(body.filters as Record<string, any>) : undefined,
+    };
+    const response = await instance.post<Blob>(`/${this.entityName}/export`, payload, {
       responseType: 'blob',
     });
 

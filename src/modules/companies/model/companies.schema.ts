@@ -55,6 +55,7 @@ export const CompanyIdParamsSchema = z.object({
 // QUERIES
 export const GetCompaniesQuerySchema = GetPaginatedQueryBaseSchema.extend({
   nif: z.string().optional(),
+  cif: z.string().optional(),
   sector: z
     .preprocess((val) => {
       if (!val) return undefined;
@@ -62,7 +63,8 @@ export const GetCompaniesQuerySchema = GetPaginatedQueryBaseSchema.extend({
       return [val];
     }, z.array(z.string()))
     .optional(),
-  sortBy: z.enum(['name', 'nif', 'sector', 'createdAt']).optional().default('createdAt'),
+  sort_by: z.enum(['name', 'nif', 'sector', 'created_at', 'createdAt']).optional(),
+  sortBy: z.string().optional(),
 });
 
 export const GetListQuery = GetListQueryBase;

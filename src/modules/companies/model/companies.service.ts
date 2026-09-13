@@ -1,5 +1,5 @@
 import instance from '@/config/api';
-import { CrudService } from '@/services/crud.service';
+import { CrudService, cleanApiParams } from '@/services/crud.service';
 
 import {
   CompaniesListResponse,
@@ -83,7 +83,8 @@ class CompaniesService extends CrudService<
   }
 
   override getAll = async (query?: QueryParams): Promise<AllResponse> => {
-    const { data } = await instance.get<any>(`/${this.entityName}`, { params: query });
+    const params = cleanApiParams(query as Record<string, any>);
+    const { data } = await instance.get<any>(`/${this.entityName}`, { params });
     if (data?.data && Array.isArray(data.data)) {
       return {
         ...data,
@@ -94,8 +95,8 @@ class CompaniesService extends CrudService<
       return {
         data: data.map(normalizeCompany),
         meta: {
-          page: (query as any)?.page ?? 1,
-          limit: (query as any)?.limit ?? data.length,
+          page: query?.page ?? 1,
+          limit: query?.limit ?? 10,
           total: data.length,
           totalPages: 1,
         },

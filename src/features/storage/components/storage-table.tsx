@@ -1,8 +1,12 @@
 import { CalendarIcon, Download, ExternalLink, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import * as React from 'react';
+
+import { getAuditModuleLabel, getEntityLink } from '@/modules/audit/model/audit.types';
+import { useModules } from '@/modules/modules/model/modules.query';
 
 import { type ColumnDef } from '@tanstack/react-table';
 
@@ -34,6 +38,9 @@ export function DocumentsTable({
   isTrash = false,
 }: DocumentsTableComponentProps) {
   const { t } = useTranslation();
+  const { modulesMap } = useModules();
+
+  const isGlobalStorage = !entityId;
 
   const columns = React.useMemo<ColumnDef<Document>[]>(
     () => [
@@ -89,6 +96,81 @@ export function DocumentsTable({
           variant: 'text',
         },
       },
+      ...(isGlobalStorage
+        ? ([
+            {
+              id: 'parentModule',
+              header: ({ column }) => (
+                <DataTableColumnHeader column={column} label={t('trash.table.parentModule')} />
+              ),
+              cell: ({ row }) => {
+                const mod = row.original.modulePrincipalEntity;
+                if (mod) {
+                  return (
+                    <span className="text-foreground font-medium">
+                      {mod.name || getAuditModuleLabel(t, mod.code, modulesMap)}
+                    </span>
+                  );
+                }
+                const type = row.original.entityType;
+                if (!type) return '-';
+                return (
+                  <span className="text-foreground font-medium">
+                    {getAuditModuleLabel(t, type, modulesMap)}
+                  </span>
+                );
+              },
+            },
+            {
+              id: 'parentEntity',
+              header: ({ column }) => (
+                <DataTableColumnHeader column={column} label={t('trash.table.parentEntity')} />
+              ),
+              cell: ({ row }) => {
+                const mod = row.original.modulePrincipalEntity;
+                if (mod) {
+                  const name = mod.entity_name || mod.entity_id || '-';
+                  const link = getEntityLink(mod.code, mod.entity_id);
+
+                  if (link && name !== '-') {
+                    return (
+                      <Link
+                        to={link}
+                        className="font-medium text-blue-500 hover:text-blue-700 hover:underline block truncate max-w-[200px]"
+                      >
+                        {name}
+                      </Link>
+                    );
+                  }
+
+                  return (
+                    <span className="font-medium text-foreground block truncate max-w-[200px]">{name}</span>
+                  );
+                }
+
+                const type = row.original.entityType;
+                const id = row.original.entityId;
+                if (!type || !id) return '-';
+                const link = getEntityLink(type, id);
+
+                if (link) {
+                  return (
+                    <Link
+                      to={link}
+                      className="font-medium text-blue-500 hover:text-blue-700 hover:underline block truncate max-w-[200px]"
+                    >
+                      {id}
+                    </Link>
+                  );
+                }
+
+                return (
+                  <span className="font-medium text-foreground block truncate max-w-[200px]">{id}</span>
+                );
+              },
+            },
+          ] as ColumnDef<Document>[])
+        : []),
       {
         accessorKey: 'contentType',
         enableColumnFilter: true,
@@ -160,7 +242,7 @@ export function DocumentsTable({
         },
       },
     ],
-    [t]
+    [t, isGlobalStorage, modulesMap]
   );
 
   const {

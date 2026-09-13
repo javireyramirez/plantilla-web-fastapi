@@ -12,6 +12,31 @@
     "cancel": "Cancel",
     "save": "Save"
   },
+  "modules": {
+    "categories": {
+      "business": "Business",
+      "files": "Files",
+      "security": "Security",
+      "system": "System"
+    },
+    "names": {
+      "audit": "Audit",
+      "companies": "Companies",
+      "company": "Companies",
+      "documents": "Documents",
+      "document": "Documents",
+      "rbac": "Roles and Permissions",
+      "roles": "Roles",
+      "role": "Roles",
+      "storage": "Storage",
+      "teams": "Teams",
+      "team": "Teams",
+      "trash": "Trash",
+      "users": "Users",
+      "user": "Users",
+      "auth": "Authentication"
+    }
+  },
   "auth": {
     "orContinueWith": "Or continue with",
     "signInWithGoogle": "Sign in with Google",
@@ -77,6 +102,7 @@
   "sidebar": {
     "home": "Home",
     "admin": "Administration",
+    "backToApp": "Back to App",
     "nav": {
       "page1": "Home",
       "page2": "Page 1",
@@ -645,31 +671,5 @@
     }
   },
   "redirecting_message_one": "Redirecting to dashboard in {{count}} second...",
-  "redirecting_message_other": "Redirecting to dashboard in {{count}} seconds...",
-  "modules": {
-    "categories": {
-      "system": "System",
-      "business": "Business",
-      "files": "Files",
-      "security": "Security"
-    },
-    "names": {
-      "audit": "Audit",
-      "companies": "Companies",
-      "company": "Companies",
-      "companie": "Companies",
-      "documents": "Documents",
-      "document": "Documents",
-      "roles": "Roles",
-      "role": "Roles",
-      "storage": "Storage",
-      "teams": "Teams",
-      "team": "Teams",
-      "trash": "Trash",
-      "users": "Users",
-      "user": "Users",
-      "rbac": "Roles & Permissions",
-      "auth": "Authentication"
-    }
-  }
+  "redirecting_message_other": "Redirecting to dashboard in {{count}} seconds..."
 }

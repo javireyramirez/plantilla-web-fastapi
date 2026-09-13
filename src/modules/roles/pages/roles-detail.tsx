@@ -179,7 +179,7 @@ export default function RoleDetail() {
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink asChild className="transition-colors hover:text-foreground">
-                <Link to="/roles">{t('roles.title')}</Link>
+                <Link to="/admin/roles">{t('roles.title')}</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
@@ -260,7 +260,7 @@ export default function RoleDetail() {
                     disabled={isPending}
                     asChild
                   >
-                    <Link to="/roles/new">
+                    <Link to="/admin/roles/new">
                       <Plus className="h-4 w-4" />
                       {t('roles.new')}
                     </Link>
@@ -332,7 +332,7 @@ export default function RoleDetail() {
 
                       {/* Se muestra en el menú si la pantalla es menor a xl */}
                       <DropdownMenuItem disabled={isPending} className="xl:hidden gap-2" asChild>
-                        <Link to="/roles/new">
+                        <Link to="/admin/roles/new">
                           <Download className="h-4 w-4" />
                           {t('roles.new')}
                         </Link>

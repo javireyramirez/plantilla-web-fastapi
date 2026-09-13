@@ -37,7 +37,7 @@ export default function useAuditTable(
   const [limit, setLimit] = React.useState(getInitialLimit);
 
   const [sort] = sorting;
-  const sortBy = (sort ? sort.id : 'createdAt') as GetAuditLogsQuery['sortBy'];
+  const sortBy = (sort ? sort.id : 'created_at') as GetAuditLogsQuery['sort_by'];
   const sortOrder = sort ? (sort.desc ? 'desc' : 'asc') : 'desc';
 
   // Get action filter value from TanStack columnFilters
@@ -51,22 +51,22 @@ export default function useAuditTable(
         : undefined
   ) as GetAuditLogsQuery['action'] | undefined;
 
-  // Get moduleSlug filter values (multiSelect)
-  const moduleSlugCol = columnFilters.find((f) => f.id === 'moduleSlug');
+  // Get moduleSlug / entity_type filter values (multiSelect)
+  const moduleSlugCol = columnFilters.find((f) => f.id === 'entity_type' || f.id === 'moduleSlug');
   const moduleSlug =
     Array.isArray(moduleSlugCol?.value) && moduleSlugCol.value.length > 0
       ? (moduleSlugCol.value as string[])
       : undefined;
 
-  // Get userId filter values (asyncMultiSelect)
-  const userIdCol = columnFilters.find((f) => f.id === 'userId');
+  // Get userId / actor_id filter values (asyncMultiSelect)
+  const userIdCol = columnFilters.find((f) => f.id === 'actor_id' || f.id === 'userId');
   const userId =
     Array.isArray(userIdCol?.value) && userIdCol.value.length > 0
       ? (userIdCol.value as string[])
       : undefined;
 
   // Get date range filter values
-  const createdAtCol = columnFilters.find((f) => f.id === 'createdAt');
+  const createdAtCol = columnFilters.find((f) => f.id === 'created_at' || f.id === 'createdAt');
   const [createdFrom, createdTo] = Array.isArray(createdAtCol?.value)
     ? createdAtCol.value
     : [undefined, undefined];
@@ -78,15 +78,15 @@ export default function useAuditTable(
   const { data, isLoading, isFetching } = auditQueries.useGetAll({
     page,
     limit,
-    isTrash: false,
-    sortBy,
-    sortOrder,
+    is_trash: false,
+    sort_by: sortBy,
+    sort_order: sortOrder,
     ...(action && { action }),
-    ...(queryModuleSlug && { moduleSlug: queryModuleSlug }),
-    ...(queryEntityId && { entityId: queryEntityId }),
-    ...(userId && { userId }),
-    ...(createdFrom && { createdAtFrom: new Date(createdFrom) }),
-    ...(createdTo && { createdAtTo: new Date(createdTo) }),
+    ...(queryModuleSlug && { entity_type: queryModuleSlug }),
+    ...(queryEntityId && { entity_id: queryEntityId }),
+    ...(userId && { actor_id: userId }),
+    ...(createdFrom && { created_at_from: new Date(createdFrom) }),
+    ...(createdTo && { created_at_to: new Date(createdTo) }),
   });
 
   const auditLogs: AuditLogType[] = data?.data ?? [];

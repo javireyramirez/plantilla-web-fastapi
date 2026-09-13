@@ -46,19 +46,28 @@ export const RoleSchema = z.object({
   slug: z.string().optional(),
   description: z.string().optional().nullable(),
   isSystem: z.boolean().default(false),
+  is_system: z.boolean().default(false),
   icon: z.string().optional().nullable(),
   color: z.string().optional().nullable(),
-  status: recordStatusSchema,
+  status: recordStatusSchema.optional().default('ACTIVE'),
   permissions: z.array(RolePermissionItemSchema).optional().default([]),
   // Auditoría
   createdAt: z.date(),
+  created_at: z.union([z.string(), z.date()]).optional(),
   updatedAt: z.date(),
+  updated_at: z.union([z.string(), z.date()]).optional(),
   deletedAt: z.date().optional().nullable(),
+  deleted_at: z.union([z.string(), z.date()]).optional().nullable(),
   restoreAt: z.date().optional().nullable(),
+  restoredAt: z.date().optional().nullable(),
+  restored_at: z.union([z.string(), z.date()]).optional().nullable(),
   createdBy: z.string().optional().nullable(),
+  created_by: z.string().optional().nullable(),
   deletedBy: z.string().optional().nullable(),
+  deleted_by: z.string().optional().nullable(),
   restoreBy: z.string().optional().nullable(),
   updatedBy: z.string().optional().nullable(),
+  updated_by: z.string().optional().nullable(),
 });
 
 export const RolePermissionSchema = z.object({
@@ -118,15 +127,21 @@ export const RoleAssignmentParamsSchema = z.object({
 // ==========================================
 
 export const GetRoleQuerySchema = z.object({
-  page: z.coerce.number().optional().default(1),
-  limit: z.coerce.number().optional().default(10),
-  isTrash: z.preprocess((val) => val === 'true' || val === true, z.boolean()).default(false),
+  page: z.coerce.number().optional(),
+  limit: z.coerce.number().optional(),
+  is_trash: z.preprocess((val) => val === 'true' || val === true, z.boolean()).optional(),
+  isTrash: z.preprocess((val) => val === 'true' || val === true, z.boolean()).optional(),
   name: z.string().optional(),
+  created_at_from: z.coerce.date().optional(),
+  created_at_to: z.coerce.date().optional(),
   createdAtFrom: z.coerce.date().optional(),
   createdAtTo: z.coerce.date().optional(),
+  is_system: z.preprocess((val) => val === 'true' || val === true, z.boolean()).optional(),
   isSystem: z.preprocess((val) => val === 'true' || val === true, z.boolean()).optional(),
-  sortBy: z.string().optional().default('createdAt'),
-  sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
+  sort_by: z.string().optional(),
+  sortBy: z.string().optional(),
+  sort_order: z.enum(['asc', 'desc']).optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
 });
 
 export const GetListQuery = GetListQueryBase;
@@ -175,15 +190,24 @@ export const GetAssignmentsQuerySchema = z.object({
 export const CreateRoleBodySchema = RoleSchema.omit({
   id: true,
   isSystem: true,
+  is_system: true,
   status: true,
   createdAt: true,
+  created_at: true,
   updatedAt: true,
+  updated_at: true,
   deletedAt: true,
+  deleted_at: true,
   restoreAt: true,
+  restoredAt: true,
+  restored_at: true,
   createdBy: true,
+  created_by: true,
   deletedBy: true,
+  deleted_by: true,
   restoreBy: true,
   updatedBy: true,
+  updated_by: true,
   permissions: true,
 });
 

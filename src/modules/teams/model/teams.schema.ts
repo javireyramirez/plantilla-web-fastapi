@@ -49,7 +49,8 @@ export const TeamuserIdParamsSchema = z.object({
 // ==========================================
 
 export const GetTeamQuerySchema = GetPaginatedQueryBaseSchema.extend({
-  sortBy: z.string().optional().default('createdAt'),
+  sort_by: z.string().optional(),
+  sortBy: z.string().optional(),
 });
 
 export const GetTeamUsersQuerySchema = z.object({

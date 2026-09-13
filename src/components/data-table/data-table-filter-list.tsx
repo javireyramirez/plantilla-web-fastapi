@@ -717,13 +717,15 @@ function onFilterInputRender<TData>({
                       }
                 }
                 onSelect={(date) => {
+                  const from = date?.from
+                    ? new Date(date.from).setHours(0, 0, 0, 0).toString()
+                    : '';
+                  const toDate = date?.to ?? date?.from;
+                  const to = toDate
+                    ? new Date(toDate).setHours(23, 59, 59, 999).toString()
+                    : '';
                   onFilterUpdate(filter.filterId, {
-                    value: date
-                      ? [
-                          (date.from?.getTime() ?? '').toString(),
-                          (date.to?.getTime() ?? '').toString(),
-                        ]
-                      : [],
+                    value: date ? [from, to] : [],
                   });
                 }}
               />

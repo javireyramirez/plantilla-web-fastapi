@@ -1,5 +1,4 @@
-import { ChevronsUpDown, LoaderCircle, LogOut, User } from 'lucide-react';
-import { Check, Languages } from 'lucide-react';
+import { Check, ChevronsUpDown, Languages, LoaderCircle, LogOut, Settings, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
@@ -28,17 +27,21 @@ import {
 } from '@/components/ui/sidebar.js';
 import { useSession } from '@/config/auth-client.js';
 import { useSignOut } from '@/hooks/use-auth.js';
+import usePermissions from '@/hooks/use-permissions';
 import { SUPPORTED_LANGUAGES } from '@/lib/language';
 import { getLanguageLabel } from '@/lib/language';
 
 export default function NavUser() {
   const { i18n, t } = useTranslation();
+  const { can, isSuperAdmin } = usePermissions();
 
   const currentLang = i18n.language.split('-')[0];
 
   const { isMobile } = useSidebar();
   const { mutate: signOut, isPending } = useSignOut();
   const { data: session } = useSession();
+
+  const hasAdminAccess = isSuperAdmin || ['users', 'roles', 'teams', 'audit', 'trash', 'storage'].some((mod) => can(mod, 'READ'));
 
   if (!session?.user) {
     return (
@@ -123,6 +126,14 @@ export default function NavUser() {
                   {t('nav.profile')}
                 </Link>
               </DropdownMenuItem>
+              {hasAdminAccess && (
+                <DropdownMenuItem asChild>
+                  <Link to="/admin/users">
+                    <Settings className="mr-2 h-4 w-4" />
+                    {t('sidebar.admin')}
+                  </Link>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuSub>

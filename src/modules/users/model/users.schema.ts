@@ -22,11 +22,17 @@ export const UsersSchema = z.object({
   name: z.string().nullable().optional(),
   image: z.url().nullable().optional(),
   emailVerified: z.boolean(),
+  email_verified: z.boolean().optional(),
   isActive: z.boolean(),
+  is_active: z.boolean().optional(),
   isSystem: z.boolean(),
+  is_system: z.boolean().optional(),
   isSuperAdmin: z.boolean(),
+  is_super_admin: z.boolean().optional(),
   createdAt: z.date(),
+  created_at: z.union([z.string(), z.date()]).optional(),
   updatedAt: z.date(),
+  updated_at: z.union([z.string(), z.date()]).optional(),
 });
 
 export const sessionSchema = z.object({
@@ -55,7 +61,19 @@ export const UsersIdParamsSchema = z.object({
 
 export const GetUsersQuerySchema = GetPaginatedQueryBaseSchema.extend({
   // En users "isTrash" = usuarios inactivos (isActive: false)
+  is_system: z
+    .preprocess((v) => {
+      if (v === undefined || v === null || v === '') return undefined;
+      return v === 'true' || v === true;
+    }, z.boolean().optional())
+    .optional(),
   isSystem: z
+    .preprocess((v) => {
+      if (v === undefined || v === null || v === '') return undefined;
+      return v === 'true' || v === true;
+    }, z.boolean().optional())
+    .optional(),
+  is_active: z
     .preprocess((v) => {
       if (v === undefined || v === null || v === '') return undefined;
       return v === 'true' || v === true;
@@ -67,13 +85,50 @@ export const GetUsersQuerySchema = GetPaginatedQueryBaseSchema.extend({
       return v === 'true' || v === true;
     }, z.boolean().optional())
     .optional(),
+  email_verified: z
+    .preprocess((v) => {
+      if (v === undefined || v === null || v === '') return undefined;
+      return v === 'true' || v === true;
+    }, z.boolean().optional())
+    .optional(),
   emailVerified: z
     .preprocess((v) => {
       if (v === undefined || v === null || v === '') return undefined;
       return v === 'true' || v === true;
     }, z.boolean().optional())
     .optional(),
-  sortBy: z.enum(['name', 'email', 'createdAt', 'updatedAt']).optional().default('createdAt'),
+  sort_by: z
+    .enum([
+      'name',
+      'email',
+      'createdAt',
+      'created_at',
+      'updatedAt',
+      'updated_at',
+      'emailVerified',
+      'email_verified',
+      'isActive',
+      'is_active',
+      'isSystem',
+      'is_system',
+    ])
+    .optional(),
+  sortBy: z
+    .enum([
+      'name',
+      'email',
+      'createdAt',
+      'created_at',
+      'updatedAt',
+      'updated_at',
+      'emailVerified',
+      'email_verified',
+      'isActive',
+      'is_active',
+      'isSystem',
+      'is_system',
+    ])
+    .optional(),
 });
 
 export const GetListQuery = GetListQueryBase;

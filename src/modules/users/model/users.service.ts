@@ -15,7 +15,7 @@ import {
   UsersListResponse,
   UsersResponse,
 } from '@/modules/users/model/users.schema';
-import { CrudService } from '@/services/crud.service';
+import { CrudService, cleanApiParams } from '@/services/crud.service';
 
 type Item = UsersResponse;
 type CreateBody = CreateUsers;
@@ -27,18 +27,39 @@ type AllResponse = UsersListResponse;
 
 function normalizeUser(user: any): Users {
   if (!user) return user;
+  const isSys = user.is_system ?? user.isSystem ?? false;
+  const isAct = user.is_active ?? user.isActive ?? true;
+  const isSuper = user.is_super_admin ?? user.isSuperAdmin ?? false;
+  const emailVer = user.email_verified ?? user.emailVerified ?? false;
+  const created = user.created_at
+    ? new Date(user.created_at)
+    : user.createdAt
+      ? new Date(user.createdAt)
+      : new Date();
+  const updated = user.updated_at
+    ? new Date(user.updated_at)
+    : user.updatedAt
+      ? new Date(user.updatedAt)
+      : new Date();
+
   return {
     ...user,
     id: user.id,
     name: user.name ?? null,
     email: user.email ?? null,
     image: user.image ?? null,
-    emailVerified: user.email_verified ?? user.emailVerified ?? false,
-    isActive: user.is_active ?? user.isActive ?? true,
-    isSystem: user.is_system ?? user.isSystem ?? false,
-    isSuperAdmin: user.is_super_admin ?? user.isSuperAdmin ?? false,
-    createdAt: new Date(user.created_at ?? user.createdAt),
-    updatedAt: new Date(user.updated_at ?? user.updatedAt),
+    emailVerified: emailVer,
+    email_verified: emailVer,
+    isActive: isAct,
+    is_active: isAct,
+    isSystem: isSys,
+    is_system: isSys,
+    isSuperAdmin: isSuper,
+    is_super_admin: isSuper,
+    createdAt: created,
+    created_at: user.created_at ?? created.toISOString(),
+    updatedAt: updated,
+    updated_at: user.updated_at ?? updated.toISOString(),
   };
 }
 
@@ -56,18 +77,9 @@ class UsersService extends CrudService<
   }
 
   override getAll = async (query?: QueryParams): Promise<AllResponse> => {
-    const apiParams: Record<string, any> = {};
-    if (query?.page) apiParams.page = query.page;
-    if (query?.limit) apiParams.limit = query.limit;
-    if ((query as any)?.search) apiParams.search = (query as any).search;
-    if ((query as any)?.name) apiParams.search = (query as any).name;
-    if (query?.isSystem !== undefined) apiParams.is_system = query.isSystem;
-    if (query?.isActive !== undefined) apiParams.is_active = query.isActive;
-    if (query?.emailVerified !== undefined) apiParams.email_verified = query.emailVerified;
-    if (query?.sortBy) apiParams.sort_by = query.sortBy;
-    if (query?.sortOrder) apiParams.sort_order = query.sortOrder;
-
-    const { data } = await instance.get<any>(`/users`, { params: apiParams });
+    const { data } = await instance.get<any>(`/users`, {
+      params: cleanApiParams(query as Record<string, any>),
+    });
     const items = (data?.data ?? []).map(normalizeUser);
 
     return {
@@ -139,11 +151,27 @@ class UsersService extends CrudService<
   // ==========================================
 
   getRoleAssignments = async (usersId: string, params?: GetUserAssignmentsQuery) => {
-    const { data } = await instance.get<UserRolesPaginatedResponse>(
+    const { data } = await instance.get<any>(
       `${this.getMembersPath(usersId)}/roles`,
       { params }
     );
-    return data;
+    const items = (data?.data ?? []).map((r: any) => ({
+      ...r,
+      id: r.id,
+      name: r.name,
+      slug: r.slug,
+      assignedAt: r.assigned_at ? new Date(r.assigned_at) : (r.assignedAt ? new Date(r.assignedAt) : new Date()),
+      assigned_at: r.assigned_at ?? r.assignedAt,
+    }));
+    return {
+      data: items,
+      meta: data?.meta ?? {
+        page: params?.page ?? 1,
+        limit: params?.limit ?? items.length,
+        total: items.length,
+        totalPages: 1,
+      },
+    } as UserRolesPaginatedResponse;
   };
 
   addRoleAssignments = async (usersId: string, body: UpdateUserRolesBody) => {
@@ -168,11 +196,27 @@ class UsersService extends CrudService<
   // ==========================================
 
   getTeamAssignments = async (usersId: string, params?: GetUserAssignmentsQuery) => {
-    const { data } = await instance.get<UserTeamsPaginatedResponse>(
+    const { data } = await instance.get<any>(
       `${this.getMembersPath(usersId)}/teams`,
       { params }
     );
-    return data;
+    const items = (data?.data ?? []).map((t: any) => ({
+      ...t,
+      id: t.id,
+      name: t.name,
+      slug: t.slug,
+      joinedAt: t.joined_at ? new Date(t.joined_at) : (t.joinedAt ? new Date(t.joinedAt) : new Date()),
+      joined_at: t.joined_at ?? t.joinedAt,
+    }));
+    return {
+      data: items,
+      meta: data?.meta ?? {
+        page: params?.page ?? 1,
+        limit: params?.limit ?? items.length,
+        total: items.length,
+        totalPages: 1,
+      },
+    } as UserTeamsPaginatedResponse;
   };
 
   addTeamAssignments = async (usersId: string, body: UpdateUserTeamsBody) => {

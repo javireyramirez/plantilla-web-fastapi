@@ -65,15 +65,18 @@ export function EntitiesTrashTable() {
         enableHiding: false,
       },
       {
-        accessorKey: 'displayName',
+        id: 'display_name',
+        accessorKey: 'display_name',
         enableColumnFilter: true,
         enableSorting: true,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} label={t('trash.table.displayName')} />
         ),
         cell: ({ row }) => {
-          const link = getEntityLink(row.original.moduleSlug, row.original.entityId);
-          const name = (row.getValue('displayName') as string) || '-';
+          const slug = row.original.entity_type || row.original.moduleSlug;
+          const entityId = row.original.entity_id || row.original.entityId;
+          const link = getEntityLink(slug, entityId);
+          const name = (row.getValue('display_name') ?? (row.original as any).displayName) || '-';
           if (link) {
             return (
               <Link
@@ -94,14 +97,15 @@ export function EntitiesTrashTable() {
         },
       },
       {
-        accessorKey: 'moduleSlug',
+        id: 'module_slug',
+        accessorKey: 'module_slug',
         enableColumnFilter: true,
         enableSorting: true,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} label={t('trash.table.module')} />
         ),
         cell: ({ row }) => {
-          const slug = row.getValue('moduleSlug') as string;
+          const slug = (row.getValue('module_slug') ?? (row.original as any).moduleSlug ?? (row.original as any).entity_type) as string;
           return (
             <span className="text-foreground font-medium">
               {getAuditModuleLabel(t, slug, modulesMap)}
@@ -115,7 +119,8 @@ export function EntitiesTrashTable() {
         },
       },
       {
-        accessorKey: 'deletedAt',
+        id: 'deleted_at',
+        accessorKey: 'deleted_at',
         enableColumnFilter: true,
         enableSorting: true,
         header: ({ column }) => (
@@ -123,7 +128,7 @@ export function EntitiesTrashTable() {
         ),
         cell: ({ row }) => (
           <span className="text-muted-foreground tabular-nums text-sm">
-            {formatDate(row.getValue('deletedAt') as string)}
+            {formatDate((row.getValue('deleted_at') ?? (row.original as any).deletedAt) as string)}
           </span>
         ),
         meta: {
@@ -133,7 +138,8 @@ export function EntitiesTrashTable() {
         },
       },
       {
-        accessorKey: 'deletedBy',
+        id: 'deleted_by',
+        accessorKey: 'deleted_by',
         enableColumnFilter: false,
         enableSorting: false,
         header: ({ column }) => (
@@ -141,8 +147,8 @@ export function EntitiesTrashTable() {
         ),
         cell: ({ row }) => {
           const deletor = row.original.deletor;
-          const name = deletor?.name || row.original.deletedByName;
-          const email = deletor?.email || row.original.deletedByEmail;
+          const name = deletor?.name || row.original.deleted_by_name || row.original.deletedByName;
+          const email = deletor?.email || row.original.deleted_by_email || row.original.deletedByEmail;
           if (name && email) {
             return (
               <span className="text-foreground text-sm font-medium">
@@ -152,20 +158,21 @@ export function EntitiesTrashTable() {
           }
           return (
             <span className="text-foreground text-sm font-medium">
-              {name || email || row.original.deletedBy || '-'}
+              {name || email || row.original.deleted_by || row.original.deletedBy || '-'}
             </span>
           );
         },
       },
       {
-        accessorKey: 'expiresAt',
+        id: 'expires_at',
+        accessorKey: 'expires_at',
         enableColumnFilter: true,
         enableSorting: true,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} label={t('trash.table.expiresAt')} />
         ),
         cell: ({ row }) => {
-          const dateVal = row.getValue('expiresAt');
+          const dateVal = row.getValue('expires_at') ?? (row.original as any).expiresAt;
           if (!dateVal) return '';
           const formattedDate = formatDate(dateVal as string);
 
@@ -246,8 +253,8 @@ export function EntitiesTrashTable() {
         table={table}
         totalCount={totalRows}
         mobileConfig={{
-          primaryColumn: 'displayName',
-          stackedColumns: ['moduleSlug', 'deletedAt'],
+          primaryColumn: 'display_name',
+          stackedColumns: ['module_slug', 'deleted_at'],
         }}
         actionBar={
           <DataTableFloatingBar

@@ -181,7 +181,7 @@ export default function TeamDetail() {
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink asChild className="transition-colors hover:text-foreground">
-                <Link to="/teams">{t('teams.title')}</Link>
+                <Link to="/admin/teams">{t('teams.title')}</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
@@ -260,7 +260,7 @@ export default function TeamDetail() {
                     disabled={isPending}
                     asChild
                   >
-                    <Link to="/teams/new">
+                    <Link to="/admin/teams/new">
                       <Plus className="h-4 w-4" />
                       {t('teams.new')}
                     </Link>
@@ -326,7 +326,7 @@ export default function TeamDetail() {
                       </DropdownMenuItem>
 
                       <DropdownMenuItem disabled={isPending} className="xl:hidden gap-2" asChild>
-                        <Link to="/teams/new">
+                        <Link to="/admin/teams/new">
                           <Download className="h-4 w-4" />
                           {t('teams.new')}
                         </Link>

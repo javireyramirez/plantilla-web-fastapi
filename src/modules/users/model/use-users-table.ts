@@ -42,7 +42,7 @@ export default function useUsers(columns: ColumnDef<Users>[]) {
 
   const [sort] = sorting;
 
-  const sortBy = (sort ? sort.id : 'createdAt') as GetUsersQuery['sortBy'];
+  const sortBy = (sort ? sort.id : 'created_at') as GetUsersQuery['sort_by'];
   const sortOrder = sort ? (sort.desc ? 'desc' : 'asc') : 'desc';
 
   const nameCol = columnFilters.find((f) => f.id === 'name');
@@ -51,22 +51,24 @@ export default function useUsers(columns: ColumnDef<Users>[]) {
   const emailCol = columnFilters.find((f) => f.id === 'email');
   const email = typeof emailCol?.value === 'string' ? emailCol.value : undefined;
 
-  const isSystemCol = columnFilters.find((f) => f.id === 'isSystem');
+  const isSystemCol = columnFilters.find((f) => f.id === 'is_system' || f.id === 'isSystem');
   const isSystemRaw = Array.isArray(isSystemCol?.value) ? isSystemCol.value[0] : isSystemCol?.value;
   const isSystem = isSystemRaw === 'true' ? true : isSystemRaw === 'false' ? false : undefined;
 
-  const emailVerifiedCol = columnFilters.find((f) => f.id === 'emailVerified');
+  const emailVerifiedCol = columnFilters.find(
+    (f) => f.id === 'email_verified' || f.id === 'emailVerified'
+  );
   const emailVerifiedRaw = Array.isArray(emailVerifiedCol?.value)
     ? emailVerifiedCol.value[0]
     : emailVerifiedCol?.value;
   const emailVerified =
     emailVerifiedRaw === 'true' ? true : emailVerifiedRaw === 'false' ? false : undefined;
 
-  const isActiveCol = columnFilters.find((f) => f.id === 'isActive');
+  const isActiveCol = columnFilters.find((f) => f.id === 'is_active' || f.id === 'isActive');
   const isActiveRaw = Array.isArray(isActiveCol?.value) ? isActiveCol.value[0] : isActiveCol?.value;
   const isActive = isActiveRaw === 'true' ? true : isActiveRaw === 'false' ? false : undefined;
 
-  const createdAtCol = columnFilters.find((f) => f.id === 'createdAt');
+  const createdAtCol = columnFilters.find((f) => f.id === 'created_at' || f.id === 'createdAt');
   const [createdFrom, createdTo] = Array.isArray(createdAtCol?.value)
     ? createdAtCol.value
     : [undefined, undefined];
@@ -74,17 +76,16 @@ export default function useUsers(columns: ColumnDef<Users>[]) {
   const { data, isLoading, isFetching } = usersQueries.useGetAll({
     page,
     limit,
-    isTrash: false,
-    sortBy,
-    sortOrder,
+    is_trash: false,
+    sort_by: sortBy,
+    sort_order: sortOrder,
     ...(name && { name }),
     ...(email && { email }),
-    ...(isSystem !== undefined && { isSystem }),
-    ...(isActive !== undefined && { isActive }),
-    ...(emailVerified !== undefined && { emailVerified }),
-
-    createdAtFrom: createdFrom ? createdFrom : undefined,
-    createdAtTo: createdTo ? createdTo : undefined,
+    ...(isSystem !== undefined && { is_system: isSystem }),
+    ...(isActive !== undefined && { is_active: isActive }),
+    ...(emailVerified !== undefined && { email_verified: emailVerified }),
+    created_at_from: createdFrom ? createdFrom : undefined,
+    created_at_to: createdTo ? createdTo : undefined,
   });
 
   const users: Users[] = data?.data ?? [];

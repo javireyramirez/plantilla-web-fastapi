@@ -15,6 +15,7 @@ import { DataTableToolbar } from '@/components/data-table/data-table-toolbar-des
 import { DataTableToolbarMobile } from '@/components/data-table/data-table-toolbar-mobile';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import usePermissions from '@/hooks/use-permissions';
 import { formatDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import useUsers from '@/modules/users//model/use-users-table';
@@ -23,6 +24,7 @@ import { UsersResponse } from '@/modules/users/model/users.schema';
 export function UsersTable() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { can } = usePermissions();
 
   const columns = React.useMemo<ColumnDef<UsersResponse>[]>(
     () => [
@@ -61,7 +63,7 @@ export function UsersTable() {
             <div className="flex items-center gap-2 min-w-0">
               <button
                 className="truncate font-medium max-w-xs text-blue-500 hover:text-blue-700 hover:underline text-left"
-                onClick={() => navigate(`/users/edit/${row.original.id}`)}
+                onClick={() => navigate(`/admin/users/edit/${row.original.id}`)}
               >
                 {row.getValue('name')}
               </button>
@@ -84,7 +86,7 @@ export function UsersTable() {
             <div className="flex items-center gap-2 min-w-0">
               <button
                 className="truncate font-medium max-w-xs text-blue-500 hover:text-blue-700 hover:underline text-left"
-                onClick={() => navigate(`/users/edit/${row.original.id}`)}
+                onClick={() => navigate(`/admin/users/edit/${row.original.id}`)}
               >
                 {row.getValue('email')}
               </button>
@@ -98,14 +100,15 @@ export function UsersTable() {
       },
 
       {
-        accessorKey: 'isActive',
+        id: 'is_active',
+        accessorKey: 'is_active',
         enableColumnFilter: true,
         enableSorting: true,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} label={t('users.isActive')} />
         ),
         cell: ({ row }) => {
-          const isActive = row.getValue('isActive') as boolean;
+          const isActive = (row.getValue('is_active') ?? (row.original as any).isActive) as boolean;
           return (
             <div className="flex items-center gap-2 min-w-0">
               <Badge variant={isActive ? 'default' : 'secondary'}>
@@ -125,14 +128,15 @@ export function UsersTable() {
       },
 
       {
-        accessorKey: 'isSystem',
+        id: 'is_system',
+        accessorKey: 'is_system',
         enableColumnFilter: true,
         enableSorting: true,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} label={t('users.isSystem')} />
         ),
         cell: ({ row }) => {
-          const isSystem = row.getValue('isSystem') as boolean;
+          const isSystem = (row.getValue('is_system') ?? (row.original as any).isSystem) as boolean;
           return (
             <div className="flex items-center gap-2 min-w-0">
               <Badge variant={isSystem ? 'default' : 'secondary'}>
@@ -152,14 +156,15 @@ export function UsersTable() {
       },
 
       {
-        accessorKey: 'emailVerified',
+        id: 'email_verified',
+        accessorKey: 'email_verified',
         enableColumnFilter: true,
         enableSorting: true,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} label={t('users.emailVerified')} />
         ),
         cell: ({ row }) => {
-          const emailVerified = row.getValue('emailVerified') as boolean;
+          const emailVerified = (row.getValue('email_verified') ?? (row.original as any).emailVerified) as boolean;
           return (
             <div className="flex items-center gap-2 min-w-0">
               <Badge variant={emailVerified ? 'default' : 'secondary'}>
@@ -179,7 +184,8 @@ export function UsersTable() {
       },
 
       {
-        accessorKey: 'createdAt',
+        id: 'created_at',
+        accessorKey: 'created_at',
         enableColumnFilter: true,
         enableSorting: true,
         header: ({ column }) => (
@@ -187,7 +193,7 @@ export function UsersTable() {
         ),
         cell: ({ row }) => (
           <span className="text-muted-foreground tabular-nums text-sm">
-            {formatDate(row.getValue('createdAt'))}
+            {formatDate((row.getValue('created_at') ?? (row.original as any).createdAt) as string)}
           </span>
         ),
         meta: {
@@ -215,6 +221,59 @@ export function UsersTable() {
     isPendingActions,
   } = useUsers(columns);
 
+  const floatingActions = React.useMemo(() => {
+    const list = [];
+    if (can('users', 'EXPORT')) {
+      list.push({
+        label: t('users.export'),
+        icon: <Download className="h-4 w-4" />,
+        disabled: isPendingActions,
+        onClick: (rows: any) => handleExport(rows),
+      });
+    }
+    if (can('users', 'UPDATE')) {
+      list.push({
+        label: t('users.resendInvitation'),
+        icon: <Send className="h-4 w-4" />,
+        disabled: isPendingActions,
+        onClick: (rows: any) => handleResendInvitation(rows),
+      });
+      list.push({
+        label: t('users.suspend'),
+        icon: <Ban className="h-4 w-4" />,
+        disabled: isPendingActions,
+        onClick: (rows: any) => handleSuspend(rows),
+        className: 'border-amber-500 text-amber-600 hover:bg-amber-500 hover:text-white',
+      });
+      list.push({
+        label: t('users.unsuspend'),
+        icon: <UserCheck className="h-4 w-4" />,
+        disabled: isPendingActions,
+        onClick: (rows: any) => handleUnsuspend(rows),
+        className: 'border-emerald-500 text-emerald-600 hover:bg-emerald-500 hover:text-white',
+      });
+    }
+    if (can('users', 'DELETE')) {
+      list.push({
+        label: t('users.delete'),
+        icon: <Trash2 className="h-4 w-4" />,
+        disabled: isPendingActions,
+        onClick: (rows: any) => handleDelete(rows),
+        className: 'border-destructive text-destructive hover:bg-destructive hover:text-white',
+      });
+    }
+    return list;
+  }, [
+    can,
+    t,
+    isPendingActions,
+    handleExport,
+    handleResendInvitation,
+    handleSuspend,
+    handleUnsuspend,
+    handleDelete,
+  ]);
+
   // Skeleton
   if (isLoading) {
     return (
@@ -240,49 +299,12 @@ export function UsersTable() {
         totalCount={totalRows}
         mobileConfig={{
           primaryColumn: 'name',
-          stackedColumns: ['createdAt'],
+          stackedColumns: ['created_at'],
         }}
         actionBar={
-          <DataTableFloatingBar
-            table={table}
-            actions={[
-              {
-                label: t('users.export'),
-                icon: <Download className="h-4 w-4" />,
-                disabled: isPendingActions,
-                onClick: (rows) => handleExport(rows),
-              },
-              {
-                label: t('users.resendInvitation'),
-                icon: <Send className="h-4 w-4" />,
-                disabled: isPendingActions,
-                onClick: (rows) => handleResendInvitation(rows),
-              },
-              {
-                label: t('users.suspend'),
-                icon: <Ban className="h-4 w-4" />,
-                disabled: isPendingActions,
-                onClick: (rows) => handleSuspend(rows),
-                className: 'border-amber-500 text-amber-600 hover:bg-amber-500 hover:text-white',
-              },
-              {
-                label: t('users.unsuspend'),
-                icon: <UserCheck className="h-4 w-4" />,
-                disabled: isPendingActions,
-                onClick: (rows) => handleUnsuspend(rows),
-                className:
-                  'border-emerald-500 text-emerald-600 hover:bg-emerald-500 hover:text-white',
-              },
-              {
-                label: t('users.delete'),
-                icon: <Trash2 className="h-4 w-4" />,
-                disabled: isPendingActions,
-                onClick: (rows) => handleDelete(rows),
-                className:
-                  'border-destructive text-destructive hover:bg-destructive hover:text-white',
-              },
-            ]}
-          />
+          floatingActions.length > 0 ? (
+            <DataTableFloatingBar table={table} actions={floatingActions} />
+          ) : undefined
         }
       >
         {isMobile ? <DataTableToolbarMobile table={table} /> : <DataTableToolbar table={table} />}

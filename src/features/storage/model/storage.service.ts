@@ -8,13 +8,13 @@ class StorageService {
   // 1. CONSULTAS Y LECTURA
   // ==========================================
 
-  getDocuments = async (entityType: string, entityId: string, query?: GetDocumentsQuery) => {
+  getDocuments = async (entityType?: string, entityId?: string, query?: GetDocumentsQuery) => {
     const apiParams: Record<string, any> = {
       page: query?.page ?? 1,
       limit: query?.limit ?? 10,
-      entity_type: entityType,
-      entity_id: entityId,
     };
+    if (entityType) apiParams.entity_type = entityType;
+    if (entityId) apiParams.entity_id = entityId;
     if (query?.sortBy) {
       apiParams.sort_by =
         query.sortBy === 'fileName'
@@ -31,6 +31,9 @@ class StorageService {
     if (query?.fileName) apiParams.search = query.fileName;
     if (query?.createdFrom) apiParams.created_at_from = query.createdFrom;
     if (query?.createdTo) apiParams.created_at_to = query.createdTo;
+    if (query?.contentTypes && query.contentTypes.length > 0) {
+      apiParams.content_type = query.contentTypes.join(',');
+    }
     if (query?.isTrash !== undefined) apiParams.is_trash = query.isTrash;
 
     const response = await instance.get<any>(`/storage/documents`, {
@@ -57,6 +60,9 @@ class StorageService {
       createdAt: item.created_at ?? item.createdAt,
       updatedAt: item.updated_at ?? item.updatedAt,
       isTrash: item.is_trash ?? item.isTrash ?? false,
+      entityType: item.entity_type ?? item.entityType,
+      entityId: item.entity_id ?? item.entityId,
+      modulePrincipalEntity: item.module_principal_entity ?? item.modulePrincipalEntity ?? null,
     }));
 
     return {

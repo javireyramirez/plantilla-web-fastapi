@@ -127,7 +127,7 @@ export default function UsersDetail() {
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink asChild className="transition-colors hover:text-foreground">
-                <Link to="/users">{t('users.title')}</Link>
+                <Link to="/admin/users">{t('users.title')}</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
@@ -257,7 +257,7 @@ export default function UsersDetail() {
                     disabled={isPending}
                     asChild
                   >
-                    <Link to="/users/new">
+                    <Link to="/admin/users/new">
                       <Plus className="h-4 w-4" />
                       {t('users.new')}
                     </Link>
@@ -359,7 +359,7 @@ export default function UsersDetail() {
 
                       {/* Se muestra en el menú si la pantalla es menor a xl */}
                       <DropdownMenuItem disabled={isPending} className="xl:hidden gap-2" asChild>
-                        <Link to="/users/new">
+                        <Link to="/admin/users/new">
                           <Plus className="h-4 w-4" />
                           {t('users.new')}
                         </Link>

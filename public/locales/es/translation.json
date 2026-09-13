@@ -101,7 +101,8 @@
   },
   "sidebar": {
     "home": "Home",
-    "admin": "Administracion",
+    "admin": "Administración",
+    "backToApp": "Volver a la App",
     "nav": {
       "page1": "Inicio",
       "page2": "Página 1",
@@ -517,18 +518,18 @@
   "teamMembers": {
     "add": "Añadir miembros",
     "addTitle": "Añadir miembros al equipo",
-    "addDescription": "Selecciona varias personas y aplí­calo cuando estéss listo.",
+    "addDescription": "Selecciona varias personas y aplícalo cuando estés listo.",
     "selectUser": "Selecciona usuarios",
     "searchUser": "Buscar usuarios",
     "noUsersFound": "No se encontraron usuarios.",
     "apply": "Aplicar",
-    "added": "Miembro añadido con Ã©xito",
-    "addedMany": "Miembros añadidos con Ã©xito",
+    "added": "Miembro añadido con éxito",
+    "addedMany": "Miembros añadidos con éxito",
     "addError": "Error al añadir miembros",
     "remove": "Eliminar",
     "team": "Equipo",
     "table": {
-      "removed": "Miembros eliminados con Ã©xito",
+      "removed": "Miembros eliminados con éxito",
       "removeError": "Error al eliminar los miembros",
       "selectAll": "Seleccionar todo",
       "selectRow": "Seleccionar fila",
@@ -681,31 +682,5 @@
     }
   },
   "redirecting_message_one": "Redirigiendo al dashboard en {{count}} segundo...",
-  "redirecting_message_other": "Redirigiendo al dashboard en {{count}} segundos...",
-  "modules": {
-    "categories": {
-      "system": "Sistema",
-      "business": "Negocio",
-      "files": "Archivos",
-      "security": "Seguridad"
-    },
-    "names": {
-      "audit": "Auditoría",
-      "companies": "Empresas",
-      "company": "Empresas",
-      "companie": "Empresas",
-      "documents": "Documentos",
-      "document": "Documentos",
-      "roles": "Roles",
-      "role": "Roles",
-      "storage": "Almacenamiento",
-      "teams": "Equipos",
-      "team": "Equipos",
-      "trash": "Papelera",
-      "users": "Usuarios",
-      "user": "Usuarios",
-      "rbac": "Roles y Permisos",
-      "auth": "Autenticación"
-    }
-  }
+  "redirecting_message_other": "Redirigiendo al dashboard en {{count}} segundos..."
 }

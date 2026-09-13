@@ -45,8 +45,9 @@ export function getEntityLink(
 ) {
   if (!moduleSlug || !entityId) return null;
   const normalized = normalizeModuleSlug(moduleSlug);
-  if (!['companies', 'users', 'teams', 'roles'].includes(normalized)) return null;
-  return `/${normalized}/edit/${entityId}`;
+  if (normalized === 'companies') return `/companies/edit/${entityId}`;
+  if (['users', 'teams', 'roles'].includes(normalized)) return `/admin/${normalized}/edit/${entityId}`;
+  return null;
 }
 
 export function getAuditActionLabel(

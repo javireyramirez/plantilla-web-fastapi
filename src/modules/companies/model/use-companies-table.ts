@@ -42,7 +42,7 @@ export default function useCompanies(columns: ColumnDef<Company>[]) {
 
   const [sort] = sorting;
 
-  const sortBy = (sort ? sort.id : 'createdAt') as GetCompaniesQuery['sortBy'];
+  const sortBy = (sort ? sort.id : 'created_at') as GetCompaniesQuery['sort_by'];
   const sortOrder = sort ? (sort.desc ? 'desc' : 'asc') : 'desc';
 
   const nameCol = columnFilters.find((f) => f.id === 'name');
@@ -57,7 +57,7 @@ export default function useCompanies(columns: ColumnDef<Company>[]) {
       ? (sectorCol.value as string[])
       : undefined;
 
-  const createdAtCol = columnFilters.find((f) => f.id === 'createdAt');
+  const createdAtCol = columnFilters.find((f) => f.id === 'created_at' || f.id === 'createdAt');
   const [createdFrom, createdTo] = Array.isArray(createdAtCol?.value)
     ? createdAtCol.value
     : [undefined, undefined];
@@ -65,14 +65,14 @@ export default function useCompanies(columns: ColumnDef<Company>[]) {
   const { data, isLoading, isFetching } = companiesQueries.useGetAll({
     page,
     limit,
-    isTrash: false,
-    sortBy,
-    sortOrder,
+    is_trash: false,
+    sort_by: sortBy,
+    sort_order: sortOrder,
     ...(name && { name }),
     ...(nif && { nif }),
     ...(sector && { sector }),
-    createdAtFrom: createdFrom ? createdFrom : undefined,
-    createdAtTo: createdTo ? createdTo : undefined,
+    created_at_from: createdFrom ? createdFrom : undefined,
+    created_at_to: createdTo ? createdTo : undefined,
   });
 
   const companies: Company[] = data?.data ?? [];

@@ -59,16 +59,6 @@ export const AuditFieldsSchema = z.object({
   updatedBy: z.string().optional().nullable(),
 });
 
-export const GetPaginatedQueryBaseSchema = z.object({
-  page: z.coerce.number().int().positive().optional().default(1),
-  limit: z.coerce.number().int().positive().max(100).optional().default(10),
-  isTrash: z.preprocess((val) => val === 'true' || val === true, z.boolean()).default(false),
-  name: z.string().optional(),
-  createdAtFrom: z.date().optional().nullable(),
-  createdAtTo: z.date().optional().nullable(),
-  sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
-});
-
 export const dateQueryBase = z
   .preprocess((val) => {
     if (!val) return undefined;
@@ -76,6 +66,22 @@ export const dateQueryBase = z
     return isNaN(num) ? new Date(val as string) : new Date(num);
   }, z.date().optional())
   .optional();
+
+export const GetPaginatedQueryBaseSchema = z.object({
+  page: z.coerce.number().int().positive().optional(),
+  limit: z.coerce.number().int().positive().max(100).optional(),
+  is_trash: z.preprocess((val) => (val === undefined || val === null ? undefined : val === 'true' || val === true), z.boolean().optional()),
+  isTrash: z.preprocess((val) => (val === undefined || val === null ? undefined : val === 'true' || val === true), z.boolean().optional()),
+  name: z.string().optional(),
+  created_at_from: dateQueryBase,
+  created_at_to: dateQueryBase,
+  createdAtFrom: z.date().optional().nullable(),
+  createdAtTo: z.date().optional().nullable(),
+  sort_by: z.string().optional(),
+  sortBy: z.string().optional(),
+  sort_order: z.enum(['asc', 'desc']).optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+});
 
 export function createPaginatedResponseSchema<T extends z.ZodTypeAny>(dataSchema: T) {
   return z.object({
@@ -96,7 +102,10 @@ export const ExportRequestSchema = z.object({
   filters: z.record(z.string(), z.any()).optional(),
   columns: z.array(z.string()).optional(),
   format: ExportFormatSchema.default('csv'),
+  sort_by: z.string().optional(),
   sortBy: z.string().optional(),
+  sort_order: z.enum(['asc', 'desc']).optional(),
   sortOrder: z.enum(['asc', 'desc']).optional(),
-  isTrash: z.boolean().optional().default(false),
+  is_trash: z.boolean().optional().default(false),
+  isTrash: z.boolean().optional(),
 });

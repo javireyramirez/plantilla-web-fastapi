@@ -113,8 +113,8 @@ export function DataTableDateFilter<TData>({
         }
 
         if (multiple && !('getTime' in date)) {
-          const from = date.from?.getTime();
-          const to = date.to?.getTime();
+          const from = date.from ? new Date(date.from).setHours(0, 0, 0, 0) : undefined;
+          const to = date.to ? new Date(date.to).setHours(23, 59, 59, 999) : undefined;
           column.setFilterValue(from || to ? [from, to] : undefined);
         } else if (!multiple && 'getTime' in date) {
           column.setFilterValue(date.getTime());
@@ -126,8 +126,13 @@ export function DataTableDateFilter<TData>({
 
   const handleApply = React.useCallback(() => {
     if (multiple && getIsDateRange(pendingDates)) {
-      const from = pendingDates.from?.getTime();
-      const to = pendingDates.to?.getTime();
+      const from = pendingDates.from
+        ? new Date(pendingDates.from).setHours(0, 0, 0, 0)
+        : undefined;
+      const toDate = pendingDates.to ?? pendingDates.from;
+      const to = toDate
+        ? new Date(toDate).setHours(23, 59, 59, 999)
+        : undefined;
       column.setFilterValue(from || to ? [from, to] : undefined);
     }
     setOpen(false);
@@ -153,6 +158,9 @@ export function DataTableDateFilter<TData>({
   const formatDateRange = React.useCallback((range: DateRange) => {
     if (!range.from && !range.to) return '';
     if (range.from && range.to) {
+      if (range.from.toDateString() === range.to.toDateString()) {
+        return formatDate(range.from);
+      }
       return `${formatDate(range.from)} - ${formatDate(range.to)}`;
     }
     return formatDate(range.from ?? range.to);
