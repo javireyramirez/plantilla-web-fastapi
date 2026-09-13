@@ -556,23 +556,47 @@
     "title": "Home"
   },
   "storage": {
+    "title": "Storage & Documents",
     "uploadFile": "Upload file",
     "uploading": "Uploading...",
     "dropzone": {
-      "dropActive": "Drop the files here",
-      "clickDragMultiple": "Click or drag files",
-      "clickDragSingle": "Click or drag a file",
-      "maxSizeInfo": "Maximum 5MB per file",
+      "dropActive": "Drop files here...",
+      "clickDragMultiple": "Click or drag files here to upload",
+      "clickDragSingle": "Click or drag a file here to upload",
+      "maxSizeInfo": "Maximum allowed size: {{size}}",
       "uploadMultipleCount": "Upload {{count}} documents",
       "uploadSingle": "Upload document"
     },
+    "categories": {
+      "images": "Images",
+      "documents": "Documents",
+      "spreadsheets": "Spreadsheets",
+      "presentations": "Presentations",
+      "archives": "Compressed files",
+      "code": "Code & Data",
+      "video": "Videos",
+      "audio": "Audio"
+    },
     "types": {
       "document": "Documents",
+      "pdf": "PDF (.pdf)",
+      "word": "Word (.doc, .docx)",
+      "text": "Text (.txt)",
       "spreadsheet": "Spreadsheets",
+      "excel": "Excel (.xls, .xlsx)",
+      "csv": "CSV (.csv)",
       "presentation": "Presentations",
+      "powerpoint": "PowerPoint (.ppt, .pptx)",
       "image": "Images",
+      "png": "PNG (.png)",
+      "jpeg": "JPEG / JPG (.jpg, .jpeg)",
+      "gif": "GIF (.gif)",
+      "webp": "WebP (.webp)",
+      "archive": "Compressed files",
+      "zip": "ZIP / RAR (.zip, .rar)",
       "data": "Data",
-      "archive": "Archives"
+      "code": "Code",
+      "json": "JSON / XML (.json, .xml)"
     },
     "table": {
       "selectTodo": "Select all",
@@ -581,14 +605,19 @@
       "type": "Type",
       "size": "Size",
       "date": "Date",
+      "createdAt": "Date",
       "creation": "Creation",
+      "actions": "Actions",
       "delete": "Delete",
-      "download": "Download"
+      "download": "Download",
+      "sendToTrash": "Send to trash",
+      "deletePermanent": "Delete permanently"
     },
     "toast": {
-      "uploadSuccessMultiple": "Documents successfully uploaded",
-      "uploadSuccessSingle": "Document successfully uploaded",
-      "uploadError": "Error uploading document"
+      "uploadSuccessMultiple": "Files uploaded successfully",
+      "uploadSuccessSingle": "File uploaded successfully",
+      "uploadError": "Failed to upload file",
+      "fileTooLarge": "File \"{{name}}\" exceeds the maximum allowed size of {{size}}"
     }
   },
   "audit": {
@@ -673,3 +702,4 @@
   "redirecting_message_one": "Redirecting to dashboard in {{count}} second...",
   "redirecting_message_other": "Redirecting to dashboard in {{count}} seconds..."
 }
+

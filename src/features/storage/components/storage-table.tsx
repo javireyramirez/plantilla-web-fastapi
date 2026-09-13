@@ -27,8 +27,10 @@ import {
   CONTENT_TYPE_OPTIONS,
   getContentTypeIcon,
   getContentTypeLabel,
+  getStorageTypeOptions,
 } from '@/features/storage/model/storage-table-utils';
 import { useStorageTable } from '@/features/storage/model/use-storage-table';
+import { useSettings } from '@/hooks/use-settings';
 import { formatBytes, formatDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
@@ -39,8 +41,10 @@ export function DocumentsTable({
 }: DocumentsTableComponentProps) {
   const { t } = useTranslation();
   const { modulesMap } = useModules();
+  const { maxUploadSizeBytes } = useSettings();
 
   const isGlobalStorage = !entityId;
+  const maxMB = Math.max(1, Math.ceil(maxUploadSizeBytes / (1024 * 1024)));
 
   const columns = React.useMemo<ColumnDef<Document>[]>(
     () => [
@@ -196,10 +200,7 @@ export function DocumentsTable({
         meta: {
           label: t('storage.table.type'),
           variant: 'multiSelect',
-          options: CONTENT_TYPE_OPTIONS.map((opt) => ({
-            ...opt,
-            label: t(`storage.types.${opt.value}`),
-          })),
+          options: getStorageTypeOptions(t),
         },
       },
       {
@@ -214,12 +215,20 @@ export function DocumentsTable({
             {formatBytes(row.getValue('size'))}
           </span>
         ),
-        filterFn: 'inNumberRange',
+        filterFn: (row, id, filterValue) => {
+          if (!Array.isArray(filterValue) || filterValue.length !== 2) return true;
+          const [minMB, maxMBVal] = filterValue;
+          const sizeBytes = Number(row.getValue(id)) || 0;
+          const sizeMB = sizeBytes / (1024 * 1024);
+          const min = typeof minMB === 'number' ? minMB : 0;
+          const max = typeof maxMBVal === 'number' ? maxMBVal : Infinity;
+          return sizeMB >= min && sizeMB <= max;
+        },
 
         meta: {
           label: t('storage.table.size'),
           variant: 'range',
-          range: [0, 25],
+          range: [0, maxMB],
           unit: 'MB',
         },
       },
@@ -228,7 +237,7 @@ export function DocumentsTable({
         enableColumnFilter: true,
         enableSorting: true,
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} label={t('storage.table.date')} />
+          <DataTableColumnHeader column={column} label={t('storage.table.createdAt')} />
         ),
         cell: ({ row }) => (
           <span className="text-muted-foreground tabular-nums text-sm">
@@ -236,13 +245,13 @@ export function DocumentsTable({
           </span>
         ),
         meta: {
-          label: t('storage.table.creation'),
+          label: t('storage.table.createdAt'),
           variant: 'dateRange',
           icon: CalendarIcon,
         },
       },
     ],
-    [t, isGlobalStorage, modulesMap]
+    [t, isGlobalStorage, modulesMap, maxMB]
   );
 
   const {

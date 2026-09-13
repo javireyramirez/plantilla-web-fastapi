@@ -567,39 +567,68 @@
     "title": "Inicio"
   },
   "storage": {
+    "title": "Almacenamiento y Documentos",
     "uploadFile": "Subir archivo",
     "uploading": "Subiendo...",
     "dropzone": {
-      "dropActive": "Suelta los archivos aquí",
-      "clickDragMultiple": "Haz clic o arrastra los archivos",
-      "clickDragSingle": "Haz clic o arrastra un archivo",
-      "maxSizeInfo": "Máximo 5MB por archivo",
+      "dropActive": "Suelta los archivos aquí...",
+      "clickDragMultiple": "Haz clic o arrastra archivos aquí para subirlos",
+      "clickDragSingle": "Haz clic o arrastra un archivo aquí para subirlo",
+      "maxSizeInfo": "Tamaño máximo permitido: {{size}}",
       "uploadMultipleCount": "Subir {{count}} documentos",
       "uploadSingle": "Subir documento"
     },
+    "categories": {
+      "images": "Imágenes",
+      "documents": "Documentos",
+      "spreadsheets": "Hojas de cálculo",
+      "presentations": "Presentaciones",
+      "archives": "Archivos comprimidos",
+      "code": "Código y datos",
+      "video": "Vídeos",
+      "audio": "Audios"
+    },
     "types": {
       "document": "Documentos",
-      "spreadsheet": "Hojas de Cálculo",
+      "pdf": "PDF (.pdf)",
+      "word": "Word (.doc, .docx)",
+      "text": "Texto (.txt)",
+      "spreadsheet": "Hojas de cálculo",
+      "excel": "Excel (.xls, .xlsx)",
+      "csv": "CSV (.csv)",
       "presentation": "Presentaciones",
+      "powerpoint": "PowerPoint (.ppt, .pptx)",
       "image": "Imágenes",
+      "png": "PNG (.png)",
+      "jpeg": "JPEG / JPG (.jpg, .jpeg)",
+      "gif": "GIF (.gif)",
+      "webp": "WebP (.webp)",
+      "archive": "Archivos comprimidos",
+      "zip": "ZIP / RAR (.zip, .rar)",
       "data": "Datos",
-      "archive": "Archivos"
+      "code": "Código",
+      "json": "JSON / XML (.json, .xml)"
     },
     "table": {
-      "selectTodo": "Seleccionar todo",
+      "selectTodo": "Seleccionar todos",
       "selectRow": "Seleccionar fila",
       "fileName": "Nombre de archivo",
       "type": "Tipo",
       "size": "Tamaño",
       "date": "Fecha",
+      "createdAt": "Fecha",
       "creation": "Creación",
+      "actions": "Acciones",
       "delete": "Eliminar",
-      "download": "Descargar"
+      "download": "Descargar",
+      "sendToTrash": "Enviar a papelera",
+      "deletePermanent": "Eliminar de forma permanente"
     },
     "toast": {
-      "uploadSuccessMultiple": "Documentos subidos con éxito",
-      "uploadSuccessSingle": "Documento subido con éxito",
-      "uploadError": "Error al subir el documento"
+      "uploadSuccessMultiple": "Archivos subidos correctamente",
+      "uploadSuccessSingle": "Archivo subido correctamente",
+      "uploadError": "Error al subir el archivo",
+      "fileTooLarge": "El archivo \"{{name}}\" supera el tamaño máximo permitido ({{size}})"
     }
   },
   "audit": {
@@ -684,3 +713,4 @@
   "redirecting_message_one": "Redirigiendo al dashboard en {{count}} segundo...",
   "redirecting_message_other": "Redirigiendo al dashboard en {{count}} segundos..."
 }
+

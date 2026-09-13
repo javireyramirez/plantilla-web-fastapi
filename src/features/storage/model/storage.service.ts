@@ -34,6 +34,8 @@ class StorageService {
     if (query?.contentTypes && query.contentTypes.length > 0) {
       apiParams.content_type = query.contentTypes.join(',');
     }
+    if (query?.sizeMin !== undefined) apiParams.size_min = query.sizeMin;
+    if (query?.sizeMax !== undefined) apiParams.size_max = query.sizeMax;
     if (query?.isTrash !== undefined) apiParams.is_trash = query.isTrash;
 
     const response = await instance.get<any>(`/storage/documents`, {

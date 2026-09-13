@@ -1,10 +1,57 @@
-import { FileText, LoaderCircle, UploadCloud, X } from 'lucide-react';
+import {
+  Archive,
+  AudioLines,
+  Code,
+  File,
+  FileImage,
+  FileSpreadsheet,
+  FileText,
+  LoaderCircle,
+  Presentation,
+  UploadCloud,
+  Video,
+  X,
+  type LucideIcon,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { formatBytes } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
 import { FileUploadConfigProps, useFileUploadLogic } from '../model/use-file-upload-logic';
+
+export const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {
+  images: FileImage,
+  image: FileImage,
+  documents: FileText,
+  document: FileText,
+  'file-text': FileText,
+  spreadsheets: FileSpreadsheet,
+  spreadsheet: FileSpreadsheet,
+  'file-spreadsheet': FileSpreadsheet,
+  presentations: Presentation,
+  presentation: Presentation,
+  archives: Archive,
+  archive: Archive,
+  code: Code,
+  'file-code': Code,
+  video: Video,
+  videos: Video,
+  audio: AudioLines,
+  audios: AudioLines,
+};
+
+export function getCategoryIcon(iconName?: string, categoryCode?: string): LucideIcon {
+  if (iconName && CATEGORY_ICON_MAP[iconName.toLowerCase()]) {
+    return CATEGORY_ICON_MAP[iconName.toLowerCase()];
+  }
+  if (categoryCode && CATEGORY_ICON_MAP[categoryCode.toLowerCase()]) {
+    return CATEGORY_ICON_MAP[categoryCode.toLowerCase()];
+  }
+  return File;
+}
 
 export function FileUploadZone(props: FileUploadConfigProps) {
   const { t } = useTranslation();
@@ -13,6 +60,8 @@ export function FileUploadZone(props: FileUploadConfigProps) {
     isPendingUpload,
     executeUpload,
     removeFile,
+    maxUploadSizeBytes,
+    fileCategories,
     getRootProps,
     getInputProps,
     isDragActive,
@@ -23,14 +72,14 @@ export function FileUploadZone(props: FileUploadConfigProps) {
       <div
         {...getRootProps()}
         className={cn(
-          'relative border-2 border-dashed rounded-lg p-12 transition-all duration-200 cursor-pointer',
+          'relative border-2 border-dashed rounded-lg p-8 transition-all duration-200 cursor-pointer',
           'hover:bg-accent/50 hover:border-primary/50',
           isDragActive ? 'border-primary bg-accent' : 'border-muted-foreground/25',
           isPendingUpload && 'opacity-50 cursor-not-allowed'
         )}
       >
         <input {...getInputProps()} />
-        <div className="flex flex-col items-center justify-center gap-4 text-center">
+        <div className="flex flex-col items-center justify-center gap-3 text-center">
           <div className="p-3 rounded-full bg-primary/10">
             <UploadCloud className="w-6 h-6 text-primary" />
           </div>
@@ -42,8 +91,33 @@ export function FileUploadZone(props: FileUploadConfigProps) {
                   ? t('storage.dropzone.clickDragMultiple')
                   : t('storage.dropzone.clickDragSingle')}
             </p>
-            <p className="text-xs text-muted-foreground">{t('storage.dropzone.maxSizeInfo')}</p>
+            <p className="text-xs text-muted-foreground">
+              {t('storage.dropzone.maxSizeInfo', {
+                size: formatBytes(maxUploadSizeBytes),
+                defaultValue: `Tamaño máximo permitido: ${formatBytes(maxUploadSizeBytes)}`,
+              })}
+            </p>
           </div>
+
+          {/* Insignias dinámicas de categorías permitidas */}
+          {fileCategories && fileCategories.length > 0 && (
+            <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1">
+              {fileCategories.map((cat) => {
+                const Icon = getCategoryIcon(cat.icon, cat.code);
+                const label = t(`storage.categories.${cat.code}`, { defaultValue: cat.name });
+                return (
+                  <Badge
+                    key={cat.code}
+                    variant="outline"
+                    className="text-[11px] font-normal text-muted-foreground gap-1 py-0.5 px-2 bg-background/50"
+                  >
+                    <Icon className="w-3 h-3 text-muted-foreground/80" />
+                    <span>{label}</span>
+                  </Badge>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 
@@ -101,3 +175,4 @@ export function FileUploadZone(props: FileUploadConfigProps) {
     </div>
   );
 }
+

@@ -60,7 +60,7 @@ export function useStorageTable({
     Array.isArray(contentTypeCol?.value) && contentTypeCol.value.length > 0
       ? contentTypeCol.value.flatMap((selectedValue: string) => {
           const option = CONTENT_TYPE_OPTIONS.find((opt) => opt.value === selectedValue);
-          return option ? option.mimeTypes : [];
+          return option ? option.mimeTypes : [selectedValue];
         })
       : undefined;
 
@@ -81,8 +81,14 @@ export function useStorageTable({
     sortOrder,
     ...(fileName && { fileName }),
     ...(contentTypes && { contentTypes }),
-    sizeMin: sizeMin ? sizeMin * 1024 * 1024 : undefined,
-    sizeMax: sizeMax ? sizeMax * 1024 * 1024 : undefined,
+    sizeMin:
+      sizeMin !== undefined && sizeMin !== null && !Number.isNaN(Number(sizeMin))
+        ? Math.round(Number(sizeMin) * 1024 * 1024)
+        : undefined,
+    sizeMax:
+      sizeMax !== undefined && sizeMax !== null && !Number.isNaN(Number(sizeMax))
+        ? Math.round(Number(sizeMax) * 1024 * 1024)
+        : undefined,
     createdFrom: createdFrom ? createdFrom : undefined,
     createdTo: createdTo ? createdTo : undefined,
   });

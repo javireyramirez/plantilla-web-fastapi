@@ -2,9 +2,11 @@ import { useDropzone } from 'react-dropzone';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { useUploadFile } from '@/features/storage/model/use-storage';
+import { useSettings } from '@/hooks/use-settings';
+import { formatBytes } from '@/lib/format';
 
 export interface FileUploadConfigProps {
   entityType: string;
@@ -24,6 +26,13 @@ export function useFileUploadLogic({
   const { t } = useTranslation();
   const [files, setFiles] = useState<File[]>([]);
   const { isPending: isPendingUpload, mutate: mutateUpload } = useUploadFile();
+  const {
+    maxUploadSizeBytes,
+    fileCategories,
+    allowedMimetypes,
+    allowedExtensions,
+    isLoading: isLoadingSettings,
+  } = useSettings();
 
   const executeUpload = useCallback(
     (filesToUpload: File[]) => {
@@ -44,7 +53,7 @@ export function useFileUploadLogic({
           onSuccess?.();
         },
         onError: (error) => {
-          console.log(error?.message);
+          console.error(error?.message);
           toast.error(t('storage.toast.uploadError'));
         },
       });
@@ -54,46 +63,85 @@ export function useFileUploadLogic({
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
-      let currentFiles = acceptedFiles;
+      if (!acceptedFiles || acceptedFiles.length === 0) return;
+
+      const validFiles: File[] = [];
+
+      for (const file of acceptedFiles) {
+        if (file.size > maxUploadSizeBytes) {
+          toast.error(
+            t('storage.toast.fileTooLarge', {
+              name: file.name,
+              size: formatBytes(maxUploadSizeBytes),
+              defaultValue: `El archivo "${file.name}" supera el tamaño máximo permitido (${formatBytes(maxUploadSizeBytes)})`,
+            })
+          );
+        } else {
+          validFiles.push(file);
+        }
+      }
+
+      if (validFiles.length === 0) return;
+
+      let currentFiles = validFiles;
 
       if (multiple) {
         setFiles((prev) => {
-          currentFiles = [...prev, ...acceptedFiles];
-          return currentFiles;
+          currentFiles = [...prev, ...validFiles];
           return currentFiles;
         });
       } else {
-        setFiles([acceptedFiles[0]]);
-        currentFiles = [acceptedFiles[0]];
+        setFiles([validFiles[0]]);
+        currentFiles = [validFiles[0]];
       }
 
       if (autoUpload) {
         executeUpload(currentFiles);
       }
     },
-    [multiple, autoUpload, executeUpload]
+    [multiple, autoUpload, executeUpload, maxUploadSizeBytes, t]
   );
 
   const removeFile = (indexToRemove: number) => {
     setFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
   };
 
+  // Generación dinámica del objeto accept a partir de los settings del backend
+  const accept = useMemo((): Record<string, string[]> | undefined => {
+    if (fileCategories && fileCategories.length > 0) {
+      const map: Record<string, string[]> = {};
+      for (const cat of fileCategories) {
+        const exts = (cat.extensions || []).map((e) => (e.startsWith('.') ? e : `.${e}`));
+        for (const mime of cat.mimes || []) {
+          if (!map[mime]) {
+            map[mime] = [];
+          }
+          map[mime] = Array.from(new Set([...map[mime], ...exts]));
+        }
+      }
+      return map;
+    }
+
+    if (allowedMimetypes && allowedMimetypes.length > 0) {
+      const map: Record<string, string[]> = {};
+      const formattedExts = (allowedExtensions || []).map((e) =>
+        e.startsWith('.') ? e : `.${e}`
+      );
+      for (const mime of allowedMimetypes) {
+        map[mime] = formattedExts;
+      }
+      return map;
+    }
+
+    return undefined;
+  }, [fileCategories, allowedMimetypes, allowedExtensions]);
+
   const dropzone = useDropzone({
     onDrop,
     multiple,
-    disabled: isPendingUpload,
-    accept: {
-      'image/*': [],
-      'application/pdf': ['.pdf'],
-      'application/msword': ['.doc'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
-      'application/vnd.ms-excel': ['.xls'],
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-      'application/vnd.ms-powerpoint': ['.ppt'],
-      'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['.pptx'],
-      'text/plain': ['.txt'],
-      'text/csv': ['.csv'],
-    },
+    disabled: isPendingUpload || isLoadingSettings,
+    accept,
+    maxSize: maxUploadSizeBytes,
   });
 
   return {
@@ -101,6 +149,10 @@ export function useFileUploadLogic({
     isPendingUpload,
     executeUpload,
     removeFile,
+    maxUploadSizeBytes,
+    fileCategories,
+    isLoadingSettings,
     ...dropzone, // exporta getRootProps, getInputProps, isDragActive, etc.
   };
 }
+
