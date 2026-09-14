@@ -16,7 +16,6 @@ import { Document, DocumentsTableProps } from '@/features/storage/model/storage-
 import { CONTENT_TYPE_OPTIONS } from '@/features/storage/model/storage-table-utils';
 import {
   useBulkDeleteDocuments,
-  useBulkDownloadUrls,
   useBulkDownloadZip,
   useDownloadUrl,
   useGetDocuments,
@@ -159,17 +158,12 @@ export function useStorageTable({
     mutateDownloadUrl({ entityType: entityType ?? '', entityId: entityId ?? '', documentId });
   };
 
-  const { mutateAsync: downloadUrls, isPending: isPendingDownloadUrls } = useBulkDownloadUrls();
   const { mutateAsync: downloadZip, isPending: isPendingDownloadZip } = useBulkDownloadZip();
 
   const handleBulkDownload = async (rows: Row<Document>[]) => {
     const documentIds = rows.map((r) => r.original.id);
-
-    if (documentIds.length <= 5) {
-      await downloadUrls({ entityType: entityType ?? '', entityId: entityId ?? '', documentIds });
-    } else {
-      await downloadZip({ entityType: entityType ?? '', entityId: entityId ?? '', documentIds });
-    }
+    if (documentIds.length === 0) return;
+    await downloadZip({ entityType: entityType ?? '', entityId: entityId ?? '', documentIds });
   };
 
   return {
@@ -185,6 +179,6 @@ export function useStorageTable({
     handleDownloadUrl,
     handleDelete,
     handleBulkDownload,
-    isPendingActions: isPendingDelete || isPendingDownloadUrls || isPendingDownloadZip,
+    isPendingActions: isPendingDelete || isPendingDownloadZip,
   };
 }

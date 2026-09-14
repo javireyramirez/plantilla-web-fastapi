@@ -6,6 +6,8 @@ export interface Document {
   contentType: string;
   size: number;
   url: string;
+  externalUrl?: string | null;
+  description?: string | null;
   createdAt: string;
   updatedAt: string;
   isTrash: boolean;

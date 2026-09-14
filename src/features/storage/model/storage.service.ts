@@ -58,6 +58,8 @@ class StorageService {
       size: item.size_bytes ?? item.size ?? 0,
       sizeBytes: item.size_bytes ?? item.size ?? 0,
       url: item.file_key ?? item.url ?? '',
+      externalUrl: item.external_url ?? item.externalUrl ?? null,
+      description: item.description ?? null,
       isUploaded: item.is_uploaded ?? item.isUploaded ?? true,
       createdAt: item.created_at ?? item.createdAt,
       updatedAt: item.updated_at ?? item.updatedAt,
@@ -145,6 +147,24 @@ class StorageService {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+    });
+    return response.data;
+  };
+
+  /**
+   * Registro directo de URL externa (Google Drive, OneDrive, Dropbox, etc.)
+   */
+  addExternalUrl = async (
+    entityType: string,
+    entityId: string,
+    data: { url: string; name: string; description?: string }
+  ) => {
+    const response = await instance.post(`/storage/documents/url`, {
+      entity_type: entityType,
+      entity_id: entityId,
+      url: data.url,
+      name: data.name,
+      description: data.description,
     });
     return response.data;
   };

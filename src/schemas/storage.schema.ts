@@ -82,3 +82,12 @@ export const GetDocumentsQuerySchema = z.object({
 
 export type RequestUploadParams = z.infer<typeof RequestUploadBodySchema>['fileData'];
 export type GetDocumentsQuery = z.infer<typeof GetDocumentsQuerySchema>;
+
+export const AddExternalUrlBodySchema = z.object({
+  url: z.string().url(),
+  name: z.string().min(1).max(255),
+  description: z.string().max(1000).optional(),
+});
+
+export type AddExternalUrlBody = z.infer<typeof AddExternalUrlBodySchema>;
+

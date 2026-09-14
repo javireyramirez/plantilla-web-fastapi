@@ -71,6 +71,27 @@ export const useUploadFile = () => {
     },
     onSuccess: (_, { entityType, entityId }) => {
       queryClient.invalidateQueries({ queryKey: ['documents', entityType, entityId] });
+      queryClient.invalidateQueries({ queryKey: ['documents'] });
+    },
+  });
+};
+
+export const useAddExternalUrl = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      entityType,
+      entityId,
+      data,
+    }: {
+      entityType: string;
+      entityId: string;
+      data: { url: string; name: string; description?: string };
+    }) => storageService.addExternalUrl(entityType, entityId, data),
+    onSuccess: (_, { entityType, entityId }) => {
+      queryClient.invalidateQueries({ queryKey: ['documents', entityType, entityId] });
+      queryClient.invalidateQueries({ queryKey: ['documents'] });
     },
   });
 };
@@ -185,6 +206,18 @@ export const useBulkRestoreDocuments = () => {
   });
 };
 
+function triggerZipBlobDownload(blobData: any, filename?: string) {
+  const blob = blobData instanceof Blob ? blobData : new Blob([blobData], { type: 'application/zip' });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', filename || `documentos_${Date.now()}.zip`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+}
+
 export const useBulkDownloadUrls = () => {
   return useMutation({
     mutationFn: ({
@@ -196,33 +229,11 @@ export const useBulkDownloadUrls = () => {
       entityId: string;
       documentIds: string[];
     }) => storageService.bulkDownload(entityType, entityId, documentIds),
-    onSuccess: async (data) => {
-      const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-      for (const [index, { downloadUrl, fileName }] of data.entries()) {
-        if (index > 0) await sleep(300);
-
-        try {
-          // Fetch the file and create a local blob URL
-          // This prevents the browser from intercepting PDFs and opening them inline
-          const response = await fetch(downloadUrl);
-          const blob = await response.blob();
-          const blobUrl = URL.createObjectURL(blob);
-
-          const a = document.createElement('a');
-          a.href = blobUrl;
-          a.download = fileName;
-          a.style.display = 'none';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-
-          // Revoke the blob URL after a short delay to free memory
-          setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
-        } catch {
-          console.error(`Error downloading ${fileName}`);
-        }
-      }
+    onSuccess: (data) => {
+      triggerZipBlobDownload(data);
+    },
+    onError: (error) => {
+      console.error('Error al descargar ZIP:', error);
     },
   });
 };
@@ -239,17 +250,7 @@ export const useBulkDownloadZip = () => {
       documentIds: string[];
     }) => storageService.bulkDownloadZip(entityType, entityId, documentIds),
     onSuccess: (blob) => {
-      const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/zip' }));
-
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `documentos_${Date.now()}.zip`);
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      window.URL.revokeObjectURL(url);
+      triggerZipBlobDownload(blob);
     },
     onError: (error) => {
       console.error('Error al descargar ZIP:', error);

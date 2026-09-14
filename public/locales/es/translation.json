@@ -617,6 +617,21 @@
     "title": "Almacenamiento y Documentos",
     "uploadFile": "Subir archivo",
     "uploading": "Subiendo...",
+    "addUrl": "Añadir URL",
+    "addUrlTitle": "Añadir enlace externo",
+    "addUrlDescription": "Añade un enlace directo a Google Drive, OneDrive, Dropbox u otro recurso web.",
+    "urlLabel": "URL del recurso",
+    "urlPlaceholder": "https://drive.google.com/...",
+    "urlRequired": "Por favor, introduce una URL válida.",
+    "nameLabel": "Nombre del recurso",
+    "namePlaceholder": "Ej. Carpeta Drive, Documento compartido...",
+    "nameRequired": "Por favor, introduce un nombre para el recurso.",
+    "descriptionLabel": "Descripción",
+    "descriptionPlaceholder": "Detalles o notas sobre el enlace (opcional)",
+    "toast": {
+      "urlSuccess": "Enlace añadido con éxito",
+      "urlError": "Error al añadir el enlace"
+    },
     "dropzone": {
       "dropActive": "Suelta los archivos aquí...",
       "clickDragMultiple": "Haz clic o arrastra archivos aquí para subirlos",

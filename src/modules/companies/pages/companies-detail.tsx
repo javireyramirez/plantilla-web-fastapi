@@ -45,7 +45,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DocumentsTable, FileUploadButton } from '@/features/storage';
+import { AddUrlDialog, DocumentsTable, FileUploadButton } from '@/features/storage';
 import { AuditTable } from '@/modules/audit/components/audit-table';
 import { companiesQueries } from '@/modules/companies/model/companies.query';
 import { useCompanyForm } from '@/modules/companies/model/use-companies-detail';
@@ -416,7 +416,10 @@ export default function CompanyDetail() {
                   <h3 className="text-lg font-medium">{t('companies.docsTitle')}</h3>
                   <p className="text-sm text-muted-foreground">{t('companies.docsDescription')}</p>
                 </div>
-                <FileUploadButton entityType="companies" entityId={id!} />
+                <div className="flex items-center gap-2">
+                  <AddUrlDialog entityType="companies" entityId={id!} />
+                  <FileUploadButton entityType="companies" entityId={id!} />
+                </div>
               </div>
               <DocumentsTable entityType="companies" entityId={id!} />
             </TabsContent>

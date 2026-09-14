@@ -1,5 +1,6 @@
 import {
   Archive,
+  ExternalLink,
   File,
   FileArchive,
   FileImage,
@@ -160,6 +161,13 @@ export function getStorageTypeOptions(t: (key: string, options?: any) => string)
 }
 
 export function getContentTypeIcon(contentType: string) {
+  if (
+    contentType === 'application/x-external-url' ||
+    contentType.includes('url') ||
+    contentType.includes('link')
+  ) {
+    return ExternalLink;
+  }
   if (contentType === 'application/pdf') return FileText;
   if (contentType.startsWith('image/')) return FileImage;
   if (contentType.startsWith('video/')) return FileVideo;
@@ -186,6 +194,13 @@ export function getContentTypeIcon(contentType: string) {
 }
 
 export function getContentTypeLabel(contentType: string) {
+  if (
+    contentType === 'application/x-external-url' ||
+    contentType.includes('url') ||
+    contentType.includes('link')
+  ) {
+    return 'URL';
+  }
   if (contentType === 'application/pdf') return 'PDF';
   if (contentType === 'image/png') return 'PNG';
   if (contentType === 'image/jpeg') return 'JPEG';

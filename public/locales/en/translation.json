@@ -606,6 +606,21 @@
     "title": "Storage & Documents",
     "uploadFile": "Upload file",
     "uploading": "Uploading...",
+    "addUrl": "Add URL",
+    "addUrlTitle": "Add external link",
+    "addUrlDescription": "Add a direct link to Google Drive, OneDrive, Dropbox, or any web resource.",
+    "urlLabel": "Resource URL",
+    "urlPlaceholder": "https://drive.google.com/...",
+    "urlRequired": "Please enter a valid URL.",
+    "nameLabel": "Resource Name",
+    "namePlaceholder": "e.g. Drive Folder, Shared Specs...",
+    "nameRequired": "Please enter a resource name.",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Details or notes about the link (optional)",
+    "toast": {
+      "urlSuccess": "Link added successfully",
+      "urlError": "Failed to add link"
+    },
     "dropzone": {
       "dropActive": "Drop files here...",
       "clickDragMultiple": "Click or drag files here to upload",
