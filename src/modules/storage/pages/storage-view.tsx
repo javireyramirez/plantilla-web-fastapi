@@ -10,7 +10,7 @@ export default function StorageView() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            {t('modules.names.storage', { defaultValue: 'Almacenamiento y Documentos' })}
+            {t('modules.names.storage', { defaultValue: 'Almacenamiento' })}
           </h1>
           <p className="text-sm text-muted-foreground">
             {t('companies.docsDescription', { defaultValue: 'Gestión de archivos y documentos del sistema.' })}

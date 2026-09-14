@@ -27,14 +27,19 @@ export function normalizeModuleSlug(slug: string | null | undefined): string {
     companie: 'companies',
     role: 'roles',
     roles: 'roles',
+    rbac: 'roles',
     team: 'teams',
     teams: 'teams',
-    document: 'documents',
-    documents: 'documents',
+    document: 'storage',
+    documents: 'storage',
     audit: 'audit',
     trash: 'trash',
     storage: 'storage',
-    auth: 'auth',
+    auth: 'users',
+    session: 'users',
+    sessions: 'users',
+    setting: 'settings',
+    settings: 'settings',
   };
   return map[s] || s;
 }

@@ -99,7 +99,8 @@ export function useEntityTrashModulesOptions(params?: { name?: string; [key: str
         (m: any) =>
           m.supportedActions?.includes('RESTORE') &&
           m.code !== 'documents' &&
-          m.code !== 'storage'
+          m.code !== 'storage' &&
+          m.code !== 'trash'
       )
       .map((m: any) => {
         const code = (m.code ?? m.slug ?? '').toLowerCase().trim();

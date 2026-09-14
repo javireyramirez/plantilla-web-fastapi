@@ -26,7 +26,6 @@ import {
 } from '@/modules/audit/model/audit.types';
 import useAuditTable from '@/modules/audit/model/use-audit-table';
 import { usersQueries } from '@/modules/users/model/users.query';
-import { GetUsersQuery } from '@/modules/users/model/users.schema';
 import { useModules, useModulesOptions } from '@/modules/modules/model/modules.query';
 
 interface AuditTableProps {
@@ -150,10 +149,11 @@ export function AuditTable({ moduleSlug, entityId, exportRef }: AuditTableProps)
         enableSorting: true,
         header: ({ column }) => <DataTableColumnHeader column={column} label={t('audit.module')} />,
         cell: ({ row }) => {
+          const moduleName = row.original.module_name || (row.original as any).moduleName;
           const slug = (row.getValue('entity_type') ?? (row.original as any).moduleSlug) as string;
           return (
             <span className="text-foreground font-medium">
-              {getAuditModuleLabel(t, slug, modulesMap)}
+              {moduleName || getAuditModuleLabel(t, slug, modulesMap)}
             </span>
           );
         },

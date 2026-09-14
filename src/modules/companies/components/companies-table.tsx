@@ -119,10 +119,9 @@ export function CompaniesTable({ exportRef }: CompaniesTableProps = {}) {
           );
         },
         filterFn: (row, id, value) => {
-          const ct = row.getValue(id) as string;
-          return (value as string[]).some(
-            (v) => SECTOR_OPTIONS.find((opt) => opt.value === v) ?? false
-          );
+          const cellValue = row.getValue(id) as string;
+          if (!Array.isArray(value) || value.length === 0) return true;
+          return value.includes(cellValue);
         },
         meta: {
           label: t('companies.sector'),

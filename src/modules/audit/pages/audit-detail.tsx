@@ -223,7 +223,7 @@ export default function AuditDetail() {
             </span>
           </h1>
           <p className="text-sm text-muted-foreground">
-            {getAuditModuleLabel(t, entityType, modulesMap)} &bull;{' '}
+            {(auditLog.module_name || (auditLog as any).moduleName) || getAuditModuleLabel(t, entityType, modulesMap)} &bull;{' '}
             {link ? (
               <Link
                 to={link}
@@ -323,7 +323,7 @@ export default function AuditDetail() {
               <div className="flex items-center justify-between gap-2">
                 <div className="flex flex-col min-w-0">
                   <span className="text-xs text-muted-foreground">
-                    {getAuditModuleLabel(t, entityType, modulesMap)}
+                    {(auditLog.module_name || (auditLog as any).moduleName) || getAuditModuleLabel(t, entityType, modulesMap)}
                   </span>
                   {link ? (
                     <Link
