@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import instance from '@/config/api';
@@ -20,9 +20,15 @@ export const SETTINGS_KEYS = {
   STORAGE_ALLOWED_MIMETYPES: 'storage.allowed_mimetypes',
   STORAGE_ALLOWED_EXTENSIONS: 'storage.allowed_extensions',
   STORAGE_FILE_CATEGORIES: 'storage.file_categories',
+  PAGINATION_DEFAULT_PAGE_SIZE: 'pagination.default_page_size',
+  PAGINATION_PAGE_SIZE_OPTIONS: 'pagination.page_size_options',
+  PAGINATION_MAX_PAGE_SIZE: 'pagination.max_page_size',
 } as const;
 
 export const DEFAULT_MAX_UPLOAD_SIZE_BYTES = 52428800; // 50 MB
+export const DEFAULT_PAGE_SIZE = 20;
+export const DEFAULT_PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
+export const DEFAULT_MAX_PAGE_SIZE = 100;
 
 export const DEFAULT_FILE_CATEGORIES: FileCategory[] = [
   {
@@ -173,6 +179,21 @@ export function useSettings() {
     return getSetting<boolean>(SETTINGS_KEYS.APP_MAINTENANCE_MODE, false);
   }, [getSetting]);
 
+  const defaultPageSize = useMemo(() => {
+    return getSetting<number>(SETTINGS_KEYS.PAGINATION_DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZE);
+  }, [getSetting]);
+
+  const pageSizeOptions = useMemo(() => {
+    return getSetting<number[]>(
+      SETTINGS_KEYS.PAGINATION_PAGE_SIZE_OPTIONS,
+      DEFAULT_PAGE_SIZE_OPTIONS
+    );
+  }, [getSetting]);
+
+  const maxPageSize = useMemo(() => {
+    return getSetting<number>(SETTINGS_KEYS.PAGINATION_MAX_PAGE_SIZE, DEFAULT_MAX_PAGE_SIZE);
+  }, [getSetting]);
+
   return {
     settings,
     getSetting,
@@ -182,11 +203,37 @@ export function useSettings() {
     fileCategories,
     appName,
     isMaintenance,
+    defaultPageSize,
+    pageSizeOptions,
+    maxPageSize,
     isLoading,
     isError,
     error,
     refetch,
   };
 }
+
+export function usePaginationConfig() {
+  const { defaultPageSize, pageSizeOptions, maxPageSize, settings, isLoading } = useSettings();
+  return { defaultPageSize, pageSizeOptions, maxPageSize, settings, isLoading };
+}
+
+export function useTablePagination(initialPage = 1) {
+  const { defaultPageSize, pageSizeOptions, maxPageSize } = usePaginationConfig();
+  const [page, setPage] = useState(initialPage);
+  const [limit, setLimit] = useState(defaultPageSize);
+
+  return {
+    page,
+    setPage,
+    limit,
+    setLimit,
+    defaultPageSize,
+    pageSizeOptions,
+    maxPageSize,
+  };
+}
+
+export const usePublicSettings = useSettings;
 
 export default useSettings;

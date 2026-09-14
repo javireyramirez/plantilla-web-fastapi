@@ -12,7 +12,7 @@ export const RequestUploadBodySchema = z.object({
 export const GetDocumentsQuerySchema = z.object({
   // --- Paginación ---
   page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(10),
+  limit: z.coerce.number().int().positive().max(100).default(20),
 
   // --- Filtros de Texto y Selección Múltiple ---
   fileName: z.string().optional(),

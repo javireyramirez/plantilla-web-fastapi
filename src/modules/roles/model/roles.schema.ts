@@ -148,7 +148,7 @@ export const GetListQuery = GetListQueryBase;
 
 export const GetPermissionsQuerySchema = z.object({
   page: z.coerce.number().optional().default(1),
-  limit: z.coerce.number().optional().default(10),
+  limit: z.coerce.number().optional().default(20),
   sortBy: z.string().optional().default('grantedAt'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 
@@ -172,7 +172,7 @@ export const GetPermissionsQuerySchema = z.object({
 
 export const GetAssignmentsQuerySchema = z.object({
   page: z.coerce.number().optional().default(1),
-  limit: z.coerce.number().optional().default(10),
+  limit: z.coerce.number().optional().default(20),
   sortBy: z.string().optional().default('assignedAt'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 

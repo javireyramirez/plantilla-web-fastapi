@@ -13,6 +13,7 @@ import {
 } from '@tanstack/react-table';
 
 import { useIsMobile } from '@/hooks/use-mobile';
+import { DEFAULT_PAGE_SIZE, usePaginationConfig } from '@/hooks/use-settings';
 
 import { settingsQueries } from './settings.query';
 import { Setting } from './settings.schema';
@@ -27,8 +28,13 @@ export default function useSettingsTable(columns: ColumnDef<Setting>[]) {
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [globalFilter, setGlobalFilter] = React.useState('');
 
+  const { defaultPageSize } = usePaginationConfig();
   const [page, setPage] = React.useState(1);
-  const [limit, setLimit] = React.useState(20);
+  const [limit, setLimit] = React.useState(defaultPageSize);
+
+  React.useEffect(() => {
+    setLimit((curr) => (curr === DEFAULT_PAGE_SIZE ? defaultPageSize : curr));
+  }, [defaultPageSize]);
 
   const { data: rawSettings = [], isLoading, isFetching } = settingsQueries.useGetAll();
 

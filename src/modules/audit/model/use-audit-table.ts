@@ -15,6 +15,7 @@ import {
 } from '@tanstack/react-table';
 
 import { useIsMobile } from '@/hooks/use-mobile';
+import { DEFAULT_PAGE_SIZE, usePaginationConfig } from '@/hooks/use-settings';
 
 import { auditQueries } from './audit.query';
 import { AuditLogType, GetAuditLogsQuery } from './audit.schema';
@@ -33,13 +34,13 @@ export default function useAuditTable(
   const [rowSelection, setRowSelection] = React.useState({});
 
   // ── Pagination and filters ──────────────────────────────────────────────────
+  const { defaultPageSize } = usePaginationConfig();
   const [page, setPage] = React.useState(1);
-  function getInitialLimit() {
-    if (typeof window === 'undefined') return 10;
-    return window.innerWidth < 768 ? 5 : 10;
-  }
+  const [limit, setLimit] = React.useState(defaultPageSize);
 
-  const [limit, setLimit] = React.useState(getInitialLimit);
+  React.useEffect(() => {
+    setLimit((curr) => (curr === DEFAULT_PAGE_SIZE ? defaultPageSize : curr));
+  }, [defaultPageSize]);
 
   const [sort] = sorting;
   const sortBy = (sort ? sort.id : 'created_at') as GetAuditLogsQuery['sort_by'];

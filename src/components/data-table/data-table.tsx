@@ -28,6 +28,7 @@ interface DataTableProps<TData> extends React.ComponentProps<'div'> {
   table: TanstackTable<TData>;
   actionBar?: React.ReactNode;
   totalCount?: number;
+  pageSizeOptions?: number[];
   /** Config para la vista móvil. Si no se pasa, se usa la tabla normal siempre. */
   mobileConfig?: MobileStackConfig;
 }
@@ -36,6 +37,7 @@ export function DataTable<TData>({
   table,
   actionBar,
   totalCount,
+  pageSizeOptions,
   children,
   className,
   mobileConfig,
@@ -173,7 +175,7 @@ export function DataTable<TData>({
       </div>
 
       <div className="flex flex-col gap-2.5">
-        <DataTablePagination table={table} totalCount={totalCount} />
+        <DataTablePagination table={table} totalCount={totalCount} pageSizeOptions={pageSizeOptions} />
         {actionBar && table.getFilteredSelectedRowModel().rows.length > 0 && actionBar}
       </div>
     </div>

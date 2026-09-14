@@ -16,6 +16,7 @@ import {
 } from '@tanstack/react-table';
 
 import { useIsMobile } from '@/hooks/use-mobile';
+import { DEFAULT_PAGE_SIZE, usePaginationConfig } from '@/hooks/use-settings';
 
 import { teamsQueries } from './teams.query';
 import { GetTeamMembersQuery, TeamMemberWithRelations } from './teams.schema';
@@ -31,13 +32,13 @@ export default function useMembers(teamId: string, columns: ColumnDef<TeamMember
   const [rowSelection, setRowSelection] = React.useState({});
 
   // ── Paginación y filtros ───────────────────────────────────────────────────
+  const { defaultPageSize } = usePaginationConfig();
   const [page, setPage] = React.useState(1);
-  function getInitialLimit() {
-    if (typeof window === 'undefined') return 10;
-    return window.innerWidth < 768 ? 5 : 10;
-  }
+  const [limit, setLimit] = React.useState(defaultPageSize);
 
-  const [limit, setLimit] = React.useState(getInitialLimit);
+  React.useEffect(() => {
+    setLimit((curr) => (curr === DEFAULT_PAGE_SIZE ? defaultPageSize : curr));
+  }, [defaultPageSize]);
 
   const [sort] = sorting;
 

@@ -55,7 +55,7 @@ export const GetTeamQuerySchema = GetPaginatedQueryBaseSchema.extend({
 
 export const GetTeamUsersQuerySchema = z.object({
   page: z.coerce.number().optional().default(1),
-  limit: z.coerce.number().optional().default(10),
+  limit: z.coerce.number().optional().default(20),
   sortBy: z.string().optional().default('joinedAt'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
   search: z.string().optional(),

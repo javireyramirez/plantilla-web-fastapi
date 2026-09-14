@@ -1,9 +1,11 @@
+import * as React from 'react';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 
 import type { Table } from '@tanstack/react-table';
 
 import { Button } from '@/components/ui/button';
 import { useDataTableI18n } from '@/components/data-table/data-table-i18n';
+import { usePaginationConfig } from '@/hooks/use-settings';
 import {
   Select,
   SelectContent,
@@ -21,12 +23,22 @@ interface DataTablePaginationProps<TData> extends React.ComponentProps<'div'> {
 
 export function DataTablePagination<TData>({
   table,
-  pageSizeOptions = [5, 10, 20, 30, 40, 50],
+  pageSizeOptions: customPageSizeOptions,
   totalCount,
   className,
   ...props
 }: DataTablePaginationProps<TData>) {
   const i18n = useDataTableI18n();
+  const { pageSizeOptions: defaultPageSizeOptions } = usePaginationConfig();
+  const rawOptions = customPageSizeOptions ?? defaultPageSizeOptions;
+  const currentPageSize = table.getState().pagination.pageSize;
+
+  const pageSizeOptions = React.useMemo(() => {
+    if (!rawOptions.includes(currentPageSize)) {
+      return [...rawOptions, currentPageSize].sort((a, b) => a - b);
+    }
+    return rawOptions;
+  }, [rawOptions, currentPageSize]);
 
   return (
     <div

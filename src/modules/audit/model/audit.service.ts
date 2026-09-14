@@ -40,7 +40,7 @@ class AuditService {
       data: items,
       meta: {
         page: raw?.meta?.page ?? 1,
-        limit: raw?.meta?.limit ?? 10,
+        limit: raw?.meta?.limit ?? 20,
         total: raw?.meta?.total ?? 0,
         totalPages: raw?.meta?.total_pages ?? raw?.meta?.totalPages ?? 1,
       },

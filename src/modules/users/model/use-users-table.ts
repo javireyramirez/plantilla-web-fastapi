@@ -1,4 +1,3 @@
-import { error } from 'better-auth/api';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
@@ -17,6 +16,7 @@ import {
 } from '@tanstack/react-table';
 
 import { useIsMobile } from '@/hooks/use-mobile';
+import { DEFAULT_PAGE_SIZE, usePaginationConfig } from '@/hooks/use-settings';
 
 import { usersQueries } from './users.query';
 import { GetUsersQuery, Users } from './users.schema';
@@ -32,13 +32,13 @@ export default function useUsers(columns: ColumnDef<Users>[]) {
   const [rowSelection, setRowSelection] = React.useState({});
 
   // ── Paginación y filtros ───────────────────────────────────────────────────
+  const { defaultPageSize } = usePaginationConfig();
   const [page, setPage] = React.useState(1);
-  function getInitialLimit() {
-    if (typeof window === 'undefined') return 10;
-    return window.innerWidth < 768 ? 5 : 10;
-  }
+  const [limit, setLimit] = React.useState(defaultPageSize);
 
-  const [limit, setLimit] = React.useState(getInitialLimit);
+  React.useEffect(() => {
+    setLimit((curr) => (curr === DEFAULT_PAGE_SIZE ? defaultPageSize : curr));
+  }, [defaultPageSize]);
 
   const [sort] = sorting;
 
