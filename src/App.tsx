@@ -24,23 +24,37 @@ export default function App() {
           refineMessage: t('dataTable.selector.refineMessage'),
           applyLabel: t('dataTable.selector.applyLabel'),
         },
-        dateFilter: {
-          ...defaultDataTableI18n.dateFilter,
+        viewOptions: {
+          ...defaultDataTableI18n.viewOptions,
+          title: t('dataTable.viewOptions.title', { defaultValue: defaultDataTableI18n.viewOptions.title }),
+          toggleColumns: t('dataTable.viewOptions.toggleColumns', { defaultValue: defaultDataTableI18n.viewOptions.toggleColumns }),
+          searchPlaceholder: t('dataTable.viewOptions.searchPlaceholder', { defaultValue: defaultDataTableI18n.viewOptions.searchPlaceholder }),
+          emptyMessage: t('dataTable.viewOptions.emptyMessage', { defaultValue: defaultDataTableI18n.viewOptions.emptyMessage }),
         },
         toolbar: {
           ...defaultDataTableI18n.toolbar,
-        },
-        viewOptions: {
-          ...defaultDataTableI18n.viewOptions,
-        },
-        facetedFilter: {
-          ...defaultDataTableI18n.facetedFilter,
-        },
-        pagination: {
-          ...defaultDataTableI18n.pagination,
+          resetFilters: t('dataTable.toolbar.resetFilters', { defaultValue: defaultDataTableI18n.toolbar.resetFilters }),
         },
         table: {
           ...defaultDataTableI18n.table,
+          selectAll: t('dataTable.table.selectAll', { defaultValue: defaultDataTableI18n.table.selectAll }),
+          selectRow: t('dataTable.table.selectRow', { defaultValue: defaultDataTableI18n.table.selectRow }),
+          noResults: t('dataTable.table.noResults', { defaultValue: defaultDataTableI18n.table.noResults }),
+        },
+        pagination: {
+          ...defaultDataTableI18n.pagination,
+          rowsPerPage: t('dataTable.pagination.rowsPerPage', { defaultValue: defaultDataTableI18n.pagination.rowsPerPage }),
+          firstPage: t('dataTable.pagination.firstPage', { defaultValue: defaultDataTableI18n.pagination.firstPage }),
+          previousPage: t('dataTable.pagination.previousPage', { defaultValue: defaultDataTableI18n.pagination.previousPage }),
+          nextPage: t('dataTable.pagination.nextPage', { defaultValue: defaultDataTableI18n.pagination.nextPage }),
+          lastPage: t('dataTable.pagination.lastPage', { defaultValue: defaultDataTableI18n.pagination.lastPage }),
+          page: (page, total) => t('dataTable.pagination.page', { page, total, defaultValue: `Página ${page} de ${total}` }),
+        },
+        dateFilter: {
+          ...defaultDataTableI18n.dateFilter,
+        },
+        facetedFilter: {
+          ...defaultDataTableI18n.facetedFilter,
         },
         mobile: {
           ...defaultDataTableI18n.mobile,

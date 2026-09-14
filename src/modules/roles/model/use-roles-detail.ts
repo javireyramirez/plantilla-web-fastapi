@@ -23,7 +23,6 @@ export function useRoleForm(id?: string) {
   const { mutate: create, isPending: isCreating } = rolesQueries.useCreate();
   const { mutate: update, isPending: isUpdating } = rolesQueries.useUpdate();
   const { mutate: softDelete, isPending: isDeleting } = rolesQueries.useSoftDelete();
-  const { mutate: mutateExport, isPending: isPendingExport } = rolesQueries.useExport();
 
   const handleSubmit = (formData: CreateRole | UpdateRole, options?: { shouldClose?: boolean }) => {
     const payload = {
@@ -108,24 +107,6 @@ export function useRoleForm(id?: string) {
 
   const roleName = useWatch({ control: form.control, name: 'name' });
 
-  const handleExport = () => {
-    if (!id) return;
-    mutateExport(
-      {
-        ids: [id],
-      },
-      {
-        onSuccess: () => {
-          toast.success(t('roles.exportSuccess', 'Exportado con éxito'));
-        },
-        onError: (error: any) => {
-          const serverMessage = error?.response?.data?.message || error?.message;
-          toast.error(serverMessage || t('roles.exportError', 'Error al exportar'));
-        },
-      }
-    );
-  };
-
   return {
     data,
     isEditing,
@@ -134,7 +115,6 @@ export function useRoleForm(id?: string) {
     form,
     handleSubmit,
     handleDelete,
-    handleExport,
-    isPending: isCreating || isUpdating || isDeleting || isPendingExport,
+    isPending: isCreating || isUpdating || isDeleting,
   };
 }

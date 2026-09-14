@@ -107,6 +107,7 @@ export function DocumentsTable({
         ? ([
             {
               id: 'parentModule',
+              accessorFn: (row) => row.modulePrincipalEntity?.name ?? row.entityType ?? '',
               header: ({ column }) => (
                 <DataTableColumnHeader column={column} label={t('trash.table.parentModule')} />
               ),
@@ -127,9 +128,18 @@ export function DocumentsTable({
                   </span>
                 );
               },
+              meta: {
+                label: t('trash.table.parentModule'),
+                variant: 'text',
+              },
             },
             {
               id: 'parentEntity',
+              accessorFn: (row) =>
+                row.modulePrincipalEntity?.entity_name ??
+                (row.modulePrincipalEntity?.entity_id ? String(row.modulePrincipalEntity.entity_id) : '') ??
+                row.entityId ??
+                '',
               header: ({ column }) => (
                 <DataTableColumnHeader column={column} label={t('trash.table.parentEntity')} />
               ),
@@ -174,6 +184,10 @@ export function DocumentsTable({
                 return (
                   <span className="font-medium text-foreground block truncate max-w-[200px]">{id}</span>
                 );
+              },
+              meta: {
+                label: t('trash.table.parentEntity'),
+                variant: 'text',
               },
             },
           ] as ColumnDef<Document>[])

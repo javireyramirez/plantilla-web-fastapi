@@ -77,7 +77,7 @@ export function MembersTable({ teamId }: MembersTableProps) {
                 {' '}
                 <button
                   className="truncate font-medium max-w-xs text-blue-500 hover:text-blue-700 hover:underline text-left"
-                  onClick={() => navigate(`/users/edit/${row.original.id}`)}
+                  onClick={() => navigate(`/admin/users/edit/${row.original.id}`)}
                 >
                   {memberName}
                 </button>
@@ -103,13 +103,17 @@ export function MembersTable({ teamId }: MembersTableProps) {
             {row.original.user?.email ?? row.original.userId}
           </span>
         ),
+        meta: {
+          label: t('teamMembers.email'),
+          variant: 'text',
+        },
       },
       {
         accessorKey: 'joinedAt',
         enableColumnFilter: true,
         enableSorting: true,
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} label={t('teamMembers.table.fecha')} />
+          <DataTableColumnHeader column={column} label={t('teamMembers.table.joinedAt')} />
         ),
         cell: ({ row }) => (
           <span className="text-muted-foreground tabular-nums text-sm">
@@ -123,7 +127,7 @@ export function MembersTable({ teamId }: MembersTableProps) {
         },
       },
     ],
-    [t]
+    [t, navigate]
   );
 
   const {

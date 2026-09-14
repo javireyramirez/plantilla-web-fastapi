@@ -50,12 +50,17 @@ import { AuditTable } from '@/modules/audit/components/audit-table';
 import { companiesQueries } from '@/modules/companies/model/companies.query';
 import { useCompanyForm } from '@/modules/companies/model/use-companies-detail';
 
+import { ExportDropdown, ExportDropdownMenuSub } from '@/components/export-dropdown';
+import usePermissions from '@/hooks/use-permissions';
+
 import { CompaniesDetailForm } from '../components/companies-form';
 import { SECTOR_OPTIONS } from '../model/companies.types';
 
 export default function CompanyDetail() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { can } = usePermissions();
+  const canExport = can('companies', 'EXPORT');
 
   // --- Estados locales ---
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -231,16 +236,14 @@ export default function CompanyDetail() {
               {isEditing && (
                 <>
                   {/* Exportar y Eliminar: Visibles a partir de pantallas grandes (lg) */}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="hidden lg:flex gap-2"
-                    disabled={isPending}
-                    onClick={handleExport}
-                  >
-                    <Download className="h-4 w-4" />
-                    {t('companies.export')}
-                  </Button>
+                  {canExport && (
+                    <ExportDropdown
+                      entityName="companies"
+                      onExport={handleExport}
+                      disabled={isPending}
+                      className="hidden lg:flex"
+                    />
+                  )}
 
                   <Button
                     type="button"
@@ -320,15 +323,14 @@ export default function CompanyDetail() {
 
                   {isEditing && (
                     <>
-                      {/* Se muestra en el menú si la pantalla es menor a lg */}
-                      <DropdownMenuItem
-                        disabled={isPending}
-                        className="lg:hidden gap-2"
-                        onSelect={handleExport}
-                      >
-                        <Download className="h-4 w-4" />
-                        {t('companies.export')}
-                      </DropdownMenuItem>
+                      {canExport && (
+                        <ExportDropdownMenuSub
+                          entityName="companies"
+                          onExport={handleExport}
+                          disabled={isPending}
+                          className="lg:hidden"
+                        />
+                      )}
 
                       {/* Se muestra en el menú si la pantalla es menor a xl */}
                       <DropdownMenuItem disabled={isPending} className="xl:hidden gap-2" asChild>

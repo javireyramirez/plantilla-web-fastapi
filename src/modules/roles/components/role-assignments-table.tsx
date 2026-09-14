@@ -87,7 +87,7 @@ export function RoleAssignmentsTable({ roleId }: RoleAssignmentsTableProps) {
                   <span className="text-foreground">
                     <button
                       className="truncate font-medium max-w-xs text-blue-500 hover:text-blue-700 hover:underline text-left"
-                      onClick={() => navigate(`/teams/edit/${assignment.teamId}`)}
+                      onClick={() => navigate(`/admin/teams/edit/${assignment.teamId}`)}
                     >
                       {displayName}
                     </button>{' '}
@@ -96,7 +96,7 @@ export function RoleAssignmentsTable({ roleId }: RoleAssignmentsTableProps) {
                 ) : (
                   <button
                     className="truncate font-medium max-w-xs text-blue-500 hover:text-blue-700 hover:underline text-left"
-                    onClick={() => navigate(`/users/edit/${assignment.userId}`)}
+                    onClick={() => navigate(`/admin/users/edit/${assignment.userId}`)}
                   >
                     {displayName}
                   </button>
@@ -116,7 +116,7 @@ export function RoleAssignmentsTable({ roleId }: RoleAssignmentsTableProps) {
         header: ({ column }) => (
           <DataTableColumnHeader
             column={column}
-            label={t('teamMembers.email', { defaultValue: 'Contacto / Detalle' })}
+            label={t('roles.table.details', { defaultValue: 'Contacto / Detalle' })}
           />
         ),
         cell: ({ row }) => {
@@ -127,6 +127,10 @@ export function RoleAssignmentsTable({ roleId }: RoleAssignmentsTableProps) {
             </span>
           );
         },
+        meta: {
+          label: t('roles.table.details', { defaultValue: 'Contacto / Detalle' }),
+          variant: 'text',
+        },
       },
       {
         accessorKey: 'assignedAt',
@@ -135,7 +139,7 @@ export function RoleAssignmentsTable({ roleId }: RoleAssignmentsTableProps) {
         header: ({ column }) => (
           <DataTableColumnHeader
             column={column}
-            label={t('teamMembers.table.fecha', { defaultValue: 'Asignado el' })}
+            label={t('roles.table.assignedAt', { defaultValue: 'Fecha de asignación' })}
           />
         ),
         cell: ({ row }) => (
@@ -144,7 +148,7 @@ export function RoleAssignmentsTable({ roleId }: RoleAssignmentsTableProps) {
           </span>
         ),
         meta: {
-          label: t('roles.assignments.assignedAt', { defaultValue: 'Fecha Asignación' }),
+          label: t('roles.table.assignedAt', { defaultValue: 'Fecha de asignación' }),
           variant: 'dateRange',
           icon: CalendarIcon,
         },

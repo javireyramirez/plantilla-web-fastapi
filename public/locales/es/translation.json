@@ -6,11 +6,50 @@
       "emptyMessage": "Sin resultados.",
       "refineMessage": "resultados más, refina la búsqueda",
       "applyLabel": "Aplicar"
+    },
+    "viewOptions": {
+      "title": "Vista",
+      "toggleColumns": "Columnas seleccionadas",
+      "searchPlaceholder": "Buscar columnas...",
+      "emptyMessage": "Sin resultados."
+    },
+    "toolbar": {
+      "resetFilters": "Reiniciar filtros"
+    },
+    "table": {
+      "selectAll": "Seleccionar todo",
+      "selectRow": "Seleccionar fila",
+      "noResults": "Sin resultados."
+    },
+    "pagination": {
+      "rowsPerPage": "Filas por página",
+      "page": "Página {{page}} de {{total}}",
+      "firstPage": "Primera página",
+      "previousPage": "Página anterior",
+      "nextPage": "Página siguiente",
+      "lastPage": "Última página"
     }
   },
   "common": {
     "cancel": "Cancelar",
-    "save": "Guardar"
+    "save": "Guardar",
+    "view": "Vista"
+  },
+  "export": {
+    "button": "Exportar",
+    "exportAll": "Exportar todo",
+    "exportSelected": "Exportar seleccionados",
+    "exporting": "Exportando...",
+    "success": "Exportado con éxito",
+    "error": "Error al exportar",
+    "noFormats": "Sin formatos disponibles",
+    "formats": {
+      "csv": "CSV (.csv)",
+      "excel": "Excel (.xlsx)",
+      "json": "JSON (.json)",
+      "tsv": "TSV (.tsv)",
+      "google_sheets": "Google Sheets (.tsv)"
+    }
   },
   "modules": {
     "categories": {
@@ -419,7 +458,10 @@
       "description": "Descripción",
       "permissionsCount": "Nº Permisos",
       "fecha": "Fecha",
-      "creacion": "Creación"
+      "creacion": "Creación",
+      "assignedAt": "Fecha de asignación",
+      "details": "Contacto / Detalle",
+      "type": "Tipo"
     },
     "form": {
       "update": "Rol actualizado con éxito",
@@ -660,6 +702,19 @@
     "metadata": "Metadatos / Datos adicionales",
     "metadataDescription": "Cambios y payload JSON del evento.",
     "noMetadata": "No hay metadatos registrados para este evento.",
+    "changesTitle": "Modificaciones registradas",
+    "changesDesc": "Diferencias de estado y valores modificados en este evento.",
+    "tabDiff": "Cambios (Diff)",
+    "tabJson": "JSON Crudo",
+    "field": "Campo",
+    "previousValue": "Valor anterior",
+    "newValue": "Valor nuevo",
+    "noChangesRecorded": "Sin cambios de estado",
+    "noChangesDesc": "Este evento no modificó atributos de la entidad (p. ej. evento de sesión o lectura).",
+    "copyUserId": "Copiar ID de usuario",
+    "copyEntityId": "Copiar ID de entidad",
+    "copyIp": "Copiar IP",
+    "copyLogId": "Copiar ID de auditoría",
     "back": "Volver",
     "notFoundTitle": "Registro no encontrado",
     "notFoundDesc": "El registro de auditoría solicitado no existe o no tiene permisos para verlo.",

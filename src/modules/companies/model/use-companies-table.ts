@@ -126,7 +126,7 @@ export default function useCompanies(columns: ColumnDef<Company>[]) {
   });
 
   const { mutate: mutateDelete, isPending: isPendingDelete } = companiesQueries.useSoftDeleteMany();
-  const { mutate: mutateExport, isPending: isPendingExport } = companiesQueries.useExport();
+  const { mutateAsync: mutateExport, isPending: isPendingExport } = companiesQueries.useExport();
 
   const handleDelete = (rows: Row<Company>[]) => {
     mutateDelete(
@@ -140,22 +140,30 @@ export default function useCompanies(columns: ColumnDef<Company>[]) {
     );
   };
 
-  const handleExport = (rows: Row<Company>[]) => {
-    mutateExport(
-      {
-        ids: rows.map((item) => item.original.id),
-      },
-      {
-        onSuccess: () => {
-          setRowSelection([]);
-          toast.success(t('companies.exportSuccess', 'Exportado con éxito'));
-        },
-        onError: (err: any) => {
-          const serverMessage = err?.response?.data?.message || err?.message;
-          toast.error(serverMessage || t('companies.exportError', 'Error al exportar'));
-        },
-      }
-    );
+  const handleExport = async (rows?: Row<Company>[], format: string = 'csv') => {
+    const ids = rows && rows.length > 0 ? rows.map((item) => item.original.id) : undefined;
+    try {
+      await mutateExport({
+        ids,
+        format,
+        sort_by: sortBy,
+        sort_order: sortOrder,
+        filters: !ids
+          ? {
+              ...(name && { name }),
+              ...(nif && { nif }),
+              ...(sector && { sector }),
+              ...(createdFrom && { created_at_from: createdFrom }),
+              ...(createdTo && { created_at_to: createdTo }),
+            }
+          : undefined,
+      });
+      if (ids) setRowSelection([]);
+      toast.success(t('export.success', { defaultValue: 'Exportado con éxito' }));
+    } catch (err: any) {
+      const serverMessage = err?.response?.data?.message || err?.message;
+      toast.error(serverMessage || t('export.error', { defaultValue: 'Error al exportar' }));
+    }
   };
 
   return {
@@ -170,6 +178,7 @@ export default function useCompanies(columns: ColumnDef<Company>[]) {
 
     handleDelete,
     handleExport,
+    isPendingExport,
     isPendingActions: isPendingDelete || isPendingExport,
   };
 }

@@ -156,5 +156,13 @@ export function createGenericQueries<
         mutationFn: (body) => service.export(body),
       });
     },
+
+    useExportFormats: () => {
+      return useQuery<string[], Error>({
+        queryKey: [queryKey, 'export-formats'],
+        queryFn: () => service.getExportFormats(),
+        staleTime: 1000 * 60 * 60,
+      });
+    },
   };
 }

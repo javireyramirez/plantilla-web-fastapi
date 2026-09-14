@@ -1,7 +1,6 @@
 import {
   ArrowLeft,
   ChevronDown,
-  Download,
   MoreHorizontal,
   Plus,
   RotateCcw,
@@ -62,7 +61,7 @@ export default function RoleDetail() {
 
   // --- Hooks de datos y formulario ---
   const { id } = useParams<{ id: string }>();
-  const { data, isEditing, roleName, isLoading, form, handleSubmit, handleDelete, handleExport, isPending } =
+  const { data, isEditing, roleName, isLoading, form, handleSubmit, handleDelete, isPending } =
     useRoleForm(id);
 
   const { mutate: restore, isPending: isRestoring } = rolesQueries.useRestore();
@@ -230,18 +229,7 @@ export default function RoleDetail() {
             <>
               {isEditing && (
                 <>
-                  {/* Exportar y Eliminar: Visibles a partir de pantallas grandes (lg) */}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="hidden lg:flex gap-2"
-                    disabled={isPending}
-                    onClick={handleExport}
-                  >
-                    <Download className="h-4 w-4" />
-                    {t('roles.export')}
-                  </Button>
-
+                  {/* Eliminar: Visible a partir de pantallas grandes (lg) */}
                   <Button
                     type="button"
                     variant="outline"
@@ -320,20 +308,10 @@ export default function RoleDetail() {
 
                   {isEditing && (
                     <>
-                      {/* Se muestra en el menú si la pantalla es menor a lg */}
-                      <DropdownMenuItem
-                        disabled={isPending}
-                        className="lg:hidden gap-2"
-                        onSelect={handleExport}
-                      >
-                        <Download className="h-4 w-4" />
-                        {t('roles.export')}
-                      </DropdownMenuItem>
-
                       {/* Se muestra en el menú si la pantalla es menor a xl */}
                       <DropdownMenuItem disabled={isPending} className="xl:hidden gap-2" asChild>
                         <Link to="/admin/roles/new">
-                          <Download className="h-4 w-4" />
+                          <Plus className="h-4 w-4" />
                           {t('roles.new')}
                         </Link>
                       </DropdownMenuItem>

@@ -6,6 +6,7 @@ import type { Column, Table } from '@tanstack/react-table';
 
 import { DataTableToolbarFilter } from '@/components/data-table/data-table-toolbar-filter';
 import { useDataTableI18n } from '@/components/data-table/data-table-i18n';
+import { useTranslation } from 'react-i18next';
 import { DataTableViewOptions } from '@/components/data-table/data-table-view-options';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -20,6 +21,7 @@ export function DataTableToolbar<TData>({
   className,
   ...props
 }: DataTableToolbarProps<TData>) {
+  const { t } = useTranslation();
   const isFiltered = table.getState().columnFilters.length > 0;
   const i18n = useDataTableI18n();
 
@@ -45,14 +47,14 @@ export function DataTableToolbar<TData>({
         ))}
         {isFiltered && (
           <Button
-            aria-label={i18n.toolbar.resetFilters}
+            aria-label={t('dataTable.toolbar.resetFilters', { defaultValue: i18n.toolbar.resetFilters })}
             variant="outline"
             size="sm"
             className="border-dashed"
             onClick={onReset}
           >
             <X />
-            {i18n.toolbar.resetFilters}
+            {t('dataTable.toolbar.resetFilters', { defaultValue: i18n.toolbar.resetFilters })}
           </Button>
         )}
       </div>

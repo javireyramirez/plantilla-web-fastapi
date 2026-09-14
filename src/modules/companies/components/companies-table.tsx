@@ -13,6 +13,7 @@ import { DataTableFloatingBar } from '@/components/data-table/data-table-floatin
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar-desktop';
 import { DataTableToolbarMobile } from '@/components/data-table/data-table-toolbar-mobile';
+import { ExportDropdown } from '@/components/export-dropdown';
 import { Checkbox } from '@/components/ui/checkbox';
 import usePermissions from '@/hooks/use-permissions';
 import { formatDate } from '@/lib/format';
@@ -21,7 +22,11 @@ import { Company } from '@/modules/companies/model/companies.schema';
 import { SECTOR_OPTIONS } from '@/modules/companies/model/companies.types';
 import useCompanies from '@/modules/companies/model/use-companies-table';
 
-export function CompaniesTable() {
+interface CompaniesTableProps {
+  exportRef?: React.MutableRefObject<((format: string) => Promise<void> | void) | null>;
+}
+
+export function CompaniesTable({ exportRef }: CompaniesTableProps = {}) {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { can } = usePermissions();
@@ -160,17 +165,29 @@ export function CompaniesTable() {
     limit,
     handleDelete,
     handleExport,
+    isPendingExport,
     isPendingActions,
   } = useCompanies(columns);
+
+  if (exportRef) {
+    exportRef.current = (format: string) => handleExport(undefined, format);
+  }
 
   const floatingActions = React.useMemo(() => {
     const list = [];
     if (can('companies', 'EXPORT')) {
       list.push({
-        label: t('companies.export'),
-        icon: <Download className="h-4 w-4" />,
-        disabled: isPendingActions,
-        onClick: (rows: any) => handleExport(rows),
+        label: t('export.button', { defaultValue: 'Exportar' }),
+        render: (selectedRows: any) => (
+          <ExportDropdown
+            entityName="companies"
+            onExport={(format) => handleExport(selectedRows, format)}
+            isPending={isPendingExport}
+            size="sm"
+            variant="ghost"
+            align="start"
+          />
+        ),
       });
     }
     if (can('companies', 'DELETE')) {

@@ -12,6 +12,7 @@ import { DataTableFloatingBar } from '@/components/data-table/data-table-floatin
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar-desktop';
 import { DataTableToolbarMobile } from '@/components/data-table/data-table-toolbar-mobile';
+import { ExportDropdown } from '@/components/export-dropdown';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import usePermissions from '@/hooks/use-permissions';
@@ -22,7 +23,6 @@ import {
   getAuditActionLabel,
   getAuditModuleLabel,
   getEntityLink,
-  getModuleOptions,
 } from '@/modules/audit/model/audit.types';
 import useAuditTable from '@/modules/audit/model/use-audit-table';
 import { usersQueries } from '@/modules/users/model/users.query';
@@ -32,6 +32,7 @@ import { useModules, useModulesOptions } from '@/modules/modules/model/modules.q
 interface AuditTableProps {
   moduleSlug?: string;
   entityId?: string;
+  exportRef?: React.MutableRefObject<((format: string) => Promise<void> | void) | null>;
 }
 
 function useUsersOptions(params: {
@@ -62,7 +63,7 @@ function useUsersOptions(params: {
   };
 }
 
-export function AuditTable({ moduleSlug, entityId }: AuditTableProps) {
+export function AuditTable({ moduleSlug, entityId, exportRef }: AuditTableProps) {
   const { t } = useTranslation();
   const { modulesMap } = useModules();
 
@@ -190,19 +191,31 @@ export function AuditTable({ moduleSlug, entityId }: AuditTableProps) {
             </span>
           );
         },
+        meta: {
+          label: t('audit.entity'),
+          variant: 'text',
+        },
       },
       {
-        accessorKey: 'description',
+        id: 'description',
+        accessorFn: (row) => row.details ?? (row as any).description ?? '',
         enableColumnFilter: false,
         enableSorting: false,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} label={t('audit.description')} />
         ),
-        cell: ({ row }) => (
-          <span className="text-muted-foreground block truncate max-w-[300px]">
-            {row.getValue('description') || '-'}
-          </span>
-        ),
+        cell: ({ row }) => {
+          const val = row.original.details ?? (row.original as any).description;
+          return (
+            <span className="text-muted-foreground block truncate max-w-[300px]">
+              {val || '-'}
+            </span>
+          );
+        },
+        meta: {
+          label: t('audit.description'),
+          variant: 'text',
+        },
       },
       {
         id: 'actor_id',
@@ -238,10 +251,15 @@ export function AuditTable({ moduleSlug, entityId }: AuditTableProps) {
             {(row.getValue('ip_address') ?? (row.original as any).ipAddress) || '-'}
           </span>
         ),
+        meta: {
+          label: t('audit.ipAddress'),
+          variant: 'text',
+        },
       },
       {
         id: 'actions',
         maxSize: 50,
+        enableHiding: false,
         header: '',
         cell: ({ row }) => (
           <Button
@@ -276,14 +294,31 @@ export function AuditTable({ moduleSlug, entityId }: AuditTableProps) {
     entityId,
   });
 
+  if (exportRef) {
+    exportRef.current = (format: string) =>
+      handleExport(
+        table.getSelectedRowModel().rows.length > 0
+          ? table.getSelectedRowModel().rows
+          : undefined,
+        format
+      );
+  }
+
   const floatingActions = React.useMemo(() => {
     const list = [];
     if (can('audit', 'EXPORT')) {
       list.push({
-        label: t('audit.export', { defaultValue: 'Exportar' }),
-        icon: <Download className="h-4 w-4" />,
-        disabled: isPendingActions,
-        onClick: (rows: any) => handleExport(rows),
+        label: t('export.button', { defaultValue: 'Exportar' }),
+        render: (selectedRows: any) => (
+          <ExportDropdown
+            entityName="audit"
+            onExport={(format) => handleExport(selectedRows, format)}
+            isPending={isPendingActions}
+            size="sm"
+            variant="ghost"
+            align="start"
+          />
+        ),
       });
     }
     return list;

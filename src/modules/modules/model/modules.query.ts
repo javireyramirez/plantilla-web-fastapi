@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useSession } from '@/config/auth-client';
 import { createGenericQueries } from '@/hooks/use-crud';
@@ -13,6 +14,7 @@ const MODULES_QUERY_OPTIONS = {
 } as const;
 
 export function useModules() {
+  const { t } = useTranslation();
   const { data: session } = useSession();
   const userId = session?.user?.id;
 
@@ -36,9 +38,9 @@ export function useModules() {
     (code: string | null | undefined): string => {
       if (!code) return '-';
       const clean = code.toLowerCase().trim();
-      return modulesMap.get(clean) || code;
+      return t(`modules.names.${clean}`, { defaultValue: modulesMap.get(clean) || code });
     },
-    [modulesMap]
+    [modulesMap, t]
   );
 
   return {
@@ -50,16 +52,25 @@ export function useModules() {
 }
 
 export function useModulesOptions(params?: { name?: string; [key: string]: any }) {
+  const { t } = useTranslation();
   const { modules, isLoading } = useModules();
 
   const options = React.useMemo(() => {
     if (!modules) return [];
-    let items = modules.map((m: any) => ({
-      id: m.code ?? m.slug,
-      name: m.name ?? m.code ?? m.slug,
-      group: m.categoryName || m.category_name || m.category,
-      order: m.categoryOrder ?? m.category_order ?? 99,
-    }));
+    let items = modules.map((m: any) => {
+      const code = (m.code ?? m.slug ?? '').toLowerCase().trim();
+      const categoryKey = (m.category || 'system').toLowerCase().trim();
+      const label = t(`modules.names.${code}`, { defaultValue: m.name ?? code });
+      const groupLabel = t(`modules.categories.${categoryKey}`, {
+        defaultValue: m.categoryName || m.category_name || m.category || categoryKey,
+      });
+      return {
+        id: code,
+        name: label,
+        group: groupLabel,
+        order: m.categoryOrder ?? m.category_order ?? 99,
+      };
+    });
     items.sort((a: any, b: any) => a.order - b.order || a.name.localeCompare(b.name));
     if (params?.name) {
       const q = params.name.toLowerCase().trim();
@@ -69,7 +80,7 @@ export function useModulesOptions(params?: { name?: string; [key: string]: any }
       );
     }
     return items;
-  }, [modules, params?.name]);
+  }, [modules, params?.name, t]);
 
   return {
     data: options,
@@ -78,6 +89,7 @@ export function useModulesOptions(params?: { name?: string; [key: string]: any }
 }
 
 export function useEntityTrashModulesOptions(params?: { name?: string; [key: string]: any }) {
+  const { t } = useTranslation();
   const { modules, isLoading } = useModules();
 
   const options = React.useMemo(() => {
@@ -89,12 +101,20 @@ export function useEntityTrashModulesOptions(params?: { name?: string; [key: str
           m.code !== 'documents' &&
           m.code !== 'storage'
       )
-      .map((m: any) => ({
-        id: m.code ?? m.slug,
-        name: m.name ?? m.code ?? m.slug,
-        group: m.categoryName || m.category_name || m.category,
-        order: m.categoryOrder ?? m.category_order ?? 99,
-      }));
+      .map((m: any) => {
+        const code = (m.code ?? m.slug ?? '').toLowerCase().trim();
+        const categoryKey = (m.category || 'system').toLowerCase().trim();
+        const label = t(`modules.names.${code}`, { defaultValue: m.name ?? code });
+        const groupLabel = t(`modules.categories.${categoryKey}`, {
+          defaultValue: m.categoryName || m.category_name || m.category || categoryKey,
+        });
+        return {
+          id: code,
+          name: label,
+          group: groupLabel,
+          order: m.categoryOrder ?? m.category_order ?? 99,
+        };
+      });
     items.sort((a: any, b: any) => a.order - b.order || a.name.localeCompare(b.name));
     if (params?.name) {
       const q = params.name.toLowerCase().trim();
@@ -104,7 +124,7 @@ export function useEntityTrashModulesOptions(params?: { name?: string; [key: str
       );
     }
     return items;
-  }, [modules, params?.name]);
+  }, [modules, params?.name, t]);
 
   return {
     data: options,

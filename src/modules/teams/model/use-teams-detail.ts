@@ -23,7 +23,6 @@ export function useTeamForm(id?: string) {
   const { mutate: create, isPending: isCreating } = teamsQueries.useCreate();
   const { mutate: update, isPending: isUpdating } = teamsQueries.useUpdate();
   const { mutate: softDelete, isPending: isDeleting } = teamsQueries.useSoftDelete();
-  const { mutate: mutateExport, isPending: isPendingExport } = teamsQueries.useExport();
 
   const handleSubmit = (formData: CreateTeam | UpdateTeam, options?: { shouldClose?: boolean }) => {
     const payload = {
@@ -108,24 +107,6 @@ export function useTeamForm(id?: string) {
 
   const teamName = useWatch({ control: form.control, name: 'name' });
 
-  const handleExport = () => {
-    if (!id) return;
-    mutateExport(
-      {
-        ids: [id],
-      },
-      {
-        onSuccess: () => {
-          toast.success(t('teams.exportSuccess', 'Exportado con éxito'));
-        },
-        onError: (error: any) => {
-          const serverMessage = error?.response?.data?.message || error?.message;
-          toast.error(serverMessage || t('teams.exportError', 'Error al exportar'));
-        },
-      }
-    );
-  };
-
   return {
     data,
     isEditing,
@@ -134,7 +115,6 @@ export function useTeamForm(id?: string) {
     form,
     handleSubmit,
     handleDelete,
-    handleExport,
-    isPending: isCreating || isUpdating || isDeleting || isPendingExport,
+    isPending: isCreating || isUpdating || isDeleting,
   };
 }

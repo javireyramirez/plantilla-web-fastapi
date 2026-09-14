@@ -71,6 +71,10 @@ export function SettingsTable() {
           }
           return <span className="text-xs text-foreground truncate max-w-[200px] block">{String(val ?? '')}</span>;
         },
+        meta: {
+          label: t('settings.value'),
+          variant: 'text',
+        },
       },
       {
         accessorKey: 'category',
@@ -100,6 +104,10 @@ export function SettingsTable() {
             {row.getValue('description') || '-'}
           </span>
         ),
+        meta: {
+          label: t('settings.description'),
+          variant: 'text',
+        },
       },
     ],
     [t]

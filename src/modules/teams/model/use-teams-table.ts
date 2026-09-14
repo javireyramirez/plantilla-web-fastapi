@@ -115,7 +115,6 @@ export default function useTeams(columns: ColumnDef<Team>[]) {
   });
 
   const { mutate: mutateDelete, isPending: isPendingDelete } = teamsQueries.useSoftDeleteMany();
-  const { mutate: mutateExport, isPending: isPendingExport } = teamsQueries.useExport();
 
   const handleDelete = (rows: Row<Team>[]) => {
     mutateDelete(
@@ -124,24 +123,6 @@ export default function useTeams(columns: ColumnDef<Team>[]) {
         onSuccess: () => {
           setRowSelection([]);
           toast.success(t('teams.table.delete'));
-        },
-      }
-    );
-  };
-
-  const handleExport = (rows: Row<Team>[]) => {
-    mutateExport(
-      {
-        ids: rows.map((item) => item.original.id),
-      },
-      {
-        onSuccess: () => {
-          setRowSelection([]);
-          toast.success(t('teams.exportSuccess', 'Exportado con éxito'));
-        },
-        onError: (err: any) => {
-          const serverMessage = err?.response?.data?.message || err?.message;
-          toast.error(serverMessage || t('teams.exportError', 'Error al exportar'));
         },
       }
     );
@@ -158,7 +139,6 @@ export default function useTeams(columns: ColumnDef<Team>[]) {
     limit,
 
     handleDelete,
-    handleExport,
-    isPendingActions: isPendingDelete || isPendingExport,
+    isPendingActions: isPendingDelete,
   };
 }

@@ -12,6 +12,8 @@ export const AuditLogSchema = z.object({
   id: z.string(),
   userId: z.string().nullable().optional(),
   actor_id: z.string().nullable().optional(),
+  actor_name: z.string().nullable().optional(),
+  actor_email: z.string().nullable().optional(),
   action: AuditActionSchema,
   moduleId: z.string().nullable().optional(),
   moduleSlug: z.string().nullable().optional(),
@@ -21,15 +23,18 @@ export const AuditLogSchema = z.object({
   displayName: z.string().nullable().optional(),
   entity_name: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
+  details: z.string().nullable().optional(),
+  changes: z.record(z.string(), z.any()).nullable().optional(),
   metadata: z.any().nullable().optional(),
   ipAddress: z.string().nullable().optional(),
   ip_address: z.string().nullable().optional(),
   userAgent: z.string().nullable().optional(),
   user_agent: z.string().nullable().optional(),
-  createdAt: z.date(),
+  createdAt: z.union([z.string(), z.date()]).optional(),
   created_at: z.union([z.string(), z.date()]).optional(),
   user: z
     .object({
+      id: z.string().optional(),
       name: z.string().nullable().optional(),
       email: z.string().nullable().optional(),
     })

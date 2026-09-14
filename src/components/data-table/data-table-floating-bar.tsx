@@ -18,8 +18,9 @@ import { cn } from '@/lib/utils';
 
 export interface FloatingBarAction<TData> {
   label: string;
-  icon: React.ReactNode;
-  onClick: (rows: Row<TData>[]) => void;
+  icon?: React.ReactNode;
+  onClick?: (rows: Row<TData>[]) => void;
+  render?: (rows: Row<TData>[]) => React.ReactNode;
   variant?: 'ghost' | 'destructive';
   disabled?: boolean;
   className?: string;
@@ -67,20 +68,24 @@ export function DataTableFloatingBar<TData>({ table, actions }: DataTableFloatin
 
         {/* Acciones visibles */}
         <div className="flex items-center gap-1">
-          {visibleActions.map((action) => (
-            <Button
-              key={action.label}
-              variant={action.variant ?? 'ghost'}
-              size="sm"
-              className={cn(isMobile ? 'h-8 w-8 p-0' : 'h-8', action.className)}
-              onClick={() => action.onClick(rows)}
-              title={action.label}
-              disabled={action.disabled}
-            >
-              {action.icon}
-              {!isMobile && <span className="ml-2">{action.label}</span>}
-            </Button>
-          ))}
+          {visibleActions.map((action) =>
+            action.render ? (
+              <React.Fragment key={action.label}>{action.render(rows)}</React.Fragment>
+            ) : (
+              <Button
+                key={action.label}
+                variant={action.variant ?? 'ghost'}
+                size="sm"
+                className={cn(isMobile ? 'h-8 w-8 p-0' : 'h-8', action.className)}
+                onClick={() => action.onClick?.(rows)}
+                title={action.label}
+                disabled={action.disabled}
+              >
+                {action.icon}
+                {!isMobile && <span className="ml-2">{action.label}</span>}
+              </Button>
+            )
+          )}
 
           {/* Overflow dropdown */}
           {overflowActions.length > 0 && (
@@ -94,7 +99,7 @@ export function DataTableFloatingBar<TData>({ table, actions }: DataTableFloatin
                 {overflowActions.map((action) => (
                   <DropdownMenuItem
                     key={action.label}
-                    onClick={() => action.onClick(rows)}
+                    onClick={() => action.onClick?.(rows)}
                     className={cn(
                       action.variant === 'destructive' ? 'text-destructive' : '',
                       action.className

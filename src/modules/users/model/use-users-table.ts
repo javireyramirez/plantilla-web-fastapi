@@ -141,7 +141,7 @@ export default function useUsers(columns: ColumnDef<Users>[]) {
   const { mutate: mutateSuspend, isPending: isSuspending } = usersQueries.useSuspendBulk();
   const { mutate: mutateUnsuspend, isPending: isUnsuspending } = usersQueries.useUnsuspendBulk();
   const { mutateAsync: mutateResendInvitation } = usersQueries.useResendInvitation();
-  const { mutate: mutateExport, isPending: isPendingExport } = usersQueries.useExport();
+  const { mutateAsync: mutateExport, isPending: isPendingExport } = usersQueries.useExport();
   const [isResending, setIsResending] = React.useState(false);
 
   const handleDelete = (rows: Row<Users>[]) => {
@@ -199,22 +199,32 @@ export default function useUsers(columns: ColumnDef<Users>[]) {
     }
   };
 
-  const handleExport = (rows: Row<Users>[]) => {
-    mutateExport(
-      {
-        ids: rows.map((item) => item.original.id),
-      },
-      {
-        onSuccess: () => {
-          setRowSelection([]);
-          toast.success(t('users.exportSuccess', 'Exportado con éxito'));
-        },
-        onError: (err: any) => {
-          const serverMessage = err?.response?.data?.message || err?.message;
-          toast.error(serverMessage || t('users.exportError', 'Error al exportar'));
-        },
-      }
-    );
+  const handleExport = async (rows?: Row<Users>[], format: string = 'csv') => {
+    const ids = rows && rows.length > 0 ? rows.map((item) => item.original.id) : undefined;
+    try {
+      await mutateExport({
+        ids,
+        format,
+        sort_by: sortBy,
+        sort_order: sortOrder,
+        filters: !ids
+          ? {
+              ...(name && { name }),
+              ...(email && { email }),
+              ...(isSystem !== undefined && { is_system: isSystem }),
+              ...(isActive !== undefined && { is_active: isActive }),
+              ...(emailVerified !== undefined && { email_verified: emailVerified }),
+              ...(createdFrom && { created_at_from: createdFrom }),
+              ...(createdTo && { created_at_to: createdTo }),
+            }
+          : undefined,
+      });
+      if (ids) setRowSelection([]);
+      toast.success(t('export.success', { defaultValue: 'Exportado con éxito' }));
+    } catch (err: any) {
+      const serverMessage = err?.response?.data?.message || err?.message;
+      toast.error(serverMessage || t('export.error', { defaultValue: 'Error al exportar' }));
+    }
   };
 
   return {
@@ -232,6 +242,7 @@ export default function useUsers(columns: ColumnDef<Users>[]) {
     handleUnsuspend,
     handleResendInvitation,
     handleExport,
+    isPendingExport,
     isPendingActions: isPendingDelete || isUnsuspending || isSuspending || isResending || isPendingExport,
   };
 }

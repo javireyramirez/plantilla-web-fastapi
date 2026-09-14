@@ -54,6 +54,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AuditTable } from '@/modules/audit/components/audit-table';
 import { usersQueries } from '@/modules/users/model/users.query';
 
+import { ExportDropdown, ExportDropdownMenuSub } from '@/components/export-dropdown';
+import usePermissions from '@/hooks/use-permissions';
+
 import { UsersDetailForm } from '../components/users-form';
 import { UserRolesTable } from '../components/users-roles-table';
 import { UsersTeamsTable } from '../components/users-teams-table';
@@ -62,6 +65,8 @@ import { useUsersForm } from '../model/use-users-detail';
 export default function UsersDetail() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { can } = usePermissions();
+  const canExport = can('users', 'EXPORT');
 
   // --- Estados locales ---
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -228,16 +233,14 @@ export default function UsersDetail() {
                     </Button>
                   )}
 
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="hidden lg:flex gap-2"
-                    disabled={isPending}
-                    onClick={handleExport}
-                  >
-                    <Download className="h-4 w-4" />
-                    {t('users.export')}
-                  </Button>
+                  {canExport && (
+                    <ExportDropdown
+                      entityName="users"
+                      onExport={handleExport}
+                      disabled={isPending}
+                      className="hidden lg:flex"
+                    />
+                  )}
 
                   <Button
                     type="button"
@@ -347,15 +350,14 @@ export default function UsersDetail() {
                         </DropdownMenuItem>
                       )}
 
-                      {/* Exportar y Eliminar: Se muestran en el dropdown si es menor a lg */}
-                      <DropdownMenuItem
-                        disabled={isPending}
-                        className="lg:hidden gap-2"
-                        onSelect={handleExport}
-                      >
-                        <Download className="h-4 w-4" />
-                        {t('users.export')}
-                      </DropdownMenuItem>
+                      {canExport && (
+                        <ExportDropdownMenuSub
+                          entityName="users"
+                          onExport={handleExport}
+                          disabled={isPending}
+                          className="lg:hidden"
+                        />
+                      )}
 
                       {/* Se muestra en el menú si la pantalla es menor a xl */}
                       <DropdownMenuItem disabled={isPending} className="xl:hidden gap-2" asChild>

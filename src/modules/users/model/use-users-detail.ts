@@ -25,7 +25,7 @@ export function useUsersForm(id?: string) {
   const { mutate: unsuspend, isPending: isUnsuspending } = usersQueries.useUnsuspend();
   const { mutate: resendInvitation, isPending: isResendingInvitation } =
     usersQueries.useResendInvitation();
-  const { mutate: mutateExport, isPending: isPendingExport } = usersQueries.useExport();
+  const { mutateAsync: mutateExport, isPending: isPendingExport } = usersQueries.useExport();
 
   const handleSubmit = (
     formData: CreateUsers | UpdateUsers,
@@ -160,22 +160,18 @@ export function useUsersForm(id?: string) {
 
   const userName = useWatch({ control: form.control, name: 'name' });
   const isActive = data?.isActive ?? (data as any)?.is_active ?? true;
-  const handleExport = () => {
+  const handleExport = async (format: string = 'csv') => {
     if (!id) return;
-    mutateExport(
-      {
+    try {
+      await mutateExport({
         ids: [id],
-      },
-      {
-        onSuccess: () => {
-          toast.success(t('users.exportSuccess', 'Exportado con éxito'));
-        },
-        onError: (error: any) => {
-          const serverMessage = error?.response?.data?.message || error?.message;
-          toast.error(serverMessage || t('users.exportError', 'Error al exportar'));
-        },
-      }
-    );
+        format,
+      });
+      toast.success(t('export.success', { defaultValue: 'Exportado con éxito' }));
+    } catch (error: any) {
+      const serverMessage = error?.response?.data?.message || error?.message;
+      toast.error(serverMessage || t('export.error', { defaultValue: 'Error al exportar' }));
+    }
   };
 
   return {

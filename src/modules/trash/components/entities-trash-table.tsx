@@ -162,6 +162,10 @@ export function EntitiesTrashTable() {
             </span>
           );
         },
+        meta: {
+          label: t('trash.table.deletedBy'),
+          variant: 'text',
+        },
       },
       {
         id: 'expires_at',

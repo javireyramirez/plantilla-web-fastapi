@@ -15,13 +15,18 @@ import { DataTableToolbar } from '@/components/data-table/data-table-toolbar-des
 import { DataTableToolbarMobile } from '@/components/data-table/data-table-toolbar-mobile';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { ExportDropdown } from '@/components/export-dropdown';
 import usePermissions from '@/hooks/use-permissions';
 import { formatDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import useUsers from '@/modules/users//model/use-users-table';
 import { UsersResponse } from '@/modules/users/model/users.schema';
 
-export function UsersTable() {
+interface UsersTableProps {
+  exportRef?: React.MutableRefObject<((format: string) => Promise<void> | void) | null>;
+}
+
+export function UsersTable({ exportRef }: UsersTableProps = {}) {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { can } = usePermissions();
@@ -189,7 +194,7 @@ export function UsersTable() {
         enableColumnFilter: true,
         enableSorting: true,
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} label={t('users.table.fecha')} />
+          <DataTableColumnHeader column={column} label={t('users.table.creacion')} />
         ),
         cell: ({ row }) => (
           <span className="text-muted-foreground tabular-nums text-sm">
@@ -218,17 +223,29 @@ export function UsersTable() {
     handleUnsuspend,
     handleResendInvitation,
     handleExport,
+    isPendingExport,
     isPendingActions,
   } = useUsers(columns);
+
+  if (exportRef) {
+    exportRef.current = (format: string) => handleExport(undefined, format);
+  }
 
   const floatingActions = React.useMemo(() => {
     const list = [];
     if (can('users', 'EXPORT')) {
       list.push({
-        label: t('users.export'),
-        icon: <Download className="h-4 w-4" />,
-        disabled: isPendingActions,
-        onClick: (rows: any) => handleExport(rows),
+        label: t('export.button', { defaultValue: 'Exportar' }),
+        render: (selectedRows: any) => (
+          <ExportDropdown
+            entityName="users"
+            onExport={(format) => handleExport(selectedRows, format)}
+            isPending={isPendingExport}
+            size="sm"
+            variant="ghost"
+            align="start"
+          />
+        ),
       });
     }
     if (can('users', 'UPDATE')) {

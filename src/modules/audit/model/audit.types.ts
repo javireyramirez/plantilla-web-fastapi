@@ -63,27 +63,8 @@ export function getAuditActionLabel(
   return translated !== key ? translated : (fallback || action);
 }
 
-const DEFAULT_MODULE_LABELS: Record<string, string> = {
-  users: 'Usuarios',
-  user: 'Usuarios',
-  companies: 'Compañías',
-  company: 'Compañías',
-  companie: 'Compañías',
-  teams: 'Equipos',
-  team: 'Equipos',
-  roles: 'Roles',
-  role: 'Roles',
-  rbac: 'Roles y Permisos',
-  documents: 'Documentos',
-  document: 'Documentos',
-  storage: 'Almacenamiento',
-  audit: 'Auditoría',
-  trash: 'Papelera',
-  auth: 'Autenticación',
-};
-
 export function getAuditModuleLabel(
-  t: (key: string) => string,
+  t: (key: string, options?: any) => string,
   moduleSlug: string | null | undefined,
   modulesMap?: Map<string, string>
 ): string {
@@ -91,20 +72,14 @@ export function getAuditModuleLabel(
   const raw = moduleSlug.toLowerCase().trim();
   const normalized = normalizeModuleSlug(raw);
 
-  if (modulesMap) {
-    if (modulesMap.has(normalized)) return modulesMap.get(normalized)!;
-    if (modulesMap.has(raw)) return modulesMap.get(raw)!;
-  }
+  const fallbackFromModules =
+    modulesMap?.get(normalized) || modulesMap?.get(raw) || moduleSlug;
 
-  const key = `modules.names.${normalized}`;
-  const translated = t(key);
-  if (translated !== key) return translated;
-
-  const rawKey = `modules.names.${raw}`;
-  const rawTranslated = t(rawKey);
-  if (rawTranslated !== rawKey) return rawTranslated;
-
-  return DEFAULT_MODULE_LABELS[normalized] || DEFAULT_MODULE_LABELS[raw] || moduleSlug;
+  return t(`modules.names.${normalized}`, {
+    defaultValue: t(`modules.names.${raw}`, {
+      defaultValue: fallbackFromModules,
+    }),
+  });
 }
 
 export function getActionOptions(t: (key: string, options?: any) => string): SelectOption[] {
@@ -124,24 +99,5 @@ export function getActionOptions(t: (key: string, options?: any) => string): Sel
     { value: 'PERMANENT_DELETE', label: getAuditActionLabel(t, 'PERMANENT_DELETE', 'Eliminar permanente'), group: groupDeletion },
     { value: 'LOGIN', label: getAuditActionLabel(t, 'LOGIN', 'Inicio de sesión'), group: groupSession },
     { value: 'LOGOUT', label: getAuditActionLabel(t, 'LOGOUT', 'Cierre de sesión'), group: groupSession },
-  ];
-}
-export function getModuleOptions(t: (key: string, options?: any) => string): SelectOption[] {
-  const groupBusiness = t('modules.categories.business', { defaultValue: 'Negocio' });
-  const groupFiles = t('modules.categories.files', { defaultValue: 'Archivos' });
-  const groupSecurity = t('modules.categories.security', { defaultValue: 'Seguridad' });
-  const groupSystem = t('modules.categories.system', { defaultValue: 'Sistema' });
-
-  return [
-    { value: 'companies', label: t('modules.names.companies', { defaultValue: 'Compañías' }), group: groupBusiness },
-    { value: 'documents', label: t('modules.names.documents', { defaultValue: 'Documentos' }), group: groupFiles },
-    { value: 'storage', label: t('modules.names.storage', { defaultValue: 'Almacenamiento' }), group: groupFiles },
-    { value: 'users', label: t('modules.names.users', { defaultValue: 'Usuarios' }), group: groupSecurity },
-    { value: 'teams', label: t('modules.names.teams', { defaultValue: 'Equipos' }), group: groupSecurity },
-    { value: 'roles', label: t('modules.names.roles', { defaultValue: 'Roles' }), group: groupSecurity },
-    { value: 'rbac', label: t('modules.names.rbac', { defaultValue: 'Roles y Permisos' }), group: groupSystem },
-    { value: 'audit', label: t('modules.names.audit', { defaultValue: 'Auditoría' }), group: groupSystem },
-    { value: 'trash', label: t('modules.names.trash', { defaultValue: 'Papelera' }), group: groupSystem },
-    { value: 'settings', label: t('modules.names.settings', { defaultValue: 'Configuración' }), group: groupSystem },
   ];
 }

@@ -81,7 +81,7 @@ export function RolesTable() {
         enableColumnFilter: true,
         enableSorting: true,
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} label={t('users.isSystem', { defaultValue: 'Tipo' })} />
+          <DataTableColumnHeader column={column} label={t('roles.table.type', { defaultValue: 'Tipo' })} />
         ),
         cell: ({ row }) => {
           const isSystem = (row.getValue('is_system') ?? (row.original as any).isSystem) as boolean;
@@ -96,7 +96,7 @@ export function RolesTable() {
           );
         },
         meta: {
-          label: t('users.isSystem', { defaultValue: 'Tipo' }),
+          label: t('roles.table.type', { defaultValue: 'Tipo' }),
           variant: 'boolean',
           options: [
             { label: t('users.table.isSystem', { defaultValue: 'Sistema' }), value: 'true' },
@@ -111,7 +111,7 @@ export function RolesTable() {
         enableColumnFilter: true,
         enableSorting: true,
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} label={t('roles.table.fecha')} />
+          <DataTableColumnHeader column={column} label={t('roles.table.creacion')} />
         ),
         cell: ({ row }) => (
           <span className="text-muted-foreground tabular-nums text-sm">
@@ -136,20 +136,11 @@ export function RolesTable() {
     isMobile,
     limit,
     handleDelete,
-    handleExport,
     isPendingActions,
   } = useRoles(columns);
 
   const floatingActions = React.useMemo(() => {
     const list = [];
-    if (can('roles', 'EXPORT')) {
-      list.push({
-        label: t('roles.export'),
-        icon: <Download className="h-4 w-4" />,
-        disabled: isPendingActions,
-        onClick: (rows: any) => handleExport(rows),
-      });
-    }
     if (can('roles', 'DELETE')) {
       list.push({
         label: t('roles.delete'),
@@ -161,7 +152,7 @@ export function RolesTable() {
       });
     }
     return list;
-  }, [can, t, isPendingActions, handleExport, handleDelete]);
+  }, [can, t, isPendingActions, handleDelete]);
 
   // Skeleton
   if (isLoading) {

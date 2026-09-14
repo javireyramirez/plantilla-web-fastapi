@@ -6,11 +6,50 @@
       "emptyMessage": "No results found.",
       "refineMessage": "more results, refine your search",
       "applyLabel": "Apply"
+    },
+    "viewOptions": {
+      "title": "View",
+      "toggleColumns": "Toggle columns",
+      "searchPlaceholder": "Search columns...",
+      "emptyMessage": "No results found."
+    },
+    "toolbar": {
+      "resetFilters": "Reset filters"
+    },
+    "table": {
+      "selectAll": "Select all",
+      "selectRow": "Select row",
+      "noResults": "No results."
+    },
+    "pagination": {
+      "rowsPerPage": "Rows per page",
+      "page": "Page {{page}} of {{total}}",
+      "firstPage": "First page",
+      "previousPage": "Previous page",
+      "nextPage": "Next page",
+      "lastPage": "Last page"
     }
   },
   "common": {
     "cancel": "Cancel",
-    "save": "Save"
+    "save": "Save",
+    "view": "View"
+  },
+  "export": {
+    "button": "Export",
+    "exportAll": "Export all",
+    "exportSelected": "Export selected",
+    "exporting": "Exporting...",
+    "success": "Export completed successfully",
+    "error": "Error exporting data",
+    "noFormats": "No formats available",
+    "formats": {
+      "csv": "CSV (.csv)",
+      "excel": "Excel (.xlsx)",
+      "json": "JSON (.json)",
+      "tsv": "TSV (.tsv)",
+      "google_sheets": "Google Sheets (.tsv)"
+    }
   },
   "modules": {
     "categories": {
@@ -414,7 +453,10 @@
       "description": "Description",
       "permissionsCount": "No. of Permissions",
       "fecha": "Date",
-      "creacion": "Creation"
+      "creacion": "Creation",
+      "assignedAt": "Assignment date",
+      "details": "Contact / Details",
+      "type": "Type"
     },
     "form": {
       "update": "Role successfully updated",
@@ -649,6 +691,19 @@
     "metadata": "Metadata / Additional Data",
     "metadataDescription": "Changes and JSON payload of the event.",
     "noMetadata": "No metadata recorded for this event.",
+    "changesTitle": "Recorded Changes",
+    "changesDesc": "State differences and modified values in this event.",
+    "tabDiff": "Changes (Diff)",
+    "tabJson": "Raw JSON",
+    "field": "Field",
+    "previousValue": "Previous Value",
+    "newValue": "New Value",
+    "noChangesRecorded": "No State Changes",
+    "noChangesDesc": "This event did not modify entity attributes (e.g., session or read-only event).",
+    "copyUserId": "Copy User ID",
+    "copyEntityId": "Copy Entity ID",
+    "copyIp": "Copy IP",
+    "copyLogId": "Copy Audit ID",
     "back": "Back",
     "notFoundTitle": "Log Not Found",
     "notFoundDesc": "The requested audit log does not exist or you do not have permission to view it.",

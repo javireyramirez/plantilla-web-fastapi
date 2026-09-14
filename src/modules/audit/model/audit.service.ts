@@ -20,6 +20,8 @@ class AuditService {
       displayName: item.entity_name ?? item.details ?? item.actor_name ?? item.entity_type ?? '-',
       entity_name: item.entity_name ?? item.details ?? item.actor_name ?? item.entity_type ?? '-',
       description: item.details ?? null,
+      details: item.details ?? null,
+      changes: item.changes ?? null,
       metadata: item.changes ?? item.metadata ?? null,
       ipAddress: item.ip_address ?? item.ipAddress ?? null,
       ip_address: item.ip_address ?? item.ipAddress ?? null,
@@ -27,13 +29,13 @@ class AuditService {
       user_agent: item.user_agent ?? item.userAgent ?? null,
       createdAt: new Date(item.created_at ?? item.createdAt),
       created_at: item.created_at ?? item.createdAt,
-      user:
-        item.actor_name || item.actor_email
-          ? {
-              name: item.actor_name ?? null,
-              email: item.actor_email ?? null,
-            }
-          : (item.user ?? null),
+      user: item.user ?? (item.actor_name || item.actor_email
+        ? {
+            id: item.actor_id ?? null,
+            name: item.actor_name ?? null,
+            email: item.actor_email ?? null,
+          }
+        : null),
     }));
 
     return {
@@ -62,6 +64,8 @@ class AuditService {
       displayName: item.entity_name ?? item.details ?? item.actor_name ?? item.entity_type ?? '-',
       entity_name: item.entity_name ?? item.details ?? item.actor_name ?? item.entity_type ?? '-',
       description: item.details ?? null,
+      details: item.details ?? null,
+      changes: item.changes ?? null,
       metadata: item.changes ?? item.metadata ?? null,
       ipAddress: item.ip_address ?? item.ipAddress ?? null,
       ip_address: item.ip_address ?? item.ipAddress ?? null,
@@ -69,14 +73,19 @@ class AuditService {
       user_agent: item.user_agent ?? item.userAgent ?? null,
       createdAt: new Date(item.created_at ?? item.createdAt),
       created_at: item.created_at ?? item.createdAt,
-      user:
-        item.actor_name || item.actor_email
-          ? {
-              name: item.actor_name ?? null,
-              email: item.actor_email ?? null,
-            }
-          : (item.user ?? null),
+      user: item.user ?? (item.actor_name || item.actor_email
+        ? {
+            id: item.actor_id ?? null,
+            name: item.actor_name ?? null,
+            email: item.actor_email ?? null,
+          }
+        : null),
     } as AuditLogType;
+  }
+
+  async getExportFormats(): Promise<string[]> {
+    const { data } = await instance.get<string[]>(`/audit/export/formats`);
+    return data;
   }
 
   async export(body: any): Promise<Blob> {
@@ -91,26 +100,26 @@ class AuditService {
     });
 
     const contentDisposition = response.headers?.['content-disposition'];
-    let baseFilename = 'audit_export';
-    let extension = body.format === 'excel' ? 'xlsx' : body.format || 'csv';
+    let filename = '';
 
     if (contentDisposition) {
-      const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+      const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
       if (filenameMatch && filenameMatch[1]) {
-        const fullFilename = filenameMatch[1];
-        const lastDotIndex = fullFilename.lastIndexOf('.');
-        if (lastDotIndex !== -1) {
-          baseFilename = fullFilename.substring(0, lastDotIndex);
-          extension = fullFilename.substring(lastDotIndex + 1);
-        } else {
-          baseFilename = fullFilename;
-        }
+        filename = filenameMatch[1];
       }
     }
 
-    const now = new Date();
-    const timestamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
-    const filename = `${baseFilename}_${timestamp}.${extension}`;
+    if (!filename) {
+      const now = new Date();
+      const timestamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
+      const ext =
+        body.format === 'excel'
+          ? 'xlsx'
+          : body.format === 'google_sheets' || body.format === 'tsv'
+            ? 'tsv'
+            : body.format || 'csv';
+      filename = `audit_logs_${timestamp}.${ext}`;
+    }
 
     const url = window.URL.createObjectURL(response.data);
     const link = document.createElement('a');

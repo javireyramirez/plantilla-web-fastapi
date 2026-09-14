@@ -81,7 +81,7 @@ export function TeamsTable() {
         enableColumnFilter: true,
         enableSorting: true,
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} label={t('teams.table.fecha')} />
+          <DataTableColumnHeader column={column} label={t('teams.table.creacion')} />
         ),
         cell: ({ row }) => (
           <span className="text-muted-foreground tabular-nums text-sm">
@@ -106,20 +106,11 @@ export function TeamsTable() {
     isMobile,
     limit,
     handleDelete,
-    handleExport,
     isPendingActions,
   } = useteams(columns);
 
   const floatingActions = React.useMemo(() => {
     const list = [];
-    if (can('teams', 'EXPORT')) {
-      list.push({
-        label: t('teams.export'),
-        icon: <Download className="h-4 w-4" />,
-        disabled: isPendingActions,
-        onClick: (rows: any) => handleExport(rows),
-      });
-    }
     if (can('teams', 'DELETE')) {
       list.push({
         label: t('teams.delete'),
@@ -131,7 +122,7 @@ export function TeamsTable() {
       });
     }
     return list;
-  }, [can, t, isPendingActions, handleExport, handleDelete]);
+  }, [can, t, isPendingActions, handleDelete]);
 
   // Skeleton
   if (isLoading) {

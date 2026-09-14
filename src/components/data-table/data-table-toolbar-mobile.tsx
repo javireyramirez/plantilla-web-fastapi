@@ -6,6 +6,7 @@ import type { Column, Table } from '@tanstack/react-table';
 
 import { DataTableToolbarFilter } from '@/components/data-table/data-table-toolbar-filter';
 import { useDataTableI18n } from '@/components/data-table/data-table-i18n';
+import { useTranslation } from 'react-i18next';
 import { DataTableViewOptions } from '@/components/data-table/data-table-view-options';
 import { Button } from '@/components/ui/button';
 import {
@@ -30,6 +31,7 @@ export function DataTableToolbarMobile<TData>({
   className,
   ...props
 }: DataTableToolbarProps<TData>) {
+  const { t } = useTranslation();
   const isFiltered = table.getState().columnFilters.length > 0;
   const i18n = useDataTableI18n();
 
@@ -68,13 +70,13 @@ export function DataTableToolbarMobile<TData>({
               ))}
               {isFiltered && (
                 <Button
-                  aria-label={i18n.toolbar.resetFilters}
+                  aria-label={t('dataTable.toolbar.resetFilters', { defaultValue: i18n.toolbar.resetFilters })}
                   variant="outline"
                   className="w-full border-dashed mt-2"
                   onClick={onReset}
                 >
                   <X />
-                  {i18n.toolbar.resetFilters}
+                  {t('dataTable.toolbar.resetFilters', { defaultValue: i18n.toolbar.resetFilters })}
                 </Button>
               )}
             </div>
@@ -85,7 +87,7 @@ export function DataTableToolbarMobile<TData>({
           </div>
           <DrawerFooter>
             <DrawerClose asChild>
-              <Button className="w-full">Cancel</Button>
+              <Button className="w-full">{t('common.cancel', { defaultValue: 'Cancelar' })}</Button>
             </DrawerClose>
           </DrawerFooter>
         </div>

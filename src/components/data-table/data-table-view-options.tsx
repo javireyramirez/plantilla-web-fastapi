@@ -6,6 +6,7 @@ import type { Table } from '@tanstack/react-table';
 
 import { Button } from '@/components/ui/button';
 import { useDataTableI18n } from '@/components/data-table/data-table-i18n';
+import { useTranslation } from 'react-i18next';
 import {
   Command,
   CommandEmpty,
@@ -20,7 +21,7 @@ import { cn } from '@/lib/utils';
 interface DataTableViewOptionsProps<TData> extends React.ComponentProps<typeof PopoverContent> {
   table: Table<TData>;
   disabled?: boolean;
-  clasName?: string;
+  className?: string;
 }
 
 export function DataTableViewOptions<TData>({
@@ -29,12 +30,10 @@ export function DataTableViewOptions<TData>({
   className,
   ...props
 }: DataTableViewOptionsProps<TData>) {
+  const { t } = useTranslation();
   const i18n = useDataTableI18n();
   const columns = React.useMemo(
-    () =>
-      table
-        .getAllColumns()
-        .filter((column) => typeof column.accessorFn !== 'undefined' && column.getCanHide()),
+    () => table.getAllColumns().filter((column) => column.getCanHide()),
     [table]
   );
 
@@ -42,7 +41,7 @@ export function DataTableViewOptions<TData>({
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          aria-label={i18n.viewOptions.toggleColumns}
+          aria-label={t('dataTable.viewOptions.toggleColumns', { defaultValue: i18n.viewOptions.toggleColumns })}
           role="combobox"
           variant="outline"
           size="sm"
@@ -50,21 +49,30 @@ export function DataTableViewOptions<TData>({
           disabled={disabled}
         >
           <Settings2 className="text-muted-foreground" />
-          {i18n.viewOptions.title}
+          {t('dataTable.viewOptions.title', { defaultValue: i18n.viewOptions.title ?? 'Vista' })}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-44 p-0" {...props}>
         <Command>
-          <CommandInput placeholder={i18n.viewOptions.searchPlaceholder} />
+          <CommandInput
+            placeholder={t('dataTable.viewOptions.searchPlaceholder', { defaultValue: i18n.viewOptions.searchPlaceholder })}
+          />
           <CommandList>
-            <CommandEmpty>{i18n.viewOptions.emptyMessage}</CommandEmpty>
+            <CommandEmpty>
+              {t('dataTable.viewOptions.emptyMessage', { defaultValue: i18n.viewOptions.emptyMessage })}
+            </CommandEmpty>
             <CommandGroup>
               {columns.map((column) => (
                 <CommandItem
                   key={column.id}
                   onSelect={() => column.toggleVisibility(!column.getIsVisible())}
                 >
-                  <span className="truncate">{column.columnDef.meta?.label ?? column.id}</span>
+                  <span className="truncate">
+                    {column.columnDef.meta?.label ??
+                      (typeof column.columnDef.header === 'string'
+                        ? column.columnDef.header
+                        : column.id)}
+                  </span>
                   <Check
                     className={cn(
                       'ml-auto size-4 shrink-0',

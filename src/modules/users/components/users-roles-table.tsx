@@ -91,7 +91,7 @@ export function UserRolesTable({ userId }: { userId?: string }) {
             <span className="truncate font-medium max-w-xs text-foreground">
               <button
                 className="truncate font-medium max-w-xs text-blue-500 hover:text-blue-700 hover:underline text-left"
-                onClick={() => navigate(`/roles/edit/${row.original.id}`)}
+                onClick={() => navigate(`/admin/roles/edit/${row.original.id}`)}
               >
                 {row.getValue('name')}
               </button>
@@ -108,7 +108,10 @@ export function UserRolesTable({ userId }: { userId?: string }) {
         enableColumnFilter: true,
         enableSorting: true,
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} label={t('users.teams.fecha')} />
+          <DataTableColumnHeader
+            column={column}
+            label={t('roles.table.assignedAt', { defaultValue: 'Fecha de asignación' })}
+          />
         ),
         cell: ({ row }) => (
           <span className="text-muted-foreground tabular-nums text-sm">
@@ -116,13 +119,13 @@ export function UserRolesTable({ userId }: { userId?: string }) {
           </span>
         ),
         meta: {
-          label: t('users.table.creacion'),
+          label: t('roles.table.assignedAt', { defaultValue: 'Fecha de asignación' }),
           variant: 'dateRange',
           icon: CalendarIcon,
         },
       },
     ],
-    [t]
+    [t, navigate]
   );
 
   if (!userId) {

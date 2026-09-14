@@ -103,7 +103,7 @@ export interface ExportRequest<TQuery = Record<string, unknown>, TId = string> {
   ids?: TId[];
   filters?: TQuery;
   columns?: string[];
-  format?: 'csv' | 'excel' | 'json';
+  format?: 'csv' | 'excel' | 'json' | 'tsv' | 'google_sheets' | string;
   sort_by?: string;
   sortBy?: string;
   sort_order?: 'asc' | 'desc';
@@ -196,6 +196,11 @@ export abstract class CrudService<
 
   // ── Exportación con autodescarga ──────────────────────────────
 
+  getExportFormats = async (): Promise<string[]> => {
+    const { data } = await instance.get<string[]>(`/${this.entityName}/export/formats`);
+    return data;
+  };
+
   export = async (body: ExportRequest<TQuery, TId>): Promise<Blob> => {
     const payload = {
       ...body,
@@ -208,35 +213,29 @@ export abstract class CrudService<
       responseType: 'blob',
     });
 
-    // 1. Intentar obtener el nombre del archivo desde las cabeceras HTTP del backend
-    const contentDisposition = response.headers['content-disposition'];
-    let baseFilename = `${this.entityName}_export`;
-    let extension = body.format === 'excel' ? 'xlsx' : body.format || 'csv';
+    // 1. Obtener el nombre del archivo desde las cabeceras HTTP del backend (SSOT)
+    const contentDisposition = response.headers?.['content-disposition'];
+    let filename = '';
 
     if (contentDisposition) {
-      const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+      const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
       if (filenameMatch && filenameMatch[1]) {
-        const fullFilename = filenameMatch[1];
-        const lastDotIndex = fullFilename.lastIndexOf('.');
-        if (lastDotIndex !== -1) {
-          baseFilename = fullFilename.substring(0, lastDotIndex);
-          extension = fullFilename.substring(lastDotIndex + 1);
-        } else {
-          baseFilename = fullFilename;
-        }
+        filename = filenameMatch[1];
       }
     }
 
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    const timestamp = `${year}${month}${day}_${hours}${minutes}${seconds}`;
-
-    const filename = `${baseFilename}_${timestamp}.${extension}`;
+    if (!filename) {
+      const safeEntity = this.entityName.replace(/[^a-zA-Z0-9_-]/g, '_');
+      const now = new Date();
+      const timestamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
+      const ext =
+        body.format === 'excel'
+          ? 'xlsx'
+          : body.format === 'google_sheets' || body.format === 'tsv'
+            ? 'tsv'
+            : body.format || 'csv';
+      filename = `${safeEntity}_${timestamp}.${ext}`;
+    }
 
     // 2. Disparar la descarga del archivo en el navegador
     const url = window.URL.createObjectURL(response.data);

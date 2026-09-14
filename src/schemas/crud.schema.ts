@@ -95,13 +95,19 @@ export function createPaginatedResponseSchema<T extends z.ZodTypeAny>(dataSchema
   });
 }
 
-export const ExportFormatSchema = z.enum(['csv', 'excel', 'json']);
+export const ExportFormatSchema = z.enum([
+  'csv',
+  'excel',
+  'json',
+  'tsv',
+  'google_sheets',
+]);
 
 export const ExportRequestSchema = z.object({
-  ids: z.array(z.uuidv7()).optional(),
+  ids: z.array(z.string()).optional(),
   filters: z.record(z.string(), z.any()).optional(),
   columns: z.array(z.string()).optional(),
-  format: ExportFormatSchema.default('csv'),
+  format: z.string().default('csv'),
   sort_by: z.string().optional(),
   sortBy: z.string().optional(),
   sort_order: z.enum(['asc', 'desc']).optional(),

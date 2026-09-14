@@ -21,7 +21,7 @@ export function useCompanyForm(id?: string) {
   const { mutate: create, isPending: isCreating } = companiesQueries.useCreate();
   const { mutate: update, isPending: isUpdating } = companiesQueries.useUpdate();
   const { mutate: softDelete, isPending: isDeleting } = companiesQueries.useSoftDelete();
-  const { mutate: mutateExport, isPending: isPendingExport } = companiesQueries.useExport();
+  const { mutateAsync: mutateExport, isPending: isPendingExport } = companiesQueries.useExport();
 
   const handleSubmit = (
     formData: CreateCompany | UpdateCompany,
@@ -115,22 +115,18 @@ export function useCompanyForm(id?: string) {
 
   const companyName = useWatch({ control: form.control, name: 'name' });
 
-  const handleExport = () => {
+  const handleExport = async (format: string = 'csv') => {
     if (!id) return;
-    mutateExport(
-      {
+    try {
+      await mutateExport({
         ids: [id],
-      },
-      {
-        onSuccess: () => {
-          toast.success(t('companies.exportSuccess', 'Exportado con éxito'));
-        },
-        onError: (error: any) => {
-          const serverMessage = error?.response?.data?.message || error?.message;
-          toast.error(serverMessage || t('companies.exportError', 'Error al exportar'));
-        },
-      }
-    );
+        format,
+      });
+      toast.success(t('export.success', { defaultValue: 'Exportado con éxito' }));
+    } catch (error: any) {
+      const serverMessage = error?.response?.data?.message || error?.message;
+      toast.error(serverMessage || t('export.error', { defaultValue: 'Error al exportar' }));
+    }
   };
 
   return {

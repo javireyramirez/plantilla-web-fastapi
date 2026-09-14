@@ -120,7 +120,6 @@ export default function useRoles(columns: ColumnDef<Role>[]) {
   });
 
   const { mutate: mutateDelete, isPending: isPendingDelete } = rolesQueries.useSoftDeleteMany();
-  const { mutate: mutateExport, isPending: isPendingExport } = rolesQueries.useExport();
 
   const handleDelete = (rows: Row<Role>[]) => {
     mutateDelete(
@@ -129,24 +128,6 @@ export default function useRoles(columns: ColumnDef<Role>[]) {
         onSuccess: () => {
           setRowSelection([]);
           toast.success(t('roles.table.delete'));
-        },
-      }
-    );
-  };
-
-  const handleExport = (rows: Row<Role>[]) => {
-    mutateExport(
-      {
-        ids: rows.map((item) => item.original.id),
-      },
-      {
-        onSuccess: () => {
-          setRowSelection([]);
-          toast.success(t('roles.exportSuccess', 'Exportado con éxito'));
-        },
-        onError: (err: any) => {
-          const serverMessage = err?.response?.data?.message || err?.message;
-          toast.error(serverMessage || t('roles.exportError', 'Error al exportar'));
         },
       }
     );
@@ -163,7 +144,6 @@ export default function useRoles(columns: ColumnDef<Role>[]) {
     limit,
 
     handleDelete,
-    handleExport,
-    isPendingActions: isPendingDelete || isPendingExport,
+    isPendingActions: isPendingDelete,
   };
 }

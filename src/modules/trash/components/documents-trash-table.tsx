@@ -109,6 +109,7 @@ export function DocumentsTrashTable() {
       },
       {
         id: 'parentModule',
+        accessorFn: (row) => row.modulePrincipalEntity?.name ?? row.metadata?.entityType ?? '',
         header: ({ column }) => (
           <DataTableColumnHeader column={column} label={t('trash.table.parentModule')} />
         ),
@@ -129,9 +130,17 @@ export function DocumentsTrashTable() {
             </span>
           );
         },
+        meta: {
+          label: t('trash.table.parentModule'),
+          variant: 'text',
+        },
       },
       {
         id: 'parentEntity',
+        accessorFn: (row) =>
+          row.modulePrincipalEntity?.entity_name ??
+          row.metadata?.entityName ??
+          (row.modulePrincipalEntity?.entity_id ? String(row.modulePrincipalEntity.entity_id) : ''),
         header: ({ column }) => (
           <DataTableColumnHeader column={column} label={t('trash.table.parentEntity')} />
         ),
@@ -178,6 +187,10 @@ export function DocumentsTrashTable() {
             <span className="font-medium text-foreground block truncate max-w-[200px]">{name}</span>
           );
         },
+        meta: {
+          label: t('trash.table.parentEntity'),
+          variant: 'text',
+        },
       },
       {
         id: 'deleted_at',
@@ -222,6 +235,10 @@ export function DocumentsTrashTable() {
               {name || email || row.original.deleted_by || row.original.deletedBy || '-'}
             </span>
           );
+        },
+        meta: {
+          label: t('trash.table.deletedBy'),
+          variant: 'text',
         },
       },
       {

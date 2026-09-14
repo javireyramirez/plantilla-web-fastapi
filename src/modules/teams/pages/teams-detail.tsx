@@ -1,7 +1,6 @@
 import {
   ArrowLeft,
   ChevronDown,
-  Download,
   MoreHorizontal,
   Plus,
   RotateCcw,
@@ -62,7 +61,7 @@ export default function TeamDetail() {
 
   // --- Hooks de datos y formulario ---
   const { id } = useParams<{ id: string }>();
-  const { data, isEditing, teamName, isLoading, form, handleSubmit, handleDelete, handleExport, isPending } =
+  const { data, isEditing, teamName, isLoading, form, handleSubmit, handleDelete, isPending } =
     useTeamForm(id);
 
   const { mutate: restore, isPending: isRestoring } = teamsQueries.useRestore();
@@ -235,17 +234,6 @@ export default function TeamDetail() {
                   <Button
                     type="button"
                     variant="outline"
-                    className="hidden lg:flex gap-2"
-                    disabled={isPending}
-                    onClick={handleExport}
-                  >
-                    <Download className="h-4 w-4" />
-                    {t('teams.export')}
-                  </Button>
-
-                  <Button
-                    type="button"
-                    variant="outline"
                     className="hidden lg:flex border-destructive text-destructive hover:bg-destructive hover:text-white gap-2"
                     onClick={() => setDeleteDialogOpen(true)}
                   >
@@ -316,18 +304,10 @@ export default function TeamDetail() {
 
                   {isEditing && (
                     <>
-                      <DropdownMenuItem
-                        disabled={isPending}
-                        className="lg:hidden gap-2"
-                        onSelect={handleExport}
-                      >
-                        <Download className="h-4 w-4" />
-                        {t('teams.export')}
-                      </DropdownMenuItem>
-
+                      {/* Se muestra en el menú si la pantalla es menor a xl */}
                       <DropdownMenuItem disabled={isPending} className="xl:hidden gap-2" asChild>
                         <Link to="/admin/teams/new">
-                          <Download className="h-4 w-4" />
+                          <Plus className="h-4 w-4" />
                           {t('teams.new')}
                         </Link>
                       </DropdownMenuItem>

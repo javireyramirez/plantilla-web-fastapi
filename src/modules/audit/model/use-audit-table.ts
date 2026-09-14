@@ -44,7 +44,7 @@ export default function useAuditTable(
 
   const [sort] = sorting;
   const sortBy = (sort ? sort.id : 'created_at') as GetAuditLogsQuery['sort_by'];
-  const sortOrder = sort ? (sort.desc ? 'desc' : 'asc') : 'desc';
+  const sortOrder: 'desc' | 'asc' = sort ? (sort.desc ? 'desc' : 'asc') : 'desc';
 
   // Get action filter value from TanStack columnFilters
   const actionCol = columnFilters.find((f) => f.id === 'action');
@@ -81,7 +81,7 @@ export default function useAuditTable(
   const queryModuleSlug = options?.moduleSlug ? [options.moduleSlug] : moduleSlug;
   const queryEntityId = options?.entityId;
 
-  const { data, isLoading, isFetching } = auditQueries.useGetAll({
+  const queryParams = {
     page,
     limit,
     is_trash: false,
@@ -93,7 +93,9 @@ export default function useAuditTable(
     ...(userId && { actor_id: userId }),
     created_at_from: createdFrom ? createdFrom : undefined,
     created_at_to: createdTo ? createdTo : undefined,
-  });
+  };
+
+  const { data, isLoading, isFetching } = auditQueries.useGetAll(queryParams);
 
   const auditLogs: AuditLogType[] = data?.data ?? [];
   const totalPages: number = data?.meta?.totalPages ?? 1;
@@ -144,24 +146,33 @@ export default function useAuditTable(
     },
   });
 
-  const { mutate: mutateExport, isPending: isPendingExport } = auditQueries.useExport();
+  const { mutateAsync: mutateExport, isPending: isPendingExport } = auditQueries.useExport();
 
-  const handleExport = (rows: Row<AuditLogType>[]) => {
-    mutateExport(
-      {
-        ids: rows.map((item) => item.original.id),
-      },
-      {
-        onSuccess: () => {
-          setRowSelection({});
-          toast.success(t('audit.exportSuccess', { defaultValue: 'Exportado con éxito' }));
-        },
-        onError: (err: any) => {
-          const serverMessage = err?.response?.data?.message || err?.message;
-          toast.error(serverMessage || t('audit.exportError', { defaultValue: 'Error al exportar' }));
-        },
-      }
-    );
+  const handleExport = async (rows?: Row<AuditLogType>[], format: string = 'csv') => {
+    const ids = rows && rows.length > 0 ? rows.map((item) => item.original.id) : undefined;
+    try {
+      await mutateExport({
+        ids,
+        format,
+        sort_by: sortBy,
+        sort_order: sortOrder,
+        filters: !ids
+          ? {
+              ...(action && { action }),
+              ...(queryModuleSlug && { entity_type: queryModuleSlug }),
+              ...(queryEntityId && { entity_id: queryEntityId }),
+              ...(userId && { actor_id: userId }),
+              ...(createdFrom && { created_at_from: createdFrom }),
+              ...(createdTo && { created_at_to: createdTo }),
+            }
+          : undefined,
+      });
+      if (ids) setRowSelection({});
+      toast.success(t('export.success', { defaultValue: 'Exportado con éxito' }));
+    } catch (err: any) {
+      const serverMessage = err?.response?.data?.message || err?.message;
+      toast.error(serverMessage || t('export.error', { defaultValue: 'Error al exportar' }));
+    }
   };
 
   return {
@@ -172,6 +183,7 @@ export default function useAuditTable(
     isMobile,
     limit,
     handleExport,
+    isPendingExport,
     isPendingActions: isPendingExport,
   };
 }

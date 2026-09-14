@@ -36,4 +36,12 @@ export const auditQueries = {
       mutationFn: (body: any) => auditService.export(body),
     });
   },
+
+  useExportFormats: () => {
+    return useQuery<string[], Error>({
+      queryKey: ['audit', 'export-formats'],
+      queryFn: () => auditService.getExportFormats(),
+      staleTime: 1000 * 60 * 60,
+    });
+  },
 };

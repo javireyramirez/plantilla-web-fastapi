@@ -91,7 +91,7 @@ export function UsersTeamsTable({ userId }: { userId?: string }) {
           <span className="font-medium">
             <button
               className="truncate font-medium max-w-xs text-blue-500 hover:text-blue-700 hover:underline text-left"
-              onClick={() => navigate(`/teams/edit/${row.original.id}`)}
+              onClick={() => navigate(`/admin/teams/edit/${row.original.id}`)}
             >
               {row.getValue('name')}
             </button>
@@ -107,7 +107,10 @@ export function UsersTeamsTable({ userId }: { userId?: string }) {
         enableColumnFilter: true,
         enableSorting: true,
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} label={t('users.teams.fecha')} />
+          <DataTableColumnHeader
+            column={column}
+            label={t('teamMembers.table.joinedAt', { defaultValue: 'Fecha de alta' })}
+          />
         ),
         cell: ({ row }) => (
           <span className="text-muted-foreground tabular-nums text-sm">
@@ -115,13 +118,13 @@ export function UsersTeamsTable({ userId }: { userId?: string }) {
           </span>
         ),
         meta: {
-          label: t('users.table.creacion'),
+          label: t('teamMembers.table.joinedAt', { defaultValue: 'Fecha de alta' }),
           variant: 'dateRange',
           icon: CalendarIcon,
         },
       },
     ],
-    [t]
+    [t, navigate]
   );
 
   if (!userId) {
