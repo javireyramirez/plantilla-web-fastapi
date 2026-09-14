@@ -114,7 +114,7 @@ export function DataTableDateFilter<TData>({
 
         if (multiple && !('getTime' in date)) {
           const from = date.from ? new Date(date.from).setHours(0, 0, 0, 0) : undefined;
-          const to = date.to ? new Date(date.to).setHours(23, 59, 59, 999) : undefined;
+          const to = date.to ? new Date(date.to).setHours(0, 0, 0, 0) : undefined;
           column.setFilterValue(from || to ? [from, to] : undefined);
         } else if (!multiple && 'getTime' in date) {
           column.setFilterValue(date.getTime());
@@ -131,7 +131,7 @@ export function DataTableDateFilter<TData>({
         : undefined;
       const toDate = pendingDates.to ?? pendingDates.from;
       const to = toDate
-        ? new Date(toDate).setHours(23, 59, 59, 999)
+        ? new Date(toDate).setHours(0, 0, 0, 0)
         : undefined;
       column.setFilterValue(from || to ? [from, to] : undefined);
     }

@@ -91,8 +91,8 @@ export default function useAuditTable(
     ...(queryModuleSlug && { entity_type: queryModuleSlug }),
     ...(queryEntityId && { entity_id: queryEntityId }),
     ...(userId && { actor_id: userId }),
-    ...(createdFrom && { created_at_from: new Date(createdFrom) }),
-    ...(createdTo && { created_at_to: new Date(createdTo) }),
+    created_at_from: createdFrom ? createdFrom : undefined,
+    created_at_to: createdTo ? createdTo : undefined,
   });
 
   const auditLogs: AuditLogType[] = data?.data ?? [];
