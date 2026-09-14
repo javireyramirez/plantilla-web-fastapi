@@ -1,0 +1,32 @@
+{
+  "$schema": "https://repomix.com/schemas/config.json",
+  "output": {
+    "filePath": "repomix-output.xml",
+    "style": "xml",
+    "compress": true,
+    "removeComments": true,
+    "removeEmptyLines": true,
+    "showLineNumbers": false,
+    "topFilesLength": 10
+  },
+  "include": [
+    "src/**/*",
+    "package.json",
+    "tsconfig.json",
+    "vite.config.ts"
+  ],
+  "ignore": {
+    "useGitignore": true,
+    "useDefaultPatterns": true,
+    "customPatterns": [
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "**/*.spec.ts",
+      "**/*.spec.tsx",
+      "**/*.stories.tsx",
+      "pnpm-lock.yaml",
+      "dist/**",
+      "public/**"
+    ]
+  }
+}
