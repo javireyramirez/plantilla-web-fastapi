@@ -25,6 +25,7 @@ import {
   getEntityLink,
 } from '@/modules/audit/model/audit.types';
 import useAuditTable from '@/modules/audit/model/use-audit-table';
+import { type GetUsersQuery } from '@/modules/users/model/users.schema';
 import { usersQueries } from '@/modules/users/model/users.query';
 import { useModules, useModulesOptions } from '@/modules/modules/model/modules.query';
 
