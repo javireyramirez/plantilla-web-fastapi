@@ -18,6 +18,19 @@ type ListQueryParams = GetListQueryType;
 type IdType = string;
 type AllResponse = ModulesListResponse;
 
+function normalizeModule(m: any): Item {
+  return {
+    ...m,
+    code: m.code || m.slug,
+    slug: m.slug || m.code,
+    supportedActions: m.supported_actions ?? m.supportedActions ?? [],
+    categoryName: m.category_name ?? m.categoryName ?? null,
+    categoryIcon: m.category_icon ?? m.categoryIcon ?? null,
+    categoryOrder: m.category_order ?? m.categoryOrder ?? 0,
+    requiresSuperAdmin: m.requires_super_admin ?? m.requiresSuperAdmin ?? false,
+  };
+}
+
 class ModulesService extends CrudService<
   Item,
   CreateBody,
@@ -34,29 +47,13 @@ class ModulesService extends CrudService<
   getList = async (_query?: ListQueryParams): Promise<Item[]> => {
     const { data } = await instance.get<any>('/rbac/modules');
     const items = Array.isArray(data) ? data : (data as any)?.data ?? [];
-    return items.map((m: any) => ({
-      ...m,
-      code: m.code || m.slug,
-      slug: m.slug || m.code,
-      isTrasheable: m.is_trasheable ?? m.isTrasheable ?? false,
-      categoryName: m.category_name ?? m.categoryName ?? null,
-      categoryIcon: m.category_icon ?? m.categoryIcon ?? null,
-      categoryOrder: m.category_order ?? m.categoryOrder ?? 0,
-    }));
+    return items.map(normalizeModule);
   };
 
   getAll = async (query?: QueryParams): Promise<AllResponse> => {
     const { data } = await instance.get<any>('/rbac/modules', { params: query });
     if (Array.isArray(data)) {
-      const items = data.map((m: any) => ({
-        ...m,
-        code: m.code || m.slug,
-        slug: m.slug || m.code,
-        isTrasheable: m.is_trasheable ?? m.isTrasheable ?? false,
-        categoryName: m.category_name ?? m.categoryName ?? null,
-        categoryIcon: m.category_icon ?? m.categoryIcon ?? null,
-        categoryOrder: m.category_order ?? m.categoryOrder ?? 0,
-      }));
+      const items = data.map(normalizeModule);
       return {
         data: items,
         meta: {
@@ -70,15 +67,7 @@ class ModulesService extends CrudService<
     if (data?.data && Array.isArray(data.data)) {
       return {
         ...data,
-        data: data.data.map((m: any) => ({
-          ...m,
-          code: m.code || m.slug,
-          slug: m.slug || m.code,
-          isTrasheable: m.is_trasheable ?? m.isTrasheable ?? false,
-          categoryName: m.category_name ?? m.categoryName ?? null,
-          categoryIcon: m.category_icon ?? m.categoryIcon ?? null,
-          categoryOrder: m.category_order ?? m.categoryOrder ?? 0,
-        })),
+        data: data.data.map(normalizeModule),
       };
     }
     return data;

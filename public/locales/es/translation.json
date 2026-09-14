@@ -34,6 +34,8 @@
       "trash": "Papelera",
       "users": "Usuarios",
       "user": "Usuarios",
+      "settings": "Configuración",
+      "setting": "Configuración",
       "auth": "Autenticación"
     }
   },
@@ -438,7 +440,10 @@
       "moduleCol": "Módulo",
       "noModules": "No se encontraron módulos disponibles.",
       "unknownModule": "Módulo desconocido",
-      "searchPlaceholder": "Buscar módulo..."
+      "searchPlaceholder": "Buscar módulo...",
+      "notAvailable": "No disponible",
+      "superAdminOnly": "Exclusivo SuperAdmin",
+      "superAdminOnlyHelp": "Módulo reservado exclusivamente a SuperAdministradores"
     },
     "scopes": {
       "none": "Ninguno",
@@ -634,6 +639,13 @@
   "audit": {
     "title": "Auditoría",
     "subtitle": "Visualiza el registro de actividades y auditorías del sistema.",
+    "export": "Exportar",
+    "exportSuccess": "Auditoría exportada con éxito",
+    "exportError": "Error al exportar la auditoría",
+    "table": {
+      "selectTodo": "Seleccionar todos",
+      "selectFila": "Seleccionar fila"
+    },
     "date": "Fecha y hora",
     "action": "Acción",
     "entity": "Entidad",
@@ -708,6 +720,55 @@
       "restoreError": "Error al restaurar los elementos.",
       "deleteSuccess": "Elementos eliminados permanentemente.",
       "deleteError": "Error al eliminar los elementos."
+    }
+  },
+  "settings": {
+    "title": "Configuración",
+    "subtitle": "Configuración dinámica del sistema, parámetros de almacenamiento y feature flags.",
+    "key": "Clave",
+    "value": "Valor",
+    "category": "Categoría",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Descripción del propósito de este parámetro",
+    "visibility": "Visibilidad",
+    "isPublic": "Acceso público (/api/settings/public)",
+    "isPublicHelp": "Servido en el catálogo público (/api/settings/public). Solo lectura.",
+    "isPrivateHelp": "Parámetro interno privado. Solo accesible por administradores.",
+    "public": "Público",
+    "private": "Privado",
+    "version": "Versión",
+    "metadata": "Metadatos del Sistema",
+    "metadataDescription": "Identificador único y propiedades inmutables.",
+    "valueAndDescription": "Configuración y Parámetro",
+    "valueDescription": "Modifica el valor activo y la descripción explicativa.",
+    "edit": "Editar configuración",
+    "editDescription": "Modifica el valor y metadatos de esta configuración del sistema.",
+    "notFound": "Configuración no encontrada",
+    "backToList": "Volver a configuraciones",
+    "saved": "Configuración actualizada correctamente",
+    "errorUpdating": "Error al actualizar la configuración",
+    "numberNonNegative": "El valor debe ser un número igual o superior a 0.",
+    "jsonHelp": "Introduce una estructura JSON válida (objeto o lista).",
+    "jsonArrayHelp": "Introduce una lista/array JSON válida: [\"item1\", \"item2\"].",
+    "jsonObjectHelp": "Introduce un objeto JSON válido: { \"clave\": \"valor\" }.",
+    "invalidJson": "El formato JSON introducido no es válido",
+    "noSettings": "No se encontraron configuraciones",
+    "filterPlaceholder": "Filtrar por clave o descripción...",
+    "allCategories": "Todas las categorías",
+    "tabs": {
+      "detail": "Detalle",
+      "audit": "Auditoría"
+    },
+    "errors": {
+      "superAdminOnly": "Solo los Superadministradores tienen permisos para modificar la configuración.",
+      "superAdminOnlyNotice": "Estás en modo de solo lectura. Solo los Superadministradores pueden guardar cambios.",
+      "negativeNumber": "El valor numérico debe ser mayor o igual a 0.",
+      "mustBeInteger": "El parámetro requiere un número entero.",
+      "mustBeArray": "El parámetro original es una lista, el valor debe ser un array JSON [ ... ].",
+      "mustBeObject": "El parámetro original es un objeto, el valor debe ser un objeto JSON { ... }.",
+      "invalidNumber": "El valor numérico no es válido",
+      "invalidJson": "Formato JSON inválido",
+      "save": "Error al guardar la configuración"
     }
   },
   "redirecting_message_one": "Redirigiendo al dashboard en {{count}} segundo...",

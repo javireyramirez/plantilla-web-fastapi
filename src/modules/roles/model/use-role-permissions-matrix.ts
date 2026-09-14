@@ -102,16 +102,21 @@ export function useRolePermissionsMatrix(roleId: string) {
         }
       }
 
-      const updatedPermissions: RolePermissionItem[] = Array.from(permMap.entries()).map(
-        ([key, scope]) => {
+      const updatedPermissions: RolePermissionItem[] = Array.from(permMap.entries())
+        .filter(([key]) => {
+          const [moduleCode, action] = key.split('::');
+          const mod = modules.find((m: any) => (m.code || m.slug) === moduleCode);
+          if (!mod) return true;
+          return mod.supportedActions ? mod.supportedActions.includes(action) : true;
+        })
+        .map(([key, scope]) => {
           const [module_code, action] = key.split('::');
           return {
             module_code,
             action: action as any,
             scope,
           };
-        }
-      );
+        });
 
       await setPermissionsMutation.mutateAsync(updatedPermissions);
       setPendingEdits({});
@@ -121,7 +126,7 @@ export function useRolePermissionsMatrix(roleId: string) {
     } finally {
       setIsSaving(false);
     }
-  }, [currentPermissions, pendingEdits, setPermissionsMutation, t]);
+  }, [currentPermissions, modules, pendingEdits, setPermissionsMutation, t]);
 
   return {
     modules,

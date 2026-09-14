@@ -30,6 +30,7 @@ import {
   getStorageTypeOptions,
 } from '@/features/storage/model/storage-table-utils';
 import { useStorageTable } from '@/features/storage/model/use-storage-table';
+import usePermissions from '@/hooks/use-permissions';
 import { useSettings } from '@/hooks/use-settings';
 import { formatBytes, formatDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -38,8 +39,10 @@ export function DocumentsTable({
   entityType,
   entityId,
   isTrash = false,
+  className,
 }: DocumentsTableComponentProps) {
   const { t } = useTranslation();
+  const { can } = usePermissions();
   const { modulesMap } = useModules();
   const { maxUploadSizeBytes } = useSettings();
 
@@ -299,26 +302,27 @@ export function DocumentsTable({
           primaryColumn: 'fileName',
           stackedColumns: ['size', 'createdAt'],
         }}
-        actionBar={
-          <DataTableFloatingBar
-            table={table}
-            actions={[
-              {
-                label: t('storage.table.delete'),
-                icon: <Trash2 className="h-4 w-4" />,
-                variant: 'destructive',
-                disabled: isPendingActions,
-                onClick: (rows) => handleDelete(rows),
-              },
-              {
-                label: t('storage.table.download'),
-                icon: <Download className="h-4 w-4" />,
-                onClick: (rows) => handleBulkDownload(rows),
-                disabled: isPendingActions,
-              },
-            ]}
-          />
-        }
+        actionBar={(() => {
+          const actions: import('@/components/data-table/data-table-floating-bar').FloatingBarAction<Document>[] = [];
+          if (can('storage', 'DELETE')) {
+            actions.push({
+              label: t('storage.table.delete'),
+              icon: <Trash2 className="h-4 w-4" />,
+              variant: 'destructive',
+              disabled: isPendingActions,
+              onClick: (rows) => handleDelete(rows),
+            });
+          }
+          actions.push({
+            label: t('storage.table.download'),
+            icon: <Download className="h-4 w-4" />,
+            onClick: (rows) => handleBulkDownload(rows),
+            disabled: isPendingActions,
+          });
+          return actions.length > 0 ? (
+            <DataTableFloatingBar table={table} actions={actions} />
+          ) : undefined;
+        })()}
       >
         {isMobile ? <DataTableToolbarMobile table={table} /> : <DataTableToolbar table={table} />}
       </DataTable>

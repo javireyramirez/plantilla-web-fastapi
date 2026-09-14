@@ -1,8 +1,9 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import instance from '@/config/api';
 import { useSession } from '@/config/auth-client';
+import { useModules } from '@/modules/modules/model/modules.query';
 
 export type RbacAction =
   | 'READ'
@@ -30,6 +31,18 @@ export async function fetchMyPermissions(): Promise<UserPermissionsMatrixRespons
 export function usePermissions() {
   const { data: session } = useSession();
   const userId = session?.user?.id;
+  const { modules } = useModules();
+
+  const supportedActionsMap = useMemo(() => {
+    const map = new Map<string, string[]>();
+    modules.forEach((m: any) => {
+      const code = (m.code || m.slug || '').toLowerCase().trim();
+      if (code && Array.isArray(m.supportedActions)) {
+        map.set(code, m.supportedActions);
+      }
+    });
+    return map;
+  }, [modules]);
 
   const { data, isLoading, error } = useQuery<UserPermissionsMatrixResponse>({
     queryKey: ['my-permissions', userId],
@@ -44,16 +57,24 @@ export function usePermissions() {
 
   const can = useCallback(
     (moduleCode: string, action: RbacAction): boolean => {
+      const mod = (moduleCode || '').toLowerCase().trim();
+      const supported = supportedActionsMap.get(mod);
+
+      // Si el módulo está registrado y no soporta la acción, nadie puede ejecutarla (ni SuperAdmin)
+      if (supported && !supported.includes(action)) {
+        return false;
+      }
+
       if (isSuperAdmin) return true;
       if (!data?.permissions) return false;
 
-      const mod = (moduleCode || '').toLowerCase().trim();
       const modPerms = data.permissions[mod] || data.permissions[moduleCode];
       if (!modPerms) return false;
 
-      return modPerms[action] !== undefined;
+      const scope = modPerms[action];
+      return scope !== undefined && scope !== 'NONE';
     },
-    [isSuperAdmin, data?.permissions]
+    [isSuperAdmin, data?.permissions, supportedActionsMap]
   );
 
   return {

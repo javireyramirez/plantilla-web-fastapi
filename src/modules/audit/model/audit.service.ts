@@ -49,7 +49,7 @@ class AuditService {
 
   async getAuditById(auditId: string): Promise<AuditLogType> {
     const response = await instance.get<any>(`/audit/${auditId}`);
-    const item = response.data;
+    const item = response.data?.data ?? response.data;
     return {
       id: item.id,
       userId: item.actor_id ?? item.userId ?? null,
@@ -77,6 +77,51 @@ class AuditService {
             }
           : (item.user ?? null),
     } as AuditLogType;
+  }
+
+  async export(body: any): Promise<Blob> {
+    const payload = {
+      ...body,
+      sort_by: body.sort_by ?? body.sortBy,
+      sort_order: body.sort_order ?? body.sortOrder,
+      filters: body.filters ? cleanApiParams(body.filters as Record<string, any>) : undefined,
+    };
+    const response = await instance.post<Blob>(`/audit/export`, payload, {
+      responseType: 'blob',
+    });
+
+    const contentDisposition = response.headers?.['content-disposition'];
+    let baseFilename = 'audit_export';
+    let extension = body.format === 'excel' ? 'xlsx' : body.format || 'csv';
+
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+      if (filenameMatch && filenameMatch[1]) {
+        const fullFilename = filenameMatch[1];
+        const lastDotIndex = fullFilename.lastIndexOf('.');
+        if (lastDotIndex !== -1) {
+          baseFilename = fullFilename.substring(0, lastDotIndex);
+          extension = fullFilename.substring(lastDotIndex + 1);
+        } else {
+          baseFilename = fullFilename;
+        }
+      }
+    }
+
+    const now = new Date();
+    const timestamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
+    const filename = `${baseFilename}_${timestamp}.${extension}`;
+
+    const url = window.URL.createObjectURL(response.data);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+
+    return response.data;
   }
 }
 

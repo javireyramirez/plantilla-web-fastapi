@@ -26,4 +26,6 @@ export interface DocumentsTableProps {
   columns: ColumnDef<Document>[];
 }
 
-export interface DocumentsTableComponentProps extends Omit<DocumentsTableProps, 'columns'> {}
+export interface DocumentsTableComponentProps extends Omit<DocumentsTableProps, 'columns'> {
+  className?: string;
+}

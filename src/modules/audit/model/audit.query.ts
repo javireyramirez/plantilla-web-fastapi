@@ -1,4 +1,4 @@
-import { useQuery, UseQueryOptions } from '@tanstack/react-query';
+import { useMutation, useQuery, UseQueryOptions } from '@tanstack/react-query';
 
 import { AuditLogType, AuditLogsListResponse, GetAuditLogsQuery } from './audit.schema';
 import { auditService } from './audit.service';
@@ -28,6 +28,12 @@ export const auditQueries = {
       staleTime: 0,
       refetchOnMount: 'always',
       ...options,
+    });
+  },
+
+  useExport: () => {
+    return useMutation<Blob, Error, any>({
+      mutationFn: (body: any) => auditService.export(body),
     });
   },
 };

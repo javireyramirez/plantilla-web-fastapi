@@ -14,6 +14,7 @@ import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar-desktop';
 import { DataTableToolbarMobile } from '@/components/data-table/data-table-toolbar-mobile';
 import { Checkbox } from '@/components/ui/checkbox';
+import usePermissions from '@/hooks/use-permissions';
 import { formatDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { TeamResponse } from '@/modules/teams/model/teams.schema';
@@ -22,6 +23,7 @@ import useteams from '@/modules/teams/model/use-teams-table';
 export function TeamsTable() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { can } = usePermissions();
 
   const columns = React.useMemo<ColumnDef<TeamResponse>[]>(
     () => [
@@ -108,6 +110,29 @@ export function TeamsTable() {
     isPendingActions,
   } = useteams(columns);
 
+  const floatingActions = React.useMemo(() => {
+    const list = [];
+    if (can('teams', 'EXPORT')) {
+      list.push({
+        label: t('teams.export'),
+        icon: <Download className="h-4 w-4" />,
+        disabled: isPendingActions,
+        onClick: (rows: any) => handleExport(rows),
+      });
+    }
+    if (can('teams', 'DELETE')) {
+      list.push({
+        label: t('teams.delete'),
+        icon: <Trash2 className="h-4 w-4" />,
+        disabled: isPendingActions,
+        onClick: (rows: any) => handleDelete(rows),
+        className:
+          'border-destructive text-destructive hover:bg-destructive hover:text-white',
+      });
+    }
+    return list;
+  }, [can, t, isPendingActions, handleExport, handleDelete]);
+
   // Skeleton
   if (isLoading) {
     return (
@@ -136,25 +161,9 @@ export function TeamsTable() {
           stackedColumns: ['created_at'],
         }}
         actionBar={
-          <DataTableFloatingBar
-            table={table}
-            actions={[
-              {
-                label: t('teams.export'),
-                icon: <Download className="h-4 w-4" />,
-                disabled: isPendingActions,
-                onClick: (rows) => handleExport(rows),
-              },
-              {
-                label: t('teams.delete'),
-                icon: <Trash2 className="h-4 w-4" />,
-                disabled: isPendingActions,
-                onClick: (rows) => handleDelete(rows),
-                className:
-                  'border-destructive text-destructive hover:bg-destructive hover:text-white',
-              },
-            ]}
-          />
+          floatingActions.length > 0 ? (
+            <DataTableFloatingBar table={table} actions={floatingActions} />
+          ) : undefined
         }
       >
         {isMobile ? <DataTableToolbarMobile table={table} /> : <DataTableToolbar table={table} />}

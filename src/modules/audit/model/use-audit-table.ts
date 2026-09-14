@@ -1,8 +1,11 @@
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 
 import {
   type ColumnDef,
   type ColumnFiltersState,
+  type Row,
   type SortingState,
   type VisibilityState,
   getCoreRowModel,
@@ -21,11 +24,13 @@ export default function useAuditTable(
   options?: { moduleSlug?: string; entityId?: string }
 ) {
   const isMobile = useIsMobile();
+  const { t } = useTranslation();
 
   // ── Local filter/UI state ──────────────────────────────────────────────────
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
 
   // ── Pagination and filters ──────────────────────────────────────────────────
   const [page, setPage] = React.useState(1);
@@ -104,9 +109,11 @@ export default function useAuditTable(
       sorting,
       columnFilters,
       columnVisibility,
+      rowSelection,
       pagination: { pageIndex: page - 1, pageSize: limit },
     },
-    enableRowSelection: false,
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -136,6 +143,26 @@ export default function useAuditTable(
     },
   });
 
+  const { mutate: mutateExport, isPending: isPendingExport } = auditQueries.useExport();
+
+  const handleExport = (rows: Row<AuditLogType>[]) => {
+    mutateExport(
+      {
+        ids: rows.map((item) => item.original.id),
+      },
+      {
+        onSuccess: () => {
+          setRowSelection({});
+          toast.success(t('audit.exportSuccess', { defaultValue: 'Exportado con éxito' }));
+        },
+        onError: (err: any) => {
+          const serverMessage = err?.response?.data?.message || err?.message;
+          toast.error(serverMessage || t('audit.exportError', { defaultValue: 'Error al exportar' }));
+        },
+      }
+    );
+  };
+
   return {
     table,
     totalRows,
@@ -143,5 +170,7 @@ export default function useAuditTable(
     isFetching,
     isMobile,
     limit,
+    handleExport,
+    isPendingActions: isPendingExport,
   };
 }

@@ -34,6 +34,8 @@
       "trash": "Trash",
       "users": "Users",
       "user": "Users",
+      "settings": "Settings",
+      "setting": "Settings",
       "auth": "Authentication"
     }
   },
@@ -433,7 +435,10 @@
       "moduleCol": "Module",
       "noModules": "No modules found.",
       "unknownModule": "Unknown module",
-      "searchPlaceholder": "Search module..."
+      "searchPlaceholder": "Search module...",
+      "notAvailable": "Not available",
+      "superAdminOnly": "SuperAdmin Only",
+      "superAdminOnlyHelp": "Module reserved exclusively for SuperAdministrators"
     },
     "scopes": {
       "none": "None",
@@ -623,6 +628,13 @@
   "audit": {
     "title": "Audit Trail",
     "subtitle": "View the system activity log and audits.",
+    "export": "Export",
+    "exportSuccess": "Audit logs exported successfully",
+    "exportError": "Error exporting audit logs",
+    "table": {
+      "selectTodo": "Select all",
+      "selectFila": "Select row"
+    },
     "date": "Date & Time",
     "action": "Action",
     "entity": "Entity",
@@ -697,6 +709,55 @@
       "restoreError": "Error restoring items.",
       "deleteSuccess": "Items permanently deleted.",
       "deleteError": "Error deleting items."
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Dynamic system configuration, storage parameters, and feature flags.",
+    "key": "Key",
+    "value": "Value",
+    "category": "Category",
+    "description": "Description",
+    "descriptionPlaceholder": "Description of this parameter's purpose",
+    "visibility": "Visibility",
+    "isPublic": "Public Access (/api/settings/public)",
+    "isPublicHelp": "Served in the public catalog (/api/settings/public). Read-only.",
+    "isPrivateHelp": "Internal private parameter. Only accessible by administrators.",
+    "public": "Public",
+    "private": "Private",
+    "version": "Version",
+    "metadata": "System Metadata",
+    "metadataDescription": "Unique identifier and immutable properties.",
+    "valueAndDescription": "Configuration & Parameter",
+    "valueDescription": "Modify the active value and explanatory description.",
+    "edit": "Edit Setting",
+    "editDescription": "Modify the value and metadata for this system configuration.",
+    "notFound": "Setting not found",
+    "backToList": "Back to settings",
+    "saved": "Setting updated successfully",
+    "errorUpdating": "Error updating setting",
+    "numberNonNegative": "Value must be a number greater than or equal to 0.",
+    "jsonHelp": "Enter a valid JSON structure (object or array).",
+    "jsonArrayHelp": "Enter a valid JSON array: [\"item1\", \"item2\"].",
+    "jsonObjectHelp": "Enter a valid JSON object: { \"key\": \"value\" }.",
+    "invalidJson": "The JSON format entered is invalid",
+    "noSettings": "No settings found",
+    "filterPlaceholder": "Filter by key or description...",
+    "allCategories": "All categories",
+    "tabs": {
+      "detail": "Detail",
+      "audit": "Audit Trail"
+    },
+    "errors": {
+      "superAdminOnly": "Only SuperAdministrators have permissions to modify configuration.",
+      "superAdminOnlyNotice": "You are in read-only mode. Only SuperAdministrators can save changes.",
+      "negativeNumber": "Numeric value must be greater than or equal to 0.",
+      "mustBeInteger": "The parameter requires an integer number.",
+      "mustBeArray": "The original parameter is a list, value must be a JSON array [ ... ].",
+      "mustBeObject": "The original parameter is an object, value must be a JSON object { ... }.",
+      "invalidNumber": "The numerical value is invalid",
+      "invalidJson": "Invalid JSON format",
+      "save": "Error saving setting"
     }
   },
   "redirecting_message_one": "Redirecting to dashboard in {{count}} second...",

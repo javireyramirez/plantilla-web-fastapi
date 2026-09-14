@@ -22,9 +22,10 @@ export const ModuleSchema = z
     description: z.string().optional().nullable(),
     icon: z.string().optional().nullable(),
     isActive: z.boolean().default(true),
-    isTrasheable: z.boolean().default(false),
     sortOrder: z.number().default(0),
     defaultPermissions: z.any().optional().nullable(),
+    supportedActions: z.array(z.string()).default([]),
+    requiresSuperAdmin: z.boolean().default(false),
   })
   .extend(AuditFieldsSchema.shape);
 

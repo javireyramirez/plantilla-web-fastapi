@@ -15,6 +15,7 @@ import { DataTableToolbar } from '@/components/data-table/data-table-toolbar-des
 import { DataTableToolbarMobile } from '@/components/data-table/data-table-toolbar-mobile';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import usePermissions from '@/hooks/use-permissions';
 import { formatDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import useRoles from '@/modules/roles//model/use-roles-table';
@@ -23,6 +24,7 @@ import { RoleResponse } from '@/modules/roles/model/roles.schema';
 export function RolesTable() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { can } = usePermissions();
 
   const columns = React.useMemo<ColumnDef<RoleResponse>[]>(
     () => [
@@ -138,6 +140,29 @@ export function RolesTable() {
     isPendingActions,
   } = useRoles(columns);
 
+  const floatingActions = React.useMemo(() => {
+    const list = [];
+    if (can('roles', 'EXPORT')) {
+      list.push({
+        label: t('roles.export'),
+        icon: <Download className="h-4 w-4" />,
+        disabled: isPendingActions,
+        onClick: (rows: any) => handleExport(rows),
+      });
+    }
+    if (can('roles', 'DELETE')) {
+      list.push({
+        label: t('roles.delete'),
+        icon: <Trash2 className="h-4 w-4" />,
+        disabled: isPendingActions,
+        onClick: (rows: any) => handleDelete(rows),
+        className:
+          'border-destructive text-destructive hover:bg-destructive hover:text-white',
+      });
+    }
+    return list;
+  }, [can, t, isPendingActions, handleExport, handleDelete]);
+
   // Skeleton
   if (isLoading) {
     return (
@@ -166,25 +191,9 @@ export function RolesTable() {
           stackedColumns: ['created_at'],
         }}
         actionBar={
-          <DataTableFloatingBar
-            table={table}
-            actions={[
-              {
-                label: t('roles.export'),
-                icon: <Download className="h-4 w-4" />,
-                disabled: isPendingActions,
-                onClick: (rows) => handleExport(rows),
-              },
-              {
-                label: t('roles.delete'),
-                icon: <Trash2 className="h-4 w-4" />,
-                disabled: isPendingActions,
-                onClick: (rows) => handleDelete(rows),
-                className:
-                  'border-destructive text-destructive hover:bg-destructive hover:text-white',
-              },
-            ]}
-          />
+          floatingActions.length > 0 ? (
+            <DataTableFloatingBar table={table} actions={floatingActions} />
+          ) : undefined
         }
       >
         {isMobile ? <DataTableToolbarMobile table={table} /> : <DataTableToolbar table={table} />}

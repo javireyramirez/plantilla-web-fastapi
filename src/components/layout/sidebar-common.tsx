@@ -64,6 +64,10 @@ export default function LayoutSidebar() {
       // Omitir módulos abstractos/embebidos
       if (code === 'rbac' || code === 'auth' || code === 'documents') return;
 
+      // Si el módulo requiere ser superadmin y el usuario no lo es, omitir
+      const requiresSuperAdmin = mod.requiresSuperAdmin ?? mod.requires_super_admin ?? false;
+      if (requiresSuperAdmin && !isSuperAdmin) return;
+
       // Comprobar si el módulo está activo y el usuario tiene permiso de lectura
       const isActive = mod.isActive !== false;
       const hasReadAccess = isSuperAdmin || can(code, 'READ');
@@ -113,7 +117,7 @@ export default function LayoutSidebar() {
   // Saber si el usuario tiene acceso a administración para mostrar el enlace
   const hasAdminAccess = useMemo(() => {
     if (isSuperAdmin) return true;
-    return ['users', 'roles', 'teams', 'audit', 'trash', 'storage'].some((mod) => can(mod, 'READ'));
+    return ['users', 'roles', 'teams', 'audit', 'trash', 'storage', 'settings'].some((mod) => can(mod, 'READ'));
   }, [isSuperAdmin, can]);
 
   return (

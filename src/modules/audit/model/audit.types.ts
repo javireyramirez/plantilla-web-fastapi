@@ -47,6 +47,8 @@ export function getEntityLink(
   const normalized = normalizeModuleSlug(moduleSlug);
   if (normalized === 'companies') return `/companies/edit/${entityId}`;
   if (['users', 'teams', 'roles'].includes(normalized)) return `/admin/${normalized}/edit/${entityId}`;
+  if (normalized === 'settings') return `/admin/settings/edit/${entityId}`;
+  if (normalized === 'audit') return `/admin/audit/${entityId}`;
   return null;
 }
 
@@ -140,5 +142,6 @@ export function getModuleOptions(t: (key: string, options?: any) => string): Sel
     { value: 'rbac', label: t('modules.names.rbac', { defaultValue: 'Roles y Permisos' }), group: groupSystem },
     { value: 'audit', label: t('modules.names.audit', { defaultValue: 'Auditoría' }), group: groupSystem },
     { value: 'trash', label: t('modules.names.trash', { defaultValue: 'Papelera' }), group: groupSystem },
+    { value: 'settings', label: t('modules.names.settings', { defaultValue: 'Configuración' }), group: groupSystem },
   ];
 }

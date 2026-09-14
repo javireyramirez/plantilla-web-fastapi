@@ -1,4 +1,4 @@
-import { CalendarIcon, Eye } from 'lucide-react';
+import { CalendarIcon, Download, Eye } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
@@ -8,10 +8,13 @@ import { type ColumnDef } from '@tanstack/react-table';
 
 import { DataTable } from '@/components/data-table/data-table';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
+import { DataTableFloatingBar } from '@/components/data-table/data-table-floating-bar';
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar-desktop';
 import { DataTableToolbarMobile } from '@/components/data-table/data-table-toolbar-mobile';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import usePermissions from '@/hooks/use-permissions';
 import { cn } from '@/lib/utils';
 import { AuditLogType } from '@/modules/audit/model/audit.schema';
 import {
@@ -66,6 +69,31 @@ export function AuditTable({ moduleSlug, entityId }: AuditTableProps) {
   const columns = React.useMemo<ColumnDef<AuditLogType>[]>(
     () => [
       {
+        id: 'select',
+        maxSize: 40,
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && 'indeterminate')
+            }
+            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            aria-label={t('audit.table.selectTodo', { defaultValue: 'Seleccionar todo' })}
+            className="translate-y-0.5"
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label={t('audit.table.selectFila', { defaultValue: 'Seleccionar fila' })}
+            className="translate-y-0.5"
+          />
+        ),
+        enableSorting: false,
+        enableHiding: false,
+      },
+      {
         id: 'created_at',
         accessorKey: 'created_at',
         enableColumnFilter: true,
@@ -100,7 +128,7 @@ export function AuditTable({ moduleSlug, entityId }: AuditTableProps) {
           return (
             <span className="font-medium text-foreground">
               <Link
-                to={`/audit/${row.original.id}`}
+                to={`/admin/audit/${row.original.id}`}
                 className="font-medium text-blue-500 hover:text-blue-700 hover:underline block truncate max-w-[200px]"
               >
                 {getAuditActionLabel(t, action)}
@@ -145,8 +173,9 @@ export function AuditTable({ moduleSlug, entityId }: AuditTableProps) {
           const targetEntityId = row.original.entity_id || row.original.entityId;
           const action = row.original.action;
           const displayName = (row.getValue('entity_name') ?? (row.original as any).displayName) || '-';
+          const linkTarget = slug === 'settings' ? (displayName !== '-' ? displayName : targetEntityId) : targetEntityId;
           const link =
-            action !== 'LOGIN' && action !== 'LOGOUT' ? getEntityLink(slug, targetEntityId) : null;
+            action !== 'LOGIN' && action !== 'LOGOUT' ? getEntityLink(slug, linkTarget) : null;
 
           return link ? (
             <Link
@@ -221,7 +250,7 @@ export function AuditTable({ moduleSlug, entityId }: AuditTableProps) {
             className="h-8 w-8 text-muted-foreground hover:text-foreground"
             asChild
           >
-            <Link to={`/audit/${row.original.id}`}>
+            <Link to={`/admin/audit/${row.original.id}`}>
               <Eye className="h-4 w-4" />
               <span className="sr-only">{t('audit.detail')}</span>
             </Link>
@@ -232,10 +261,33 @@ export function AuditTable({ moduleSlug, entityId }: AuditTableProps) {
     [t, modulesMap]
   );
 
-  const { table, totalRows, isLoading, isFetching, isMobile, limit } = useAuditTable(columns, {
+  const { can } = usePermissions();
+  const {
+    table,
+    totalRows,
+    isLoading,
+    isFetching,
+    isMobile,
+    limit,
+    handleExport,
+    isPendingActions,
+  } = useAuditTable(columns, {
     moduleSlug,
     entityId,
   });
+
+  const floatingActions = React.useMemo(() => {
+    const list = [];
+    if (can('audit', 'EXPORT')) {
+      list.push({
+        label: t('audit.export', { defaultValue: 'Exportar' }),
+        icon: <Download className="h-4 w-4" />,
+        disabled: isPendingActions,
+        onClick: (rows: any) => handleExport(rows),
+      });
+    }
+    return list;
+  }, [can, t, isPendingActions, handleExport]);
 
   if (isLoading) {
     return (
@@ -262,7 +314,12 @@ export function AuditTable({ moduleSlug, entityId }: AuditTableProps) {
           primaryColumn: 'created_at',
           stackedColumns: ['action', 'description'],
         }}
-        >
+        actionBar={
+          floatingActions.length > 0 ? (
+            <DataTableFloatingBar table={table} actions={floatingActions} />
+          ) : undefined
+        }
+      >
         {isMobile ? <DataTableToolbarMobile table={table} /> : <DataTableToolbar table={table} />}
       </DataTable>
     </div>

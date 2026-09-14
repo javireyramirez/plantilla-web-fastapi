@@ -89,7 +89,7 @@ export default function AuditDetail() {
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink asChild className="transition-colors hover:text-foreground">
-                <Link to="/audit">{t('audit.title')}</Link>
+                <Link to="/admin/audit">{t('audit.title')}</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />

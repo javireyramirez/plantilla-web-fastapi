@@ -273,23 +273,53 @@ export function RolePermissionsMatrix({ roleId }: { roleId: string }) {
                             defaultValue: mod.name || t('roles.permissions.unknownModule'),
                           });
 
+                          const isSuperAdminOnly = Boolean(mod.requiresSuperAdmin);
+
                           return (
                             <TableRow key={mod.id || moduleCode} className="hover:bg-muted/20 transition-colors">
                               <TableCell className="font-medium min-w-[200px]">
-                                <div className="flex flex-col">
-                                  <span className="text-sm font-semibold text-foreground">
-                                    {moduleName}
-                                  </span>
+                                <div className="flex flex-col gap-1">
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <span className="text-sm font-semibold text-foreground">
+                                      {moduleName}
+                                    </span>
+                                    {isSuperAdminOnly && (
+                                      <Badge
+                                        variant="outline"
+                                        className="text-[10px] uppercase font-mono tracking-tight py-0 px-1.5 text-amber-600 bg-amber-50/50 dark:bg-amber-950/30 border-amber-300 dark:border-amber-800"
+                                      >
+                                        {t('roles.permissions.superAdminOnly', {
+                                          defaultValue: 'Exclusivo SuperAdmin',
+                                        })}
+                                      </Badge>
+                                    )}
+                                  </div>
                                 </div>
                               </TableCell>
 
                               {ACTIONS.map((action) => {
+                                const isSupported = mod.supportedActions?.includes(action) ?? false;
+
+                                if (!isSupported) {
+                                  return (
+                                    <TableCell key={action} className="p-2 text-center">
+                                      <div
+                                        className="flex h-8 w-full items-center justify-center text-xs text-muted-foreground/30 font-medium select-none"
+                                        title={t('roles.permissions.notAvailable', { defaultValue: 'No disponible' })}
+                                        aria-label={t('roles.permissions.notAvailable', { defaultValue: 'No disponible' })}
+                                      >
+                                        —
+                                      </div>
+                                    </TableCell>
+                                  );
+                                }
+
                                 const currentValue = getEffectiveScope(moduleCode, action);
 
                                 return (
                                   <TableCell key={action} className="p-2 text-center">
                                     <Select
-                                      disabled={isSaving}
+                                      disabled={isSaving || isSuperAdminOnly}
                                       value={currentValue}
                                       onValueChange={(val) =>
                                         setPendingScope(
@@ -300,8 +330,16 @@ export function RolePermissionsMatrix({ roleId }: { roleId: string }) {
                                       }
                                     >
                                       <SelectTrigger
+                                        title={
+                                          isSuperAdminOnly
+                                            ? t('roles.permissions.superAdminOnlyHelp', {
+                                                defaultValue: 'Módulo reservado exclusivamente a SuperAdministradores',
+                                              })
+                                            : undefined
+                                        }
                                         className={cn(
                                           'h-8 w-full text-xs font-medium border-dashed bg-transparent transition-all',
+                                          isSuperAdminOnly && 'opacity-60 cursor-not-allowed',
                                           currentValue === 'NONE' &&
                                             'text-muted-foreground border-transparent hover:border-input',
                                           currentValue === 'OWN' &&

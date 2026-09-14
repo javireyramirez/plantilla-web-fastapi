@@ -23,6 +23,8 @@ import UsersDetail from '@/modules/users/pages/users-detail';
 import UsersView from '@/modules/users/pages/users-view';
 import RecoveryView from '@/modules/trash/pages/recovery-view';
 import StorageView from '@/modules/storage/pages/storage-view';
+import SettingsView from '@/modules/settings/pages/settings-view';
+import SettingsDetail from '@/modules/settings/pages/settings-detail';
 
 export default function Router() {
   return (
@@ -66,11 +68,15 @@ export default function Router() {
           {/* Administración: Sistema y Archivos */}
           <Route path="/admin/audit" element={<AuditView />} />
           <Route path="/admin/audit/:id" element={<AuditDetail />} />
+          <Route path="/admin/audit/edit/:id" element={<AuditDetail />} />
 
           <Route path="/admin/recovery" element={<RecoveryView />} />
           <Route path="/admin/documents" element={<RecoveryView />} />
 
           <Route path="/admin/storage" element={<StorageView />} />
+
+          <Route path="/admin/settings" element={<SettingsView />} />
+          <Route path="/admin/settings/edit/:key" element={<SettingsDetail />} />
 
           {/* Redirecciones de retrocompatibilidad */}
           <Route path="/users" element={<Navigate to="/admin/users" replace />} />
@@ -80,11 +86,14 @@ export default function Router() {
           <Route path="/roles" element={<Navigate to="/admin/roles" replace />} />
           <Route path="/roles/*" element={<Navigate to="/admin/roles" replace />} />
           <Route path="/audit" element={<Navigate to="/admin/audit" replace />} />
+          <Route path="/audit/:id" element={<AuditDetail />} />
           <Route path="/audit/*" element={<Navigate to="/admin/audit" replace />} />
           <Route path="/recovery" element={<Navigate to="/admin/recovery" replace />} />
           <Route path="/documents" element={<Navigate to="/admin/recovery" replace />} />
           <Route path="/storage" element={<Navigate to="/admin/storage" replace />} />
           <Route path="/storage/*" element={<Navigate to="/admin/storage" replace />} />
+          <Route path="/settings" element={<Navigate to="/admin/settings" replace />} />
+          <Route path="/settings/*" element={<Navigate to="/admin/settings" replace />} />
 
           <Route path="/profile" element={<Profile />} />
 

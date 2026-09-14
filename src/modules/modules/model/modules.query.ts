@@ -83,7 +83,12 @@ export function useEntityTrashModulesOptions(params?: { name?: string; [key: str
   const options = React.useMemo(() => {
     if (!modules) return [];
     let items = modules
-      .filter((m: any) => m.isTrasheable && m.code !== 'documents' && m.code !== 'storage')
+      .filter(
+        (m: any) =>
+          m.supportedActions?.includes('RESTORE') &&
+          m.code !== 'documents' &&
+          m.code !== 'storage'
+      )
       .map((m: any) => ({
         id: m.code ?? m.slug,
         name: m.name ?? m.code ?? m.slug,

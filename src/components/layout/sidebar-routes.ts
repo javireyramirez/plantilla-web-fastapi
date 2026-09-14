@@ -8,6 +8,7 @@ import {
   LayoutGrid,
   RotateCcw,
   Shield,
+  SlidersHorizontal,
   User,
   Users,
   UsersRound,
@@ -19,6 +20,7 @@ export const MODULE_ROUTE_MAP: Record<string, string> = {
   users: '/admin/users',
   teams: '/admin/teams',
   roles: '/admin/roles',
+  settings: '/admin/settings',
   audit: '/admin/audit',
   storage: '/admin/storage',
   documents: '/admin/recovery',
@@ -47,6 +49,8 @@ export const MODULE_ICON_MAP: Record<string, LucideIcon> = {
   recovery: RotateCcw,
   cpu: Cpu,
   system: Cpu,
+  sliders: SlidersHorizontal,
+  settings: SlidersHorizontal,
 };
 
 export function getModuleIcon(iconName?: string | null, moduleCode?: string): LucideIcon {
