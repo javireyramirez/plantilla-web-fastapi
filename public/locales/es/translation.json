@@ -76,7 +76,9 @@
       "settings": "Configuración",
       "setting": "Configuración",
       "jobs": "Tareas Asíncronas",
-      "job": "Tareas Asíncronas"
+      "job": "Tareas Asíncronas",
+      "sessions": "Sesiones",
+      "session": "Sesiones"
     }
   },
   "auth": {
@@ -968,11 +970,6 @@
       "cancelError": "Error al cancelar la tarea",
       "retrySuccess": "Tarea programada para reintento",
       "retryError": "Error al reintentar la tarea"
-    }
-  },
-  "modules": {
-    "names": {
-      "sessions": "Sesiones"
     }
   },
   "sessions": {

@@ -77,6 +77,8 @@
       "setting": "Settings",
       "jobs": "Background Jobs",
       "job": "Background Jobs",
+      "sessions": "Sessions",
+      "session": "Sessions",
       "auth": "Authentication"
     }
   },
@@ -958,11 +960,6 @@
       "cancelError": "Error cancelling job",
       "retrySuccess": "Job scheduled for retry",
       "retryError": "Error retrying job"
-    }
-  },
-  "modules": {
-    "names": {
-      "sessions": "Sessions"
     }
   },
   "sessions": {
