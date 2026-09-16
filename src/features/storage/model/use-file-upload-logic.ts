@@ -52,9 +52,19 @@ export function useFileUploadLogic({
           setFiles([]);
           onSuccess?.();
         },
-        onError: (error) => {
+        onError: (error: any) => {
           console.error(error?.message);
-          toast.error(t('storage.toast.uploadError'));
+          const status = error?.response?.status;
+          const serverDetail = error?.response?.data?.detail || error?.response?.data?.message;
+          if (status === 413 && serverDetail) {
+            toast.error(serverDetail);
+          } else if (status === 403) {
+            toast.error(serverDetail || 'No tienes permisos para adjuntar archivos a esta entidad');
+          } else if (status === 404) {
+            toast.error(serverDetail || 'La entidad o recurso destino no existe');
+          } else {
+            toast.error(serverDetail || t('storage.toast.uploadError'));
+          }
         },
       });
     },

@@ -60,7 +60,7 @@ export default function useTeams(columns: ColumnDef<Team>[]) {
     is_trash: false,
     sort_by: sortBy,
     sort_order: sortOrder,
-    ...(name && { name }),
+    ...(name && { search: name }),
     created_at_from: createdFrom ? createdFrom : undefined,
     created_at_to: createdTo ? createdTo : undefined,
   });

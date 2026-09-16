@@ -736,21 +736,44 @@
       "createUpdate": "Creación y Edición",
       "status": "Estado",
       "deletion": "Papelera y Eliminación",
-      "session": "Sesiones y Accesos"
+      "session": "Sesiones y Accesos",
+      "membersTeams": "Miembros y Equipos",
+      "rolesPermissions": "Roles y Permisos"
     },
     "actions": {
+      "ACTIVATE": "Activar",
+      "ADD_MEMBER": "Añadir miembro",
+      "ASSIGN_ROLE": "Asignar rol",
+      "ASSIGN_ROLES": "Asignar roles",
+      "ASSIGN_TEAMS": "Asignar equipos",
+      "BULK_CREATE": "Creación masiva",
+      "BULK_RESTORE": "Restauración masiva",
+      "BULK_TRASH": "Envío masivo a papelera",
       "CREATE": "Crear",
-      "UPDATE": "Actualizar",
+      "CREATE_MODULE": "Crear módulo",
       "DELETE": "Eliminar",
-      "TRASH": "Enviar a papelera",
-      "RESTORE": "Restaurar",
+      "IMPERSONATE": "Suplantar identidad",
+      "LOGIN": "Iniciar Sesión",
+      "LOGIN_FAILED": "Intento de inicio de sesión fallido",
+      "LOGOUT": "Cerrar Sesión",
+      "PASSWORD_CHANGE": "Cambio de contraseña",
       "PERMANENT_DELETE": "Eliminar permanente",
+      "PURGE": "Purgar",
+      "REACTIVATE": "Reactivar",
+      "REMOVE_MEMBER": "Eliminar miembro",
+      "REMOVE_TEAMS": "Desasignar equipos",
+      "RESEND_INVITATION": "Reenviar invitación",
+      "RESTORE": "Restaurar",
+      "SET_ROLE_PERMISSIONS": "Establecer permisos de rol",
+      "SETTINGS_CHANGE": "Cambio de configuración",
       "SOFT_DELETE": "Eliminar (Papelera)",
       "HARD_DELETE": "Eliminar Permanente",
       "SUSPEND": "Suspender",
-      "REACTIVATE": "Reactivar",
-      "LOGIN": "Iniciar Sesión",
-      "LOGOUT": "Cerrar Sesión"
+      "TRASH": "Enviar a papelera",
+      "UNASSIGN_ROLE": "Desasignar rol",
+      "UNASSIGN_ROLES": "Desasignar roles",
+      "UPDATE": "Actualizar",
+      "UPDATE_MEMBER": "Actualizar miembro"
     }
   },
   "trash": {
@@ -841,6 +864,16 @@
     }
   },
   "redirecting_message_one": "Redirigiendo al dashboard en {{count}} segundo...",
-  "redirecting_message_other": "Redirigiendo al dashboard en {{count}} segundos..."
+  "redirecting_message_other": "Redirigiendo al dashboard en {{count}} segundos...",
+  "unauthorized": {
+    "badge": "403 Prohibido",
+    "title": "Acceso no autorizado",
+    "description": "No tienes los permisos necesarios para acceder a esta página o recurso.",
+    "insufficientPermissions": "Tu rol actual no cuenta con privilegios suficientes para este módulo.",
+    "attemptedResource": "Recurso solicitado:",
+    "contactAdmin": "Si crees que esto es un error, contacta con el administrador del sistema.",
+    "goBack": "Volver a la página anterior",
+    "goHome": "Ir al inicio"
+  }
 }
 

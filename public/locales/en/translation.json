@@ -726,21 +726,44 @@
       "createUpdate": "Creation & Edit",
       "status": "Status",
       "deletion": "Trash & Deletion",
-      "session": "Sessions & Access"
+      "session": "Sessions & Access",
+      "membersTeams": "Members & Teams",
+      "rolesPermissions": "Roles & Permissions"
     },
     "actions": {
+      "ACTIVATE": "Activate",
+      "ADD_MEMBER": "Add Member",
+      "ASSIGN_ROLE": "Assign Role",
+      "ASSIGN_ROLES": "Assign Roles",
+      "ASSIGN_TEAMS": "Assign Teams",
+      "BULK_CREATE": "Bulk Create",
+      "BULK_RESTORE": "Bulk Restore",
+      "BULK_TRASH": "Bulk Move to Trash",
       "CREATE": "Create",
-      "UPDATE": "Update",
+      "CREATE_MODULE": "Create Module",
       "DELETE": "Delete",
-      "TRASH": "Move to Trash",
-      "RESTORE": "Restore",
+      "IMPERSONATE": "Impersonate",
+      "LOGIN": "Login",
+      "LOGIN_FAILED": "Failed Login",
+      "LOGOUT": "Logout",
+      "PASSWORD_CHANGE": "Password Change",
       "PERMANENT_DELETE": "Permanent Delete",
+      "PURGE": "Purge",
+      "REACTIVATE": "Reactivate",
+      "REMOVE_MEMBER": "Remove Member",
+      "REMOVE_TEAMS": "Remove Teams",
+      "RESEND_INVITATION": "Resend Invitation",
+      "RESTORE": "Restore",
+      "SET_ROLE_PERMISSIONS": "Set Role Permissions",
+      "SETTINGS_CHANGE": "Settings Change",
       "SOFT_DELETE": "Soft Delete (Trash)",
       "HARD_DELETE": "Hard Delete (Permanent)",
       "SUSPEND": "Suspend",
-      "REACTIVATE": "Reactivate",
-      "LOGIN": "Login",
-      "LOGOUT": "Logout"
+      "TRASH": "Move to Trash",
+      "UNASSIGN_ROLE": "Unassign Role",
+      "UNASSIGN_ROLES": "Unassign Roles",
+      "UPDATE": "Update",
+      "UPDATE_MEMBER": "Update Member"
     }
   },
   "trash": {
@@ -831,6 +854,16 @@
     }
   },
   "redirecting_message_one": "Redirecting to dashboard in {{count}} second...",
-  "redirecting_message_other": "Redirecting to dashboard in {{count}} seconds..."
+  "redirecting_message_other": "Redirecting to dashboard in {{count}} seconds...",
+  "unauthorized": {
+    "badge": "403 Forbidden",
+    "title": "Unauthorized Access",
+    "description": "You do not have the required permissions to access this page or resource.",
+    "insufficientPermissions": "Your current role does not have sufficient privileges for this module.",
+    "attemptedResource": "Requested resource:",
+    "contactAdmin": "If you believe this is an error, please contact your system administrator.",
+    "goBack": "Go back",
+    "goHome": "Back to Home"
+  }
 }
 

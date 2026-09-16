@@ -44,11 +44,11 @@ export const ForgotPasswordSchema = AuthBaseSchema.pick({ email: true });
 
 export const ResetPasswordSchema = z
   .object({
-    newPassword: passwordValidation,
+    new_password: passwordValidation,
     confirmPassword: z.string().trim(),
   })
   .superRefine((data, ctx) => {
-    if (data.newPassword !== data.confirmPassword) {
+    if (data.new_password !== data.confirmPassword) {
       ctx.addIssue({
         path: ['confirmPassword'],
         code: 'custom',
@@ -60,12 +60,12 @@ export const ResetPasswordSchema = z
 export const ChangePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, 'La contraseña actual es requerida'),
-    newPassword: passwordValidation,
+    new_password: passwordValidation,
     confirmPassword: z.string().trim(),
     revokeOtherSessions: z.boolean().default(false),
   })
   .superRefine((data, ctx) => {
-    if (data.newPassword !== data.confirmPassword) {
+    if (data.new_password !== data.confirmPassword) {
       ctx.addIssue({
         path: ['confirmPassword'],
         code: 'custom',

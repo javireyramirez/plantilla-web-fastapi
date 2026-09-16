@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import instance from '@/config/api';
-import { GetDocumentsQuery, RequestUploadParams } from '@/schemas/storage.schema';
+import { GetDocumentsQuery } from '@/schemas/storage.schema';
 
 class StorageService {
   // ==========================================
@@ -32,13 +32,13 @@ class StorageService {
     if (query?.createdFrom) apiParams.created_at_from = query.createdFrom;
     if (query?.createdTo) apiParams.created_at_to = query.createdTo;
     if (query?.contentTypes && query.contentTypes.length > 0) {
-      apiParams.content_type = query.contentTypes.join(',');
+      apiParams.content_types = query.contentTypes.slice(0, 100);
     }
     if (query?.sizeMin !== undefined) apiParams.size_min = query.sizeMin;
     if (query?.sizeMax !== undefined) apiParams.size_max = query.sizeMax;
     if (query?.isTrash !== undefined) apiParams.is_trash = query.isTrash;
 
-    const response = await instance.get<any>(`/storage/documents`, {
+    const response = await instance.get<any>(`/storage`, {
       params: apiParams,
     });
     const raw = response.data;
@@ -63,10 +63,11 @@ class StorageService {
       isUploaded: item.is_uploaded ?? item.isUploaded ?? true,
       createdAt: item.created_at ?? item.createdAt,
       updatedAt: item.updated_at ?? item.updatedAt,
-      isTrash: item.is_trash ?? item.isTrash ?? false,
+      isTrash: item.status === 'TRASHED' || (item.is_trash ?? item.isTrash ?? false),
       entityType: item.entity_type ?? item.entityType,
       entityId: item.entity_id ?? item.entityId,
       modulePrincipalEntity: item.module_principal_entity ?? item.modulePrincipalEntity ?? null,
+      version: item.version ?? 1,
     }));
 
     return {
@@ -82,8 +83,9 @@ class StorageService {
   };
 
   getDocumentDetail = async (_entityType: string, _entityId: string, documentId: string) => {
-    const response = await instance.get<any>(`/storage/documents/${documentId}`);
+    const response = await instance.get<any>(`/storage/${documentId}`);
     const item = response.data;
+    const etag = response.headers?.etag || response.headers?.ETag;
     return {
       id: item.id,
       fileName: item.name ?? item.fileName ?? '',
@@ -92,30 +94,35 @@ class StorageService {
       size: item.size_bytes ?? item.size ?? 0,
       sizeBytes: item.size_bytes ?? item.size ?? 0,
       url: item.file_key ?? item.url ?? '',
+      externalUrl: item.external_url ?? item.externalUrl ?? null,
+      description: item.description ?? null,
       isUploaded: item.is_uploaded ?? item.isUploaded ?? true,
       createdAt: item.created_at ?? item.createdAt,
       updatedAt: item.updated_at ?? item.updatedAt,
-      isTrash: item.is_trash ?? item.isTrash ?? false,
+      isTrash: item.status === 'TRASHED' || (item.is_trash ?? item.isTrash ?? false),
+      version: item.version ?? 1,
+      _etag: etag,
     };
   };
 
   downloadUrl = async (_entityType: string, _entityId: string, documentId: string) => {
     try {
       const response = await instance.get<any>(
-        `/storage/documents/${documentId}/download-url`
+        `/storage/${documentId}/download-url`
       );
       const d = response.data;
       const downloadUrl =
         d.download_url ??
         d.downloadUrl ??
-        `${instance.defaults.baseURL}/storage/documents/${documentId}/download`;
+        `${instance.defaults.baseURL}/storage/${documentId}/download`;
       return {
         ...d,
         downloadUrl,
         download_url: downloadUrl,
+        expiresIn: d.expires_in,
       };
     } catch {
-      const fallbackUrl = `${instance.defaults.baseURL}/storage/documents/${documentId}/download`;
+      const fallbackUrl = `${instance.defaults.baseURL}/storage/${documentId}/download`;
       return {
         downloadUrl: fallbackUrl,
         download_url: fallbackUrl,
@@ -128,7 +135,9 @@ class StorageService {
   // ==========================================
 
   /**
-   * Subida directa al servidor (POST /storage/documents/upload), evitando CORS con S3/MinIO
+   * Subida directa pasando por el backend (POST /storage/upload).
+   * El back es quien habla con MinIO:9000, el navegador nunca toca
+   * el bucket, por lo que no hay CORS contra MinIO ni URLs prefirmadas.
    */
   uploadDirect = async (
     entityType: string,
@@ -141,13 +150,20 @@ class StorageService {
     formData.append('entity_type', entityType);
     formData.append('entity_id', entityId);
     if (description) {
-      formData.append('description', description);
+      formData.append('description', description.slice(0, 1000));
     }
-    const response = await instance.post(`/storage/documents/upload`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    // Importante: `instance` tiene 'Content-Type: application/json' por defecto.
+    // Si se usa para FormData, FastAPI ve JSON, no parsea el form y devuelve
+    // 422 missing body.file/entity_type/entity_id. Por eso se usa axios limpio
+    // (sin ese default): el navegador pone 'multipart/form-data; boundary=...'.
+    const response = await axios.post(
+      `${instance.defaults.baseURL}/storage/upload`,
+      formData,
+      {
+        timeout: 120000,
+        withCredentials: true,
+      }
+    );
     return response.data;
   };
 
@@ -159,57 +175,13 @@ class StorageService {
     entityId: string,
     data: { url: string; name: string; description?: string }
   ) => {
-    const response = await instance.post(`/storage/documents/url`, {
+    const response = await instance.post(`/storage/url`, {
       entity_type: entityType,
       entity_id: entityId,
       url: data.url,
       name: data.name,
-      description: data.description,
+      description: data.description ? data.description.slice(0, 1000) : undefined,
     });
-    return response.data;
-  };
-
-  /**
-   * Paso 1: Obtener la URL firmada de S3/GCS y crear registro PENDING
-   */
-  requestUploadUrl = async (entityType: string, entityId: string, data: RequestUploadParams) => {
-    const response = await instance.post(`/storage/documents/presigned-upload`, {
-      name: data.fileName,
-      filename: data.fileName,
-      content_type: data.mimeType,
-      size_bytes: data.size,
-      file_size: data.size,
-      entity_type: entityType,
-      entity_id: entityId,
-      description: (data as any).description,
-    });
-    const d = response.data;
-    return {
-      ...d,
-      uploadUrl: d.upload_url ?? d.uploadUrl,
-      documentId: d.document_id ?? d.documentId,
-    };
-  };
-
-  /**
-   * Paso 2: Subir el archivo binario directamente al proveedor de nube
-   */
-  uploadToBucket = async (uploadUrl: string, file: File) => {
-    const response = await axios.put(uploadUrl, file, {
-      headers: {
-        'Content-Type': file.type,
-      },
-    });
-    return response.status;
-  };
-
-  /**
-   * Paso 3: Confirmar al backend que la subida fue exitosa (pasa a SUCCESS)
-   */
-  confirmDocument = async (_entityType: string, _entityId: string, documentId: string) => {
-    const response = await instance.post(
-      `/storage/documents/${documentId}/confirm`
-    );
     return response.data;
   };
 
@@ -221,25 +193,37 @@ class StorageService {
     _entityType: string,
     _entityId: string,
     documentId: string,
-    data: { fileName?: string; isPublic?: boolean }
+    data: { name?: string; fileName?: string; description?: string; isPublic?: boolean },
+    options?: { ifMatch?: string }
   ) => {
+    const payload: Record<string, any> = {};
+    const name = data.name || data.fileName;
+    if (name) payload.name = name;
+    if (data.description !== undefined) payload.description = data.description?.slice(0, 1000) ?? null;
+
+    const headers: Record<string, string> = {};
+    if (options?.ifMatch) {
+      headers['If-Match'] = options.ifMatch;
+    }
+
     const response = await instance.patch(
-      `/storage/documents/${documentId}`,
-      data
+      `/storage/${documentId}`,
+      payload,
+      { headers }
     );
     return response.data;
   };
 
   deleteSoftDocument = async (_entityType: string, _entityId: string, documentId: string) => {
     const response = await instance.delete(
-      `/storage/documents/${documentId}`
+      `/storage/${documentId}`
     );
     return response.data;
   };
 
   restoreDocument = async (_entityType: string, _entityId: string, documentId: string) => {
     const response = await instance.post(
-      `/storage/documents/${documentId}/restore`
+      `/storage/${documentId}/restore`
     );
     return response.data;
   };
@@ -264,10 +248,11 @@ class StorageService {
 
   bulkDownloadZip = async (_entityType: string, _entityId: string, documentIds: string[]) => {
     const response = await instance.post(
-      `/storage/documents/zip`,
-      { document_ids: documentIds },
+      `/storage/zip`,
+      { storage_ids: documentIds },
       {
         responseType: 'blob',
+        timeout: 120000,
       }
     );
     return response.data;
@@ -284,8 +269,17 @@ class StorageService {
 
   deletePermanent = async (_entityType: string, _entityId: string, documentId: string) => {
     const response = await instance.delete(
-      `/storage/documents/${documentId}/permanent`
+      `/storage/${documentId}/permanent`
     );
+    return response.data;
+  };
+
+  purgePendingUploads = async (olderThanSeconds?: number) => {
+    const params: Record<string, any> = {};
+    if (olderThanSeconds !== undefined) {
+      params.older_than_seconds = olderThanSeconds;
+    }
+    const response = await instance.delete(`/storage/pending/purge`, { params });
     return response.data;
   };
 }

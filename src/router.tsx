@@ -4,11 +4,13 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import PrivateLayout from '@/components/layout/private-layout';
 import PublicLayout from '@/components/layout/public-layout';
 import GuestRoute from '@/components/routes/guest-route';
+import PermissionRoute from '@/components/routes/permission-route';
 import ProtectedRoute from '@/components/routes/protected-route';
 import ForgotPassword from '@/modules/auth/pages/forgot-password';
 import ResetPassword from '@/modules/auth/pages/reset-password';
 import SignIn from '@/modules/auth/pages/sign-in';
 import SignUp from '@/modules/auth/pages/sign-up';
+import UnauthorizedPage from '@/modules/auth/pages/unauthorized-page';
 import VerifyEmail from '@/modules/auth/pages/verify-email';
 import CompanyDetail from '@/modules/companies/pages/companies-detail';
 import CompaniesView from '@/modules/companies/pages/companies-view';
@@ -47,36 +49,55 @@ export default function Router() {
       {/* Rutas privadas unificadas */}
       <Route element={<ProtectedRoute />}>
         <Route element={<PrivateLayout />}>
+          {/* Vista de no autorizado (dentro del layout privado) */}
+          <Route path="/unauthorized" element={<UnauthorizedPage />} />
+
           {/* Negocio */}
-          <Route path="/companies" element={<CompaniesView />} />
-          <Route path="/companies/new" element={<CompanyDetail />} />
-          <Route path="/companies/edit/:id" element={<CompanyDetail />} />
+          <Route element={<PermissionRoute module="companies" action="READ" />}>
+            <Route path="/companies" element={<CompaniesView />} />
+            <Route path="/companies/new" element={<CompanyDetail />} />
+            <Route path="/companies/edit/:id" element={<CompanyDetail />} />
+          </Route>
 
           {/* Administración: Seguridad */}
-          <Route path="/admin/users" element={<UsersView />} />
-          <Route path="/admin/users/new" element={<UsersDetail />} />
-          <Route path="/admin/users/edit/:id" element={<UsersDetail />} />
+          <Route element={<PermissionRoute module="users" action="READ" />}>
+            <Route path="/admin/users" element={<UsersView />} />
+            <Route path="/admin/users/new" element={<UsersDetail />} />
+            <Route path="/admin/users/edit/:id" element={<UsersDetail />} />
+          </Route>
 
-          <Route path="/admin/teams" element={<TeamsView />} />
-          <Route path="/admin/teams/new" element={<TeamDetail />} />
-          <Route path="/admin/teams/edit/:id" element={<TeamDetail />} />
+          <Route element={<PermissionRoute module="teams" action="READ" />}>
+            <Route path="/admin/teams" element={<TeamsView />} />
+            <Route path="/admin/teams/new" element={<TeamDetail />} />
+            <Route path="/admin/teams/edit/:id" element={<TeamDetail />} />
+          </Route>
 
-          <Route path="/admin/roles" element={<RolesView />} />
-          <Route path="/admin/roles/new" element={<RoleDetail />} />
-          <Route path="/admin/roles/edit/:id" element={<RoleDetail />} />
+          <Route element={<PermissionRoute module="roles" action="READ" />}>
+            <Route path="/admin/roles" element={<RolesView />} />
+            <Route path="/admin/roles/new" element={<RoleDetail />} />
+            <Route path="/admin/roles/edit/:id" element={<RoleDetail />} />
+          </Route>
 
           {/* Administración: Sistema y Archivos */}
-          <Route path="/admin/audit" element={<AuditView />} />
-          <Route path="/admin/audit/:id" element={<AuditDetail />} />
-          <Route path="/admin/audit/edit/:id" element={<AuditDetail />} />
+          <Route element={<PermissionRoute module="audit" action="READ" />}>
+            <Route path="/admin/audit" element={<AuditView />} />
+            <Route path="/admin/audit/:id" element={<AuditDetail />} />
+            <Route path="/admin/audit/edit/:id" element={<AuditDetail />} />
+          </Route>
 
-          <Route path="/admin/recovery" element={<RecoveryView />} />
-          <Route path="/admin/documents" element={<RecoveryView />} />
+          <Route element={<PermissionRoute module="recovery" action="READ" />}>
+            <Route path="/admin/recovery" element={<RecoveryView />} />
+            <Route path="/admin/documents" element={<RecoveryView />} />
+          </Route>
 
-          <Route path="/admin/storage" element={<StorageView />} />
+          <Route element={<PermissionRoute module="storage" action="READ" />}>
+            <Route path="/admin/storage" element={<StorageView />} />
+          </Route>
 
-          <Route path="/admin/settings" element={<SettingsView />} />
-          <Route path="/admin/settings/edit/:key" element={<SettingsDetail />} />
+          <Route element={<PermissionRoute module="settings" action="READ" />}>
+            <Route path="/admin/settings" element={<SettingsView />} />
+            <Route path="/admin/settings/edit/:key" element={<SettingsDetail />} />
+          </Route>
 
           {/* Redirecciones de retrocompatibilidad */}
           <Route path="/users" element={<Navigate to="/admin/users" replace />} />

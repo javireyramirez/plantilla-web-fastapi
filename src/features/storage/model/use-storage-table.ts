@@ -163,7 +163,11 @@ export function useStorageTable({
   const handleBulkDownload = async (rows: Row<Document>[]) => {
     const documentIds = rows.map((r) => r.original.id);
     if (documentIds.length === 0) return;
-    await downloadZip({ entityType: entityType ?? '', entityId: entityId ?? '', documentIds });
+    try {
+      await downloadZip({ entityType: entityType ?? '', entityId: entityId ?? '', documentIds });
+    } catch {
+      // Manejado en el onError del mutation hook
+    }
   };
 
   return {

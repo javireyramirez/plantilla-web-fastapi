@@ -1,4 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 import storageService from '@/features/storage/model/storage.service';
 import { GetDocumentsQuery } from '@/schemas/storage.schema';
@@ -109,14 +110,17 @@ export const useUpdateDocumentMetadata = () => {
       entityId,
       documentId,
       data,
+      ifMatch,
     }: {
       entityType: string;
       entityId: string;
       documentId: string;
-      data: { fileName?: string; isPublic?: boolean };
-    }) => storageService.updateMetadata(entityType, entityId, documentId, data),
+      data: { name?: string; fileName?: string; description?: string; isPublic?: boolean };
+      ifMatch?: string;
+    }) => storageService.updateMetadata(entityType, entityId, documentId, data, { ifMatch }),
     onSuccess: (_, { entityType, entityId }) => {
       queryClient.invalidateQueries({ queryKey: ['documents', entityType, entityId] });
+      queryClient.invalidateQueries({ queryKey: ['documents'] });
     },
   });
 };
@@ -252,8 +256,10 @@ export const useBulkDownloadZip = () => {
     onSuccess: (blob) => {
       triggerZipBlobDownload(blob);
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Error al descargar ZIP:', error);
+      const detail = error?.response?.data?.detail || error?.response?.data?.message;
+      toast.error(detail || 'Error al descargar ZIP');
     },
   });
 };
@@ -288,6 +294,27 @@ export const useDeletePermanentDocument = () => {
     }) => storageService.deletePermanent(entityType, entityId, documentId),
     onSuccess: (_, { entityType, entityId }) => {
       queryClient.invalidateQueries({ queryKey: ['documents', entityType, entityId] });
+    },
+  });
+};
+
+export const usePurgePendingUploads = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (olderThanSeconds?: number) =>
+      storageService.purgePendingUploads(olderThanSeconds),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['documents'] });
+      toast.success(
+        data?.purged !== undefined
+          ? `${data.purged} archivos pendientes purgados`
+          : 'Archivos pendientes purgados'
+      );
+    },
+    onError: (error: any) => {
+      const detail = error?.response?.data?.detail || error?.response?.data?.message;
+      toast.error(detail || 'Error al purgar archivos pendientes');
     },
   });
 };

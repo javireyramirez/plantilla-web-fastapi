@@ -137,7 +137,12 @@ export abstract class CrudService<
   };
 
   getById = async (id: TId): Promise<TItem> => {
-    const { data } = await instance.get<TItem>(`/${this.entityName}/${id}`);
+    const response = await instance.get<TItem>(`/${this.entityName}/${id}`);
+    const data = response.data;
+    const etag = response.headers?.etag || response.headers?.ETag;
+    if (etag && typeof data === 'object' && data !== null) {
+      (data as any)._etag = etag;
+    }
     return data;
   };
 
@@ -148,8 +153,25 @@ export abstract class CrudService<
     return data;
   };
 
-  update = async (id: TId, body: TUpdateBody): Promise<TItem> => {
-    const { data } = await instance.patch<TItem>(`/${this.entityName}/${id}`, body);
+  update = async (id: TId, body: TUpdateBody, options?: { ifMatch?: string }): Promise<TItem> => {
+    const ifMatch = options?.ifMatch || (body as any)?._etag;
+    const headers: Record<string, string> = {};
+    if (ifMatch) {
+      headers['If-Match'] = ifMatch;
+    }
+    const cleanBody =
+      typeof body === 'object' && body !== null && '_etag' in (body as any)
+        ? { ...(body as any) }
+        : body;
+    if (typeof cleanBody === 'object' && cleanBody !== null && '_etag' in (cleanBody as any)) {
+      delete (cleanBody as any)._etag;
+    }
+    const response = await instance.patch<TItem>(`/${this.entityName}/${id}`, cleanBody, { headers });
+    const data = response.data;
+    const etag = response.headers?.etag || response.headers?.ETag;
+    if (etag && typeof data === 'object' && data !== null) {
+      (data as any)._etag = etag;
+    }
     return data;
   };
 
@@ -177,18 +199,18 @@ export abstract class CrudService<
     return data;
   };
 
-  softDeleteMany = async (ids: TId[]): Promise<TId[]> => {
-    const { data } = await instance.post<TId[]>(`/${this.entityName}/bulk/trash`, { ids });
+  softDeleteMany = async (ids: TId[]): Promise<any> => {
+    const { data } = await instance.post<any>(`/${this.entityName}/bulk/trash`, { ids });
     return data;
   };
 
-  restoreMany = async (ids: TId[]): Promise<TId[]> => {
-    const { data } = await instance.post<TId[]>(`/${this.entityName}/bulk/restore`, { ids });
+  restoreMany = async (ids: TId[]): Promise<any> => {
+    const { data } = await instance.post<any>(`/${this.entityName}/bulk/restore`, { ids });
     return data;
   };
 
-  deletePermanentMany = async (ids: TId[]): Promise<void> => {
-    const { data } = await instance.delete<void>(`/${this.entityName}/bulk/permanent`, {
+  deletePermanentMany = async (ids: TId[]): Promise<any> => {
+    const { data } = await instance.delete<any>(`/${this.entityName}/bulk/permanent`, {
       data: { ids },
     });
     return data;
@@ -204,6 +226,7 @@ export abstract class CrudService<
   export = async (body: ExportRequest<TQuery, TId>): Promise<Blob> => {
     const payload = {
       ...body,
+      columns: body.columns && body.columns.length > 0 ? body.columns : undefined,
       sort_by: body.sort_by ?? (body.sortBy ? (SORT_VALUE_MAP[body.sortBy] || body.sortBy) : undefined),
       sort_order: body.sort_order ?? body.sortOrder,
       is_trash: body.is_trash ?? body.isTrash,

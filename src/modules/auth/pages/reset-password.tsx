@@ -32,7 +32,7 @@ export default function ResetPassword() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const [showPassword, setShowPassword] = useState({
-    newPassword: false,
+    new_password: false,
     confirmPassword: false,
   });
   const [isValidating, setIsValidating] = useState(true);
@@ -42,7 +42,7 @@ export default function ResetPassword() {
   const form = useForm<ResetPasswordSchemaValues>({
     resolver: zodResolver(ResetPasswordSchema),
     defaultValues: {
-      newPassword: '',
+      new_password: '',
       confirmPassword: '',
     },
   });
@@ -66,7 +66,7 @@ export default function ResetPassword() {
 
   if (!token) return null;
 
-  const toggleVisibility = (field: 'newPassword' | 'confirmPassword') => {
+  const toggleVisibility = (field: 'new_password' | 'confirmPassword') => {
     setShowPassword((prev) => ({
       ...prev,
       [field]: !prev[field],
@@ -75,7 +75,7 @@ export default function ResetPassword() {
 
   const onSubmit = (data: ResetPasswordSchemaValues) => {
     useResetPasswordMutation.mutate(
-      { newPassword: data.newPassword, token: token },
+      { new_password: data.new_password, token: token },
       {
         onSuccess: () => {
           toast.success(t('auth.toastSuccessReset'));
@@ -106,19 +106,19 @@ export default function ResetPassword() {
         <form id="form-signin" autoComplete="off" onSubmit={form.handleSubmit(onSubmit)}>
           <CardContent className="flex flex-col gap-4">
             <Controller
-              name="newPassword"
+              name="new_password"
               control={form.control}
               render={({ field, fieldState }) => (
                 <FormFieldWrapper fieldState={fieldState}>
-                  <FieldLabel htmlFor="newPassword">{t('auth.newPassword')}</FieldLabel>
+                  <FieldLabel htmlFor="new_password">{t('auth.newPassword')}</FieldLabel>
                   <div className="relative">
                     <Input
                       {...field}
                       className="pr-10"
-                      id="newPassword"
-                      type={showPassword.newPassword ? 'text' : 'password'}
+                      id="new_password"
+                      type={showPassword.new_password ? 'text' : 'password'}
                       aria-invalid={fieldState.invalid}
-                      aria-describedby={fieldState.invalid ? 'newPassword-error' : undefined}
+                      aria-describedby={fieldState.invalid ? 'new_password-error' : undefined}
                       autoComplete="new-password"
                       disabled={isSubmitting}
                     />
@@ -127,13 +127,13 @@ export default function ResetPassword() {
                       variant="ghost"
                       size="sm"
                       className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                      onClick={() => toggleVisibility('newPassword')}
+                      onClick={() => toggleVisibility('new_password')}
                       disabled={isSubmitting}
                       aria-label={
-                        showPassword.newPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
+                        showPassword.new_password ? 'Ocultar contraseña' : 'Mostrar contraseña'
                       }
                     >
-                      {showPassword.newPassword ? (
+                      {showPassword.new_password ? (
                         <EyeOff className="h-4 w-4" aria-hidden="true" />
                       ) : (
                         <Eye className="h-4 w-4" aria-hidden="true" />

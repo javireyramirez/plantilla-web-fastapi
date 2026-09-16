@@ -105,6 +105,9 @@ class TeamsService extends CrudService<
   // ── Lectura ────────────────────────────────
   override getAll = async (query?: QueryParams): Promise<AllResponse> => {
     const params = cleanApiParams(query as Record<string, any>);
+    if ((query as any)?.name && !params.search) {
+      params.search = (query as any).name;
+    }
     const { data } = await instance.get<any>(`/teams`, { params });
     const items = (data?.data ?? []).map(normalizeTeam);
 

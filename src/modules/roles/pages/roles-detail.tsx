@@ -43,6 +43,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { usePermissions } from '@/hooks/use-permissions';
 import { AuditTable } from '@/modules/audit/components/audit-table';
 import { rolesQueries } from '@/modules/roles/model/roles.query';
 
@@ -54,6 +55,7 @@ import { useRoleForm } from '../model/use-roles-detail';
 export default function RoleDetail() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { isSuperAdmin } = usePermissions();
 
   // --- Estados locales ---
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -84,7 +86,7 @@ export default function RoleDetail() {
   const tabs = [
     { value: 'detail', label: t('roles.tabs.detail'), viewAtCreate: true },
     { value: 'permissions', label: t('roles.tabs.permissions'), viewAtCreate: isEditing },
-    { value: 'users', label: t('roles.tabs.users'), viewAtCreate: isEditing },
+    { value: 'users', label: t('roles.tabs.users'), viewAtCreate: isEditing && isSuperAdmin },
     { value: 'audit', label: t('roles.tabs.audit'), viewAtCreate: isEditing },
   ];
 
@@ -387,9 +389,11 @@ export default function RoleDetail() {
               <RolePermissionsMatrix roleId={id!} />
             </TabsContent>
 
-            <TabsContent value="users" className="outline-none">
-              <RoleAssignmentsTable roleId={id!} />
-            </TabsContent>
+            {isSuperAdmin && (
+              <TabsContent value="users" className="outline-none">
+                <RoleAssignmentsTable roleId={id!} />
+              </TabsContent>
+            )}
 
             <TabsContent value="audit" className="outline-none">
               <AuditTable moduleSlug="roles" entityId={id} />

@@ -71,11 +71,17 @@ class AuthService {
     return user;
   }
 
-  async resetPassword(data: { newPassword: string; token: string }) {
+  async resetPassword(data: {
+    newPassword?: string;
+    new_password?: string;
+    token: string;
+  }) {
+    const new_password = data.new_password ?? data.newPassword;
     const { data: user, error } = await authClient.resetPassword({
-      newPassword: data.newPassword,
+      newPassword: new_password as string,
+      new_password: new_password,
       token: data.token,
-    });
+    } as any);
 
     if (error) {
       throw new Error(error.message || 'Error al cambiar de contraseña');
@@ -85,15 +91,25 @@ class AuthService {
   }
 
   async changePassword(data: {
-    newPassword: string;
-    currentPassword: string;
-    revokeOtherSessions: boolean;
+    newPassword?: string;
+    new_password?: string;
+    currentPassword?: string;
+    current_password?: string;
+    revokeOtherSessions?: boolean;
+    revoke_other_sessions?: boolean;
   }) {
+    const new_password = data.new_password ?? data.newPassword;
+    const current_password = data.current_password ?? data.currentPassword;
+    const revoke_other_sessions = data.revoke_other_sessions ?? data.revokeOtherSessions;
+
     const { data: user, error } = await authClient.changePassword({
-      newPassword: data.newPassword,
-      currentPassword: data.currentPassword,
-      revokeOtherSessions: data.revokeOtherSessions,
-    });
+      newPassword: new_password as string,
+      new_password: new_password,
+      currentPassword: current_password as string,
+      current_password: current_password,
+      revokeOtherSessions: revoke_other_sessions as boolean,
+      revoke_other_sessions: revoke_other_sessions,
+    } as any);
 
     if (error) {
       throw new Error(error.message || 'Error al cambiar de contraseña');

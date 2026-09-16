@@ -68,8 +68,8 @@ export function createGenericQueries<
 
     useUpdate: () => {
       const queryClient = useQueryClient();
-      return useMutation<TItem, Error, { id: TId; body: TUpdateBody }>({
-        mutationFn: ({ id, body }) => service.update(id, body),
+      return useMutation<TItem, Error, { id: TId; body: TUpdateBody; options?: { ifMatch?: string } }>({
+        mutationFn: ({ id, body, options }) => service.update(id, body, options),
         onSuccess: (data, variables) => {
           queryClient.invalidateQueries({ queryKey: [queryKey] });
           queryClient.setQueryData([queryKey, 'detail', variables.id], data);

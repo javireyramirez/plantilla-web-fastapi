@@ -202,18 +202,27 @@ class RolesService extends CrudService<
     };
   }
 
-  /**
-   * Reemplaza todos los permisos de un rol en FastAPI (/rbac/roles/{roleId}/permissions)
-   */
-  async setPermissions(roleId: string, permissions: RolePermissionItem[] | any[]) {
+  async setPermissions(
+    roleId: string,
+    permissions: RolePermissionItem[] | any[],
+    options?: { ifMatch?: string }
+  ) {
     const payload = permissions.map((p: any) => ({
       module_code: p.module_code || p.moduleCode || p.module?.code || p.moduleId,
       action: p.action,
       scope: p.scope,
     }));
-    const response = await instance.put<any>(`/rbac/roles/${roleId}/permissions`, {
-      permissions: payload,
-    });
+    const headers: Record<string, string> = {};
+    if (options?.ifMatch) {
+      headers['If-Match'] = options.ifMatch;
+    }
+    const response = await instance.put<any>(
+      `/rbac/roles/${roleId}/permissions`,
+      {
+        permissions: payload,
+      },
+      { headers }
+    );
     return response.data;
   }
 

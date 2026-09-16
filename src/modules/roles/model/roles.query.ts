@@ -1,6 +1,7 @@
 import { UseQueryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { createGenericQueries } from '@/hooks/use-crud';
+import { usePermissions } from '@/hooks/use-permissions';
 import {
   BulkCreateAssignmentBody,
   BulkCreatePermissionBody,
@@ -39,19 +40,21 @@ export const rolesQueries = {
     });
   },
 
-  useGetAssignments: (roleId: string, filters?: GetAssignmentsQuery) => {
+  useGetAssignments: (roleId: string, filters?: GetAssignmentsQuery, options?: { enabled?: boolean }) => {
+    const { isSuperAdmin } = usePermissions();
     return useQuery({
       queryKey: rolesKeys.assignments(roleId, filters),
       queryFn: () => rolesService.getAssignments(roleId, filters),
-      enabled: !!roleId,
+      enabled: !!roleId && isSuperAdmin && (options?.enabled ?? true),
     });
   },
 
-  useGetAssignmentById: (roleId: string, assignmentId: string) => {
+  useGetAssignmentById: (roleId: string, assignmentId: string, options?: { enabled?: boolean }) => {
+    const { isSuperAdmin } = usePermissions();
     return useQuery({
       queryKey: rolesKeys.assignment(roleId, assignmentId),
       queryFn: () => rolesService.getAssignmentById(roleId, assignmentId),
-      enabled: !!roleId && !!assignmentId,
+      enabled: !!roleId && !!assignmentId && isSuperAdmin && (options?.enabled ?? true),
     });
   },
 

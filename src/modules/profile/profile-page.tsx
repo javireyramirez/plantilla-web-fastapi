@@ -22,7 +22,9 @@ export default function Profile() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const isVerified = session?.user?.emailVerified;
-  const toggleVisibility = (field: 'newPassword' | 'confirmPassword' | 'currentPassword') => {
+  const toggleVisibility = (
+    field: 'new_password' | 'confirmPassword' | 'currentPassword'
+  ) => {
     setShowPassword((prev) => ({
       ...prev,
       [field]: !prev[field],
@@ -30,7 +32,7 @@ export default function Profile() {
   };
   const [showPassword, setShowPassword] = useState({
     currentPassword: false,
-    newPassword: false,
+    new_password: false,
     confirmPassword: false,
   });
   const useChangePasswordMutation = useChangePassword();
@@ -45,7 +47,7 @@ export default function Profile() {
     mode: 'onBlur',
     defaultValues: {
       currentPassword: '',
-      newPassword: '',
+      new_password: '',
       confirmPassword: '',
       revokeOtherSessions: false,
     },
@@ -192,17 +194,17 @@ export default function Profile() {
               {/* Campo de Nueva Contraseña */}
               <div className="grid gap-2">
                 <Controller
-                  name="newPassword"
+                  name="new_password"
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <FormFieldWrapper fieldState={fieldState}>
-                      <FieldLabel htmlFor="newPassword">{t('profile.newPassword')}</FieldLabel>
+                      <FieldLabel htmlFor="new_password">{t('profile.newPassword')}</FieldLabel>
                       <div className="relative">
                         <Input
                           {...field}
                           className="pr-10"
-                          id="newPassword"
-                          type={showPassword.newPassword ? 'text' : 'password'}
+                          id="new_password"
+                          type={showPassword.new_password ? 'text' : 'password'}
                           aria-invalid={fieldState.invalid}
                           autoComplete="new-password"
                           disabled={isSubmitting}
@@ -212,15 +214,15 @@ export default function Profile() {
                           variant="ghost"
                           size="sm"
                           className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                          onClick={() => toggleVisibility('newPassword')}
+                          onClick={() => toggleVisibility('new_password')}
                           disabled={isSubmitting}
                           aria-label={
-                            showPassword.newPassword
+                            showPassword.new_password
                               ? t('profile.hidePassword')
                               : t('profile.showPassword')
                           }
                         >
-                          {showPassword.newPassword ? (
+                          {showPassword.new_password ? (
                             <EyeOff className="h-4 w-4" aria-hidden="true" />
                           ) : (
                             <Eye className="h-4 w-4" aria-hidden="true" />

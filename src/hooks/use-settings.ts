@@ -17,6 +17,9 @@ export const SETTINGS_KEYS = {
   APP_NAME: 'app.name',
   APP_MAINTENANCE_MODE: 'app.maintenance_mode',
   STORAGE_MAX_UPLOAD_SIZE: 'storage.max_upload_size_bytes',
+  STORAGE_MAX_ZIP_TOTAL_BYTES: 'storage.max_zip_total_bytes',
+  STORAGE_MAX_ZIP_FILE_COUNT: 'storage.max_zip_file_count',
+  STORAGE_PRESIGNED_EXPIRY_SECONDS: 'storage.presigned_expiry_seconds',
   STORAGE_ALLOWED_MIMETYPES: 'storage.allowed_mimetypes',
   STORAGE_ALLOWED_EXTENSIONS: 'storage.allowed_extensions',
   STORAGE_FILE_CATEGORIES: 'storage.file_categories',
@@ -26,6 +29,9 @@ export const SETTINGS_KEYS = {
 } as const;
 
 export const DEFAULT_MAX_UPLOAD_SIZE_BYTES = 52428800; // 50 MB
+export const DEFAULT_MAX_ZIP_TOTAL_BYTES = 104857600; // 100 MB
+export const DEFAULT_MAX_ZIP_FILE_COUNT = 100;
+export const DEFAULT_PRESIGNED_EXPIRY_SECONDS = 3600;
 export const DEFAULT_PAGE_SIZE = 20;
 export const DEFAULT_PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
 export const DEFAULT_MAX_PAGE_SIZE = 100;
@@ -152,6 +158,27 @@ export function useSettings() {
     );
   }, [getSetting]);
 
+  const maxZipTotalBytes = useMemo(() => {
+    return getSetting<number>(
+      SETTINGS_KEYS.STORAGE_MAX_ZIP_TOTAL_BYTES,
+      DEFAULT_MAX_ZIP_TOTAL_BYTES
+    );
+  }, [getSetting]);
+
+  const maxZipFileCount = useMemo(() => {
+    return getSetting<number>(
+      SETTINGS_KEYS.STORAGE_MAX_ZIP_FILE_COUNT,
+      DEFAULT_MAX_ZIP_FILE_COUNT
+    );
+  }, [getSetting]);
+
+  const presignedExpirySeconds = useMemo(() => {
+    return getSetting<number>(
+      SETTINGS_KEYS.STORAGE_PRESIGNED_EXPIRY_SECONDS,
+      DEFAULT_PRESIGNED_EXPIRY_SECONDS
+    );
+  }, [getSetting]);
+
   const allowedMimetypes = useMemo(() => {
     return getSetting<string[]>(SETTINGS_KEYS.STORAGE_ALLOWED_MIMETYPES, []);
   }, [getSetting]);
@@ -198,6 +225,9 @@ export function useSettings() {
     settings,
     getSetting,
     maxUploadSizeBytes,
+    maxZipTotalBytes,
+    maxZipFileCount,
+    presignedExpirySeconds,
     allowedMimetypes,
     allowedExtensions,
     fileCategories,

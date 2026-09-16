@@ -13,4 +13,23 @@ const instance = axios.create({
   },
 });
 
+instance.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (
+      error.response?.data instanceof Blob &&
+      (error.response.data.type.includes('application/json') ||
+        error.response.data.type === '')
+    ) {
+      try {
+        const text = await error.response.data.text();
+        error.response.data = JSON.parse(text);
+      } catch {
+        // Fallback si no es JSON válido
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default instance;
