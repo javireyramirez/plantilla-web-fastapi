@@ -141,10 +141,27 @@ export const GetUserAssignmentsQuerySchema = GetPaginatedQueryBaseSchema.extend(
 // BODIES
 // ==========================================
 
-export const CreateUsersBodySchema = z.object({
-  email: z.email(),
-  name: z.string().min(1).max(255).optional(),
-});
+export const CreateUsersBodySchema = z
+  .object({
+    name: z.string().min(2).max(100),
+    email: z.email(),
+    password: z.string().optional(),
+    send_invitation_email: z.boolean().default(false),
+    is_active: z.boolean().default(true),
+    is_super_admin: z.boolean().default(false),
+    role_ids: z.array(z.string()).default([]),
+  })
+  .superRefine((data, ctx) => {
+    if (!data.send_invitation_email) {
+      if (!data.password || data.password.trim().length < 8) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'La contraseña debe tener al menos 8 caracteres',
+          path: ['password'],
+        });
+      }
+    }
+  });
 
 export const UpdateUsersBodySchema = z.object({
   name: z.string().min(1).max(255).optional(),

@@ -52,6 +52,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AuditTable } from '@/modules/audit/components/audit-table';
+import { SessionsTable } from '@/modules/sessions/components/sessions-table';
 import { usersQueries } from '@/modules/users/model/users.query';
 
 import { ExportDropdown, ExportDropdownMenuSub } from '@/components/export-dropdown';
@@ -67,7 +68,9 @@ export default function UsersDetail() {
   const navigate = useNavigate();
   const { can } = usePermissions();
   const canExport = can('users', 'EXPORT');
-
+  const canDelete = can('users', 'DELETE');
+  const canCreate = can('users', 'CREATE');
+  const canUpdate = can('users', 'UPDATE');
   // --- Estados locales ---
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('detail');
@@ -92,6 +95,10 @@ export default function UsersDetail() {
     isPending,
   } = useUsersForm(id);
 
+  const canSave = isEditing ? can('users', 'UPDATE') : can('users', 'CREATE');
+  const canReadAudit = can('audit', 'READ');
+  const canReadSessions = can('sessions', 'READ');
+
   const { mutate: restore, isPending: isRestoring } = usersQueries.useRestore();
 
   const handleRestore = () => {
@@ -112,13 +119,14 @@ export default function UsersDetail() {
   const isTrashed = (data as any)?.status === 'TRASHED';
 
   const tabs = [
-    { value: 'detail', label: t('users.tabs.detail'), viewAtCreate: true },
-    { value: 'teams', label: t('users.tabs.teams'), viewAtCreate: isEditing },
-    { value: 'roles', label: t('users.tabs.roles'), viewAtCreate: isEditing },
-    { value: 'audit', label: t('users.tabs.audit'), viewAtCreate: isEditing },
-  ];
+    { value: 'detail', label: t('users.tabs.detail'), visible: true },
+    { value: 'teams', label: t('users.tabs.teams'), visible: isEditing },
+    { value: 'roles', label: t('users.tabs.roles'), visible: isEditing },
+    { value: 'sessions', label: t('users.tabs.sessions', { defaultValue: 'Sesiones' }), visible: isEditing && canReadSessions },
+    { value: 'audit', label: t('users.tabs.audit'), visible: isEditing && canReadAudit },
+  ].filter((tab) => tab.visible);
 
-  const currentTab = tabs.find((tab) => tab.value === activeTab);
+  const currentTab = tabs.find((tab) => tab.value === activeTab) || tabs[0];
 
   // --- Estado de Carga (Skeletons) ---
   if (isLoading) return <FormSkeleton />;
@@ -198,39 +206,43 @@ export default function UsersDetail() {
               {isEditing && (
                 <>
                   {/* Ocultos en tablets/portátiles (< lg), visibles en pantallas grandes */}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="hidden lg:flex gap-2"
-                    disabled={isPending}
-                    onClick={handleResendInvitation}
-                  >
-                    <Send className="h-4 w-4" />
-                    {t('users.resendInvitation')}
-                  </Button>
+                  {canUpdate && (
+                    <>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="hidden lg:flex gap-2"
+                        disabled={isPending}
+                        onClick={handleResendInvitation}
+                      >
+                        <Send className="h-4 w-4" />
+                        {t('users.resendInvitation')}
+                      </Button>
 
-                  {isActive ? (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="hidden lg:flex border-amber-500 text-amber-600 hover:bg-amber-500 hover:text-white gap-2"
-                      disabled={isPending}
-                      onClick={handleSuspend}
-                    >
-                      <Ban className="h-4 w-4" />
-                      {t('users.suspend')}
-                    </Button>
-                  ) : (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="hidden lg:flex border-emerald-500 text-emerald-600 hover:bg-emerald-500 hover:text-white gap-2"
-                      disabled={isPending}
-                      onClick={handleUnSuspend}
-                    >
-                      <UserCheck className="h-4 w-4" />
-                      {t('users.unsuspend')}
-                    </Button>
+                      {isActive ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="hidden lg:flex border-amber-500 text-amber-600 hover:bg-amber-500 hover:text-white gap-2"
+                          disabled={isPending}
+                          onClick={handleSuspend}
+                        >
+                          <Ban className="h-4 w-4" />
+                          {t('users.suspend')}
+                        </Button>
+                      ) : (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="hidden lg:flex border-emerald-500 text-emerald-600 hover:bg-emerald-500 hover:text-white gap-2"
+                          disabled={isPending}
+                          onClick={handleUnSuspend}
+                        >
+                          <UserCheck className="h-4 w-4" />
+                          {t('users.unsuspend')}
+                        </Button>
+                      )}
+                    </>
                   )}
 
                   {canExport && (
@@ -242,146 +254,166 @@ export default function UsersDetail() {
                     />
                   )}
 
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="hidden lg:flex border-destructive text-destructive hover:bg-destructive hover:text-white gap-2"
-                    onClick={() => setDeleteDialogOpen(true)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    {t('users.delete')}
-                  </Button>
+                  {canDelete && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="hidden lg:flex border-destructive text-destructive hover:bg-destructive hover:text-white gap-2"
+                      onClick={() => setDeleteDialogOpen(true)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      {t('users.delete')}
+                    </Button>
+                  )}
 
                   {/* Solo visible en pantallas muy grandes (xl) */}
+                  {canCreate && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="hidden xl:flex gap-2"
+                      disabled={isPending}
+                      asChild
+                    >
+                      <Link to="/admin/users/new">
+                        <Plus className="h-4 w-4" />
+                        {t('users.new')}
+                      </Link>
+                    </Button>
+                  )}
+                </>
+              )}
+
+              {canSave && (
+                <>
+                  {/* Botón Guardar y Cerrar: Visible a partir de tablets (md) */}
                   <Button
                     type="button"
                     variant="outline"
-                    className="hidden xl:flex gap-2"
-                    disabled={isPending}
-                    asChild
+                    disabled={isPending || (isEditing && !isActive)}
+                    onClick={() =>
+                      form.handleSubmit((data) => handleSubmit(data, { shouldClose: true }))()
+                    }
+                    className="hidden md:flex gap-2"
                   >
-                    <Link to="/admin/users/new">
-                      <Plus className="h-4 w-4" />
-                      {t('users.new')}
-                    </Link>
+                    <Save className="h-4 w-4" />
+                    {t('users.saveAndClose')}
+                  </Button>
+
+                  {/* Acción Principal: Siempre visible en barra principal */}
+                  <Button
+                    type="button"
+                    disabled={isPending || (isEditing && !isActive)}
+                    onClick={() => form.handleSubmit((data) => handleSubmit(data))()}
+                    className="gap-2 shadow-sm flex-1 sm:flex-none justify-center"
+                  >
+                    <Save className="h-4 w-4" />
+                    {t('users.save')}
                   </Button>
                 </>
               )}
 
-              {/* Botón Guardar y Cerrar: Visible a partir de tablets (md) */}
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isPending || (isEditing && !isActive)}
-                onClick={() =>
-                  form.handleSubmit((data) => handleSubmit(data, { shouldClose: true }))()
-                }
-                className="hidden md:flex gap-2"
-              >
-                <Save className="h-4 w-4" />
-                {t('users.saveAndClose')}
-              </Button>
-
-              {/* Acción Principal: Siempre visible en barra principal */}
-              <Button
-                type="button"
-                disabled={isPending || (isEditing && !isActive)}
-                onClick={() => form.handleSubmit((data) => handleSubmit(data))()}
-                className="gap-2 shadow-sm flex-1 sm:flex-none justify-center"
-              >
-                <Save className="h-4 w-4" />
-                {t('users.save')}
-              </Button>
-
               {/* Menú Desplegable Adaptativo Móvil / Tablet / Portátil */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={`px-3 ${isEditing ? 'xl:hidden' : 'md:hidden'}`}
-                  >
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
+              {((canSave) || (isEditing && (canExport || canCreate || canDelete || canUpdate))) && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={`px-3 ${isEditing ? 'xl:hidden' : 'md:hidden'}`}
+                    >
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
 
-                <DropdownMenuContent align="end" className="w-52">
-                  {/* Aparece aquí en móviles (< md) */}
-                  <DropdownMenuItem
-                    disabled={isPending || (isEditing && !isActive)}
-                    className="md:hidden gap-2"
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      form.handleSubmit((data) => handleSubmit(data, { shouldClose: true }))();
-                    }}
-                  >
-                    <Save className="h-4 w-4" />
-                    {t('users.saveAndClose')}
-                  </DropdownMenuItem>
-
-                  {isEditing && (
-                    <>
-                      {/* Aparecen aquí si la pantalla es menor que LG (portátiles pequeños/tablets) */}
+                  <DropdownMenuContent align="end" className="w-52">
+                    {/* Aparece aquí en móviles (< md) */}
+                    {canSave && (
                       <DropdownMenuItem
-                        disabled={isPending}
-                        className="lg:hidden gap-2"
-                        onSelect={handleResendInvitation}
-                      >
-                        <Send className="h-4 w-4" />
-                        {t('users.resendInvitation')}
-                      </DropdownMenuItem>
-
-                      {isActive ? (
-                        <DropdownMenuItem
-                          disabled={isPending}
-                          className="lg:hidden gap-2 text-amber-600 focus:text-amber-700"
-                          onSelect={handleSuspend}
-                        >
-                          <Ban className="h-4 w-4" />
-                          {t('users.suspend')}
-                        </DropdownMenuItem>
-                      ) : (
-                        <DropdownMenuItem
-                          disabled={isPending}
-                          className="lg:hidden gap-2 text-emerald-600 focus:text-emerald-700"
-                          onSelect={handleUnSuspend}
-                        >
-                          <UserCheck className="h-4 w-4" />
-                          {t('users.unsuspend')}
-                        </DropdownMenuItem>
-                      )}
-
-                      {canExport && (
-                        <ExportDropdownMenuSub
-                          entityName="users"
-                          onExport={handleExport}
-                          disabled={isPending}
-                          className="lg:hidden"
-                        />
-                      )}
-
-                      {/* Se muestra en el menú si la pantalla es menor a xl */}
-                      <DropdownMenuItem disabled={isPending} className="xl:hidden gap-2" asChild>
-                        <Link to="/admin/users/new">
-                          <Plus className="h-4 w-4" />
-                          {t('users.new')}
-                        </Link>
-                      </DropdownMenuItem>
-
-                      <DropdownMenuItem
-                        disabled={isPending}
-                        className="lg:hidden gap-2 text-destructive focus:text-destructive focus:bg-destructive/10"
+                        disabled={isPending || (isEditing && !isActive)}
+                        className="md:hidden gap-2"
                         onSelect={(e) => {
                           e.preventDefault();
-                          setDeleteDialogOpen(true);
+                          form.handleSubmit((data) => handleSubmit(data, { shouldClose: true }))();
                         }}
                       >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                        {t('users.delete')}
+                        <Save className="h-4 w-4" />
+                        {t('users.saveAndClose')}
                       </DropdownMenuItem>
-                    </>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    )}
+
+                    {isEditing && (
+                      <>
+                        {/* Aparecen aquí si la pantalla es menor que LG (portátiles pequeños/tablets) */}
+                        {canUpdate && (
+                          <>
+                            <DropdownMenuItem
+                              disabled={isPending}
+                              className="lg:hidden gap-2"
+                              onSelect={handleResendInvitation}
+                            >
+                              <Send className="h-4 w-4" />
+                              {t('users.resendInvitation')}
+                            </DropdownMenuItem>
+
+                            {isActive ? (
+                              <DropdownMenuItem
+                                disabled={isPending}
+                                className="lg:hidden gap-2 text-amber-600 focus:text-amber-700"
+                                onSelect={handleSuspend}
+                              >
+                                <Ban className="h-4 w-4" />
+                                {t('users.suspend')}
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem
+                                disabled={isPending}
+                                className="lg:hidden gap-2 text-emerald-600 focus:text-emerald-700"
+                                onSelect={handleUnSuspend}
+                              >
+                                <UserCheck className="h-4 w-4" />
+                                {t('users.unsuspend')}
+                              </DropdownMenuItem>
+                            )}
+                          </>
+                        )}
+
+                        {canExport && (
+                          <ExportDropdownMenuSub
+                            entityName="users"
+                            onExport={handleExport}
+                            disabled={isPending}
+                            className="lg:hidden"
+                          />
+                        )}
+
+                        {/* Se muestra en el menú si la pantalla es menor a xl */}
+                        {canCreate && (
+                          <DropdownMenuItem disabled={isPending} className="xl:hidden gap-2" asChild>
+                            <Link to="/admin/users/new">
+                              <Plus className="h-4 w-4" />
+                              {t('users.new')}
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
+
+                        {canDelete && (
+                          <DropdownMenuItem
+                            disabled={isPending}
+                            className="lg:hidden gap-2 text-destructive focus:text-destructive focus:bg-destructive/10"
+                            onSelect={(e) => {
+                              e.preventDefault();
+                              setDeleteDialogOpen(true);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                            {t('users.delete')}
+                          </DropdownMenuItem>
+                        )}
+                      </>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </>
           )}
         </div>
@@ -394,13 +426,11 @@ export default function UsersDetail() {
           variant="line"
           className="hidden md:flex h-auto w-fit justify-start gap-6 rounded-none border-b bg-transparent p-0"
         >
-          {tabs
-            .filter((t) => t.viewAtCreate === true)
-            .map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value} className="px-0 w-32 shrink-0">
-                {tab.label}
-              </TabsTrigger>
-            ))}
+          {tabs.map((tab) => (
+            <TabsTrigger key={tab.value} value={tab.value} className="px-0 w-32 shrink-0">
+              {tab.label}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
         {/* Vista Móvil */}
@@ -441,9 +471,17 @@ export default function UsersDetail() {
               <UserRolesTable userId={id!} />
             </TabsContent>
 
-            <TabsContent value="audit" className="outline-none">
-              <AuditTable moduleSlug="users" entityId={id} />
-            </TabsContent>
+            {canReadSessions && (
+              <TabsContent value="sessions" className="outline-none">
+                <SessionsTable userId={id!} />
+              </TabsContent>
+            )}
+
+            {canReadAudit && (
+              <TabsContent value="audit" className="outline-none">
+                <AuditTable moduleSlug="users" entityId={id} />
+              </TabsContent>
+            )}
           </>
         )}
       </Tabs>

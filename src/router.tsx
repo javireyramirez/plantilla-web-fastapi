@@ -6,6 +6,7 @@ import PublicLayout from '@/components/layout/public-layout';
 import GuestRoute from '@/components/routes/guest-route';
 import PermissionRoute from '@/components/routes/permission-route';
 import ProtectedRoute from '@/components/routes/protected-route';
+import AdminRedirect from '@/components/routes/admin-redirect';
 import ForgotPassword from '@/modules/auth/pages/forgot-password';
 import ResetPassword from '@/modules/auth/pages/reset-password';
 import SignIn from '@/modules/auth/pages/sign-in';
@@ -27,6 +28,9 @@ import RecoveryView from '@/modules/trash/pages/recovery-view';
 import StorageView from '@/modules/storage/pages/storage-view';
 import SettingsView from '@/modules/settings/pages/settings-view';
 import SettingsDetail from '@/modules/settings/pages/settings-detail';
+import JobsView from '@/modules/jobs/pages/jobs-view';
+import JobsDetail from '@/modules/jobs/pages/jobs-detail';
+import SessionsView from '@/modules/sessions/pages/sessions-view';
 
 export default function Router() {
   return (
@@ -78,6 +82,10 @@ export default function Router() {
             <Route path="/admin/roles/edit/:id" element={<RoleDetail />} />
           </Route>
 
+          <Route element={<PermissionRoute module="sessions" action="READ" />}>
+            <Route path="/admin/sessions" element={<SessionsView />} />
+          </Route>
+
           {/* Administración: Sistema y Archivos */}
           <Route element={<PermissionRoute module="audit" action="READ" />}>
             <Route path="/admin/audit" element={<AuditView />} />
@@ -99,6 +107,11 @@ export default function Router() {
             <Route path="/admin/settings/edit/:key" element={<SettingsDetail />} />
           </Route>
 
+          <Route element={<PermissionRoute module="jobs" action="READ" />}>
+            <Route path="/admin/jobs" element={<JobsView />} />
+            <Route path="/admin/jobs/:id" element={<JobsDetail />} />
+          </Route>
+
           {/* Redirecciones de retrocompatibilidad */}
           <Route path="/users" element={<Navigate to="/admin/users" replace />} />
           <Route path="/users/*" element={<Navigate to="/admin/users" replace />} />
@@ -106,6 +119,8 @@ export default function Router() {
           <Route path="/teams/*" element={<Navigate to="/admin/teams" replace />} />
           <Route path="/roles" element={<Navigate to="/admin/roles" replace />} />
           <Route path="/roles/*" element={<Navigate to="/admin/roles" replace />} />
+          <Route path="/sessions" element={<Navigate to="/admin/sessions" replace />} />
+          <Route path="/sessions/*" element={<Navigate to="/admin/sessions" replace />} />
           <Route path="/audit" element={<Navigate to="/admin/audit" replace />} />
           <Route path="/audit/:id" element={<AuditDetail />} />
           <Route path="/audit/*" element={<Navigate to="/admin/audit" replace />} />
@@ -115,12 +130,15 @@ export default function Router() {
           <Route path="/storage/*" element={<Navigate to="/admin/storage" replace />} />
           <Route path="/settings" element={<Navigate to="/admin/settings" replace />} />
           <Route path="/settings/*" element={<Navigate to="/admin/settings" replace />} />
+          <Route path="/jobs" element={<Navigate to="/admin/jobs" replace />} />
+          <Route path="/jobs/:id" element={<JobsDetail />} />
+          <Route path="/jobs/*" element={<Navigate to="/admin/jobs" replace />} />
 
           <Route path="/profile" element={<Profile />} />
 
           {/* Redirecciones de conveniencia */}
           <Route path="/home" element={<Navigate to="/companies" replace />} />
-          <Route path="/admin" element={<Navigate to="/admin/users" replace />} />
+          <Route path="/admin" element={<AdminRedirect />} />
         </Route>
       </Route>
 

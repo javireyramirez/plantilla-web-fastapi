@@ -27,21 +27,19 @@ import {
 } from '@/components/ui/sidebar.js';
 import { useSession } from '@/config/auth-client.js';
 import { useSignOut } from '@/hooks/use-auth.js';
-import usePermissions from '@/hooks/use-permissions';
+import useAdminAccess from '@/hooks/use-admin-access';
 import { SUPPORTED_LANGUAGES } from '@/lib/language';
 import { getLanguageLabel } from '@/lib/language';
 
 export default function NavUser() {
   const { i18n, t } = useTranslation();
-  const { can, isSuperAdmin } = usePermissions();
+  const { hasAdminAccess, firstAdminRoute } = useAdminAccess();
 
   const currentLang = i18n.language.split('-')[0];
 
   const { isMobile } = useSidebar();
   const { mutate: signOut, isPending } = useSignOut();
   const { data: session } = useSession();
-
-  const hasAdminAccess = isSuperAdmin || ['users', 'roles', 'teams', 'audit', 'trash', 'storage'].some((mod) => can(mod, 'READ'));
 
   if (!session?.user) {
     return (
@@ -128,7 +126,7 @@ export default function NavUser() {
               </DropdownMenuItem>
               {hasAdminAccess && (
                 <DropdownMenuItem asChild>
-                  <Link to="/admin/users">
+                  <Link to={firstAdminRoute}>
                     <Settings className="mr-2 h-4 w-4" />
                     {t('sidebar.admin')}
                   </Link>

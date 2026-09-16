@@ -50,11 +50,14 @@ import { teamsQueries } from '@/modules/teams/model/teams.query';
 
 import { TeamsDetailForm } from '../components/teams-form';
 import { useTeamForm } from '../model/use-teams-detail';
+import usePermissions from '@/hooks/use-permissions';
 
 export default function TeamDetail() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-
+  const { can } = usePermissions();
+  const canDelete = can('teams', 'DELETE');
+  const canCreate = can('teams', 'CREATE');
   // --- Estados locales ---
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('detail');
@@ -63,6 +66,9 @@ export default function TeamDetail() {
   const { id } = useParams<{ id: string }>();
   const { data, isEditing, teamName, isLoading, form, handleSubmit, handleDelete, isPending } =
     useTeamForm(id);
+
+  const canSave = isEditing ? can('teams', 'UPDATE') : can('teams', 'CREATE');
+  const canReadAudit = can('audit', 'READ');
 
   const { mutate: restore, isPending: isRestoring } = teamsQueries.useRestore();
 
@@ -84,13 +90,13 @@ export default function TeamDetail() {
   const isTrashed = data?.status === 'TRASHED';
 
   const tabs = [
-    { value: 'detail', label: t('teams.tabs.detail'), viewAtCreate: true },
-    { value: 'members', label: t('teams.tabs.members'), viewAtCreate: isEditing },
-    { value: 'roles', label: t('teams.tabs.roles'), viewAtCreate: isEditing },
-    { value: 'audit', label: t('teams.tabs.audit'), viewAtCreate: isEditing },
-  ];
+    { value: 'detail', label: t('teams.tabs.detail'), visible: true },
+    { value: 'members', label: t('teams.tabs.members'), visible: isEditing },
+    { value: 'roles', label: t('teams.tabs.roles'), visible: isEditing },
+    { value: 'audit', label: t('teams.tabs.audit'), visible: isEditing && canReadAudit },
+  ].filter((tab) => tab.visible);
 
-  const currentTab = tabs.find((tab) => tab.value === activeTab);
+  const currentTab = tabs.find((tab) => tab.value === activeTab) || tabs[0];
 
   // --- Estado de Carga (Skeletons) ---
   if (isLoading) {
@@ -231,102 +237,118 @@ export default function TeamDetail() {
             <>
               {isEditing && (
                 <>
+                  {canDelete && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="hidden lg:flex border-destructive text-destructive hover:bg-destructive hover:text-white gap-2"
+                      onClick={() => setDeleteDialogOpen(true)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      {t('teams.delete')}
+                    </Button>
+                  )}
+
+                  {canCreate && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="hidden xl:flex gap-2"
+                      disabled={isPending}
+                      asChild
+                    >
+                      <Link to="/admin/teams/new">
+                        <Plus className="h-4 w-4" />
+                        {t('teams.new')}
+                      </Link>
+                    </Button>
+                  )}
+                </>
+              )}
+
+              {canSave && (
+                <>
                   <Button
                     type="button"
                     variant="outline"
-                    className="hidden lg:flex border-destructive text-destructive hover:bg-destructive hover:text-white gap-2"
-                    onClick={() => setDeleteDialogOpen(true)}
+                    disabled={isPending}
+                    onClick={() =>
+                      form.handleSubmit((data) => handleSubmit(data, { shouldClose: true }))()
+                    }
+                    className="hidden md:flex gap-2"
                   >
-                    <Trash2 className="h-4 w-4" />
-                    {t('teams.delete')}
+                    <Save className="h-4 w-4" />
+                    {t('teams.saveAndClose')}
                   </Button>
 
                   <Button
                     type="button"
-                    variant="outline"
-                    className="hidden xl:flex gap-2"
                     disabled={isPending}
-                    asChild
+                    onClick={() => form.handleSubmit((data) => handleSubmit(data))()}
+                    className="gap-2 shadow-sm flex-1 sm:flex-none justify-center"
                   >
-                    <Link to="/admin/teams/new">
-                      <Plus className="h-4 w-4" />
-                      {t('teams.new')}
-                    </Link>
+                    <Save className="h-4 w-4" />
+                    {t('teams.save')}
                   </Button>
                 </>
               )}
 
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isPending}
-                onClick={() =>
-                  form.handleSubmit((data) => handleSubmit(data, { shouldClose: true }))()
-                }
-                className="hidden md:flex gap-2"
-              >
-                <Save className="h-4 w-4" />
-                {t('teams.saveAndClose')}
-              </Button>
+              {((canSave) || (isEditing && (canCreate || canDelete))) && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={`px-3 ${isEditing ? 'xl:hidden' : 'md:hidden'}`}
+                    >
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
 
-              <Button
-                type="button"
-                disabled={isPending}
-                onClick={() => form.handleSubmit((data) => handleSubmit(data))()}
-                className="gap-2 shadow-sm flex-1 sm:flex-none justify-center"
-              >
-                <Save className="h-4 w-4" />
-                {t('teams.save')}
-              </Button>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={`px-3 ${isEditing ? 'xl:hidden' : 'md:hidden'}`}
-                  >
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem
-                    disabled={isPending}
-                    className="md:hidden gap-2"
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      form.handleSubmit((data) => handleSubmit(data, { shouldClose: true }))();
-                    }}
-                  >
-                    <Save className="h-4 w-4" />
-                    {t('teams.saveAndClose')}
-                  </DropdownMenuItem>
-
-                  {isEditing && (
-                    <>
-                      {/* Se muestra en el menú si la pantalla es menor a xl */}
-                      <DropdownMenuItem disabled={isPending} className="xl:hidden gap-2" asChild>
-                        <Link to="/admin/teams/new">
-                          <Plus className="h-4 w-4" />
-                          {t('teams.new')}
-                        </Link>
-                      </DropdownMenuItem>
-
+                  <DropdownMenuContent align="end" className="w-48">
+                    {canSave && (
                       <DropdownMenuItem
                         disabled={isPending}
-                        className="lg:hidden gap-2 text-destructive focus:text-destructive focus:bg-destructive/10"
+                        className="md:hidden gap-2"
                         onSelect={(e) => {
                           e.preventDefault();
-                          setDeleteDialogOpen(true);
+                          form.handleSubmit((data) => handleSubmit(data, { shouldClose: true }))();
                         }}
                       >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                        {t('teams.delete')}
+                        <Save className="h-4 w-4" />
+                        {t('teams.saveAndClose')}
                       </DropdownMenuItem>
-                    </>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    )}
+
+                    {isEditing && (
+                      <>
+                        {/* Se muestra en el menú si la pantalla es menor a xl */}
+                        {canCreate && (
+                          <DropdownMenuItem disabled={isPending} className="xl:hidden gap-2" asChild>
+                            <Link to="/admin/teams/new">
+                              <Plus className="h-4 w-4" />
+                              {t('teams.new')}
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
+
+                        {canDelete && (
+                          <DropdownMenuItem
+                            disabled={isPending}
+                            className="lg:hidden gap-2 text-destructive focus:text-destructive focus:bg-destructive/10"
+                            onSelect={(e) => {
+                              e.preventDefault();
+                              setDeleteDialogOpen(true);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                            {t('teams.delete')}
+                          </DropdownMenuItem>
+                        )}
+                      </>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </>
           )}
         </div>
@@ -338,13 +360,11 @@ export default function TeamDetail() {
           variant="line"
           className="hidden md:flex h-auto w-fit justify-start gap-6 rounded-none border-b bg-transparent p-0"
         >
-          {tabs
-            .filter((t) => t.viewAtCreate === true)
-            .map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value} className="px-0 w-32 shrink-0">
-                {tab.label}
-              </TabsTrigger>
-            ))}
+          {tabs.map((tab) => (
+            <TabsTrigger key={tab.value} value={tab.value} className="px-0 w-32 shrink-0">
+              {tab.label}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
         <div className="border-b md:hidden">
@@ -384,9 +404,11 @@ export default function TeamDetail() {
               <TeamsRolesTable teamId={id as string} />
             </TabsContent>
 
-            <TabsContent value="audit" className="outline-none">
-              <AuditTable moduleSlug="teams" entityId={id} />
-            </TabsContent>
+            {canReadAudit && (
+              <TabsContent value="audit" className="outline-none">
+                <AuditTable moduleSlug="teams" entityId={id} />
+              </TabsContent>
+            )}
           </>
         )}
       </Tabs>

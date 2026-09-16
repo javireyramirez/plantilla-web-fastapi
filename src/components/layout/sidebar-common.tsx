@@ -19,6 +19,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar.js';
 import usePermissions from '@/hooks/use-permissions';
+import useAdminAccess from '@/hooks/use-admin-access';
 import { useModules } from '@/modules/modules/model/modules.query';
 
 import NavUser from './nav-user.js';
@@ -115,10 +116,7 @@ export default function LayoutSidebar() {
   }, [modules, can, isSuperAdmin, isAdminSection]);
 
   // Saber si el usuario tiene acceso a administración para mostrar el enlace
-  const hasAdminAccess = useMemo(() => {
-    if (isSuperAdmin) return true;
-    return ['users', 'roles', 'teams', 'audit', 'trash', 'storage', 'settings'].some((mod) => can(mod, 'READ'));
-  }, [isSuperAdmin, can]);
+  const { hasAdminAccess, firstAdminRoute } = useAdminAccess();
 
   return (
     <Sidebar collapsible="icon">
@@ -155,7 +153,7 @@ export default function LayoutSidebar() {
 
                     return (
                       <SidebarMenuItem key={item.code}>
-                        <SidebarMenuButton asChild isActive={isItemActive}>
+                        <SidebarMenuButton asChild isActive={isItemActive} tooltip={itemTitle}>
                           <Link to={item.url}>
                             <IconComponent className="h-4 w-4" />
                             <span>{itemTitle}</span>
@@ -186,7 +184,7 @@ export default function LayoutSidebar() {
           ) : hasAdminAccess ? (
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
-                <Link to="/admin/users">
+                <Link to={firstAdminRoute}>
                   <span className="font-medium text-xs text-muted-foreground hover:text-foreground">
                     ⚙ {t('sidebar.admin')}
                   </span>

@@ -44,7 +44,7 @@ export function DocumentsTrashTable() {
     if (!item) return;
     const documentId = item.entity_id || item.entityId || item.metadata?.documentId || item.id;
     const entityType =
-      item.modulePrincipalEntity?.code || item.metadata?.entityType || 'documents';
+      item.modulePrincipalEntity?.code || item.metadata?.entityType || 'storage';
     const entityId =
       (item.modulePrincipalEntity?.entity_id as string) ||
       item.metadata?.entityId ||
@@ -296,7 +296,7 @@ export function DocumentsTrashTable() {
     handleRestore,
     handleDelete,
     isPendingActions,
-  } = useTrashTable(columns, 'documents');
+  } = useTrashTable(columns, 'storage');
 
   const triggerDeleteConfirm = (rows: Row<TrashBinItemS>[]) => {
     setSelectedRows(rows);

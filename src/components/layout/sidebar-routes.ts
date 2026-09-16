@@ -6,6 +6,8 @@ import {
   HardDrive,
   History,
   LayoutGrid,
+  Loader2,
+  Monitor,
   RotateCcw,
   Shield,
   SlidersHorizontal,
@@ -21,11 +23,13 @@ export const MODULE_ROUTE_MAP: Record<string, string> = {
   teams: '/admin/teams',
   roles: '/admin/roles',
   settings: '/admin/settings',
+  sessions: '/admin/sessions',
   audit: '/admin/audit',
   storage: '/admin/storage',
   documents: '/admin/recovery',
   trash: '/admin/recovery',
   recovery: '/admin/recovery',
+  jobs: '/admin/jobs',
 };
 
 export const MODULE_ICON_MAP: Record<string, LucideIcon> = {
@@ -51,6 +55,10 @@ export const MODULE_ICON_MAP: Record<string, LucideIcon> = {
   system: Cpu,
   sliders: SlidersHorizontal,
   settings: SlidersHorizontal,
+  loader: Loader2,
+  jobs: Loader2,
+  monitor: Monitor,
+  sessions: Monitor,
 };
 
 export function getModuleIcon(iconName?: string | null, moduleCode?: string): LucideIcon {

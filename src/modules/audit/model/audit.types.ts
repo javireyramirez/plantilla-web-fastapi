@@ -14,6 +14,8 @@ export const NAVIGATABLE_MODULES = [
   'team',
   'roles',
   'role',
+  'jobs',
+  'job',
 ];
 
 export function normalizeModuleSlug(slug: string | null | undefined): string {
@@ -36,10 +38,12 @@ export function normalizeModuleSlug(slug: string | null | undefined): string {
     trash: 'trash',
     storage: 'storage',
     auth: 'users',
-    session: 'users',
-    sessions: 'users',
+    session: 'sessions',
+    sessions: 'sessions',
     setting: 'settings',
     settings: 'settings',
+    job: 'jobs',
+    jobs: 'jobs',
   };
   return map[s] || s;
 }
@@ -54,6 +58,7 @@ export function getEntityLink(
   if (['users', 'teams', 'roles'].includes(normalized)) return `/admin/${normalized}/edit/${entityId}`;
   if (normalized === 'settings') return `/admin/settings/edit/${entityId}`;
   if (normalized === 'audit') return `/admin/audit/${entityId}`;
+  if (normalized === 'jobs') return `/admin/jobs/${entityId}`;
   return null;
 }
 

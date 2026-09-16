@@ -75,6 +75,8 @@
       "user": "Users",
       "settings": "Settings",
       "setting": "Settings",
+      "jobs": "Background Jobs",
+      "job": "Background Jobs",
       "auth": "Authentication"
     }
   },
@@ -154,7 +156,7 @@
       "organizations": "Organizations",
       "audit": "Audit",
       "recovery": "Restore data",
-      "documents": "Retrieve documentation"
+      "documents": "Retrieve storage"
     },
     "groups": {
       "group1": "Group",
@@ -167,7 +169,7 @@
     "subtitle": "Manage and view the list of registered companies.",
     "import": "Import",
     "export": "Export",
-    "exportSuccess": "Exported successfully",
+    "exportSuccess": "Successfully exported",
     "new": "New company",
     "moreActions": "More actions",
     "createTitle": "Create new company",
@@ -178,7 +180,7 @@
     "saveAndClose": "Save and close",
     "tabs": {
       "detail": "Detail",
-      "docs": "Documentation",
+      "docs": "Storage",
       "audit": "Audit"
     },
     "auditContent": "Audit log goes here...",
@@ -210,8 +212,8 @@
     "deleteConfirmTitle": "Delete this company?",
     "deleteConfirmDesc": "This action cannot be undone. The company will be permanently deleted from the system.",
     "cancel": "Cancel",
-    "docsTitle": "Documents",
-    "docsDescription": "Company documents",
+    "docsTitle": "Storage",
+    "docsDescription": "Company storage and files",
     "sectors": {
       "tecnologia": "Technology",
       "banca": "Banking",
@@ -251,7 +253,7 @@
     "saveAndClose": "Save and close",
     "delete": "Delete",
     "detail": "Detail",
-    "docs": "Documentation",
+    "docs": "Storage",
     "audit": "Audit",
     "auditContent": "Audit log goes here...",
     "basicData": "Basic data",
@@ -313,6 +315,7 @@
       "detail": "Detail",
       "teams": "Teams",
       "roles": "Roles",
+      "sessions": "Sessions",
       "audit": "Audit"
     },
     "docs": "Documentation",
@@ -346,6 +349,20 @@
     "statusName": {
       "suspended": "Suspended"
     },
+    "authAndAccess": "Access & Credentials",
+    "authAndAccessDesc": "Configure how the user will access the system.",
+    "sendInvitationEmail": "Send invitation by email",
+    "sendInvitationDesc": "The user will receive an email with a secure link to create their password.",
+    "password": "Initial password",
+    "passwordPlaceholder": "Enter at least 8 characters",
+    "passwordHelp": "Password must contain at least 8 characters.",
+    "invitationNotice": "An invitation email will be sent to the user to activate their account and set their password.",
+    "statusAndRoles": "Status & Permissions",
+    "statusAndRolesDesc": "Configure initial account status and user roles.",
+    "isSuperAdmin": "Super Administrator",
+    "isSuperAdminDesc": "Grants unrestricted, full access across the entire platform.",
+    "rolesSelect": "Initial roles",
+    "rolesSelectPlaceholder": "Select assigned roles",
     "teams": {
       "label": "Teams",
       "assignedTitle": "Assigned Teams",
@@ -509,7 +526,7 @@
       "roles": "Roles",
       "audit": "Audit"
     },
-    "docs": "Documentation",
+    "docs": "Storage",
     "auditContent": "Audit log goes here...",
     "basicData": "Basic data",
     "identificationInfo": "Main identification info.",
@@ -770,9 +787,11 @@
     "title": "Recycle Bin",
     "subtitle": "Manage items that have been deleted from the system. You can restore them or delete them permanently.",
     "subtitleDocuments": "Manage documents that have been deleted from the system. You can restore them, download them or delete them permanently.",
+    "subtitleStorage": "Manage documents that have been deleted from the system. You can restore them, download them or delete them permanently.",
     "tabs": {
       "entities": "Entities",
-      "documents": "Documents"
+      "documents": "Documents",
+      "storage": "Storage"
     },
     "table": {
       "selectTodo": "Select all",
@@ -864,6 +883,148 @@
     "contactAdmin": "If you believe this is an error, please contact your system administrator.",
     "goBack": "Go back",
     "goHome": "Back to Home"
+  },
+  "jobs": {
+    "title": "Background Jobs",
+    "subtitle": "Monitoring, traceability and control of system asynchronous jobs.",
+    "enqueueButton": "Enqueue job",
+    "detail": "Detail",
+    "createdAt": "Date",
+    "name": "Name",
+    "progress": "Progress",
+    "attempts": "Attempts",
+    "entity": "Entity",
+    "duration": "Duration",
+    "scheduledAt": "Scheduled at",
+    "startedAt": "Started at",
+    "completedAt": "Completed at",
+    "details": "Job Details",
+    "detailsDescription": "Metadata, execution lifecycle and background job timing.",
+    "entityType": "Entity type",
+    "entityId": "Entity ID",
+    "maxRetries": "Max retries",
+    "payload": "Payload (JSON)",
+    "createdBy": "Created by",
+    "jobId": "Job ID",
+    "copyEntityId": "Copy entity ID",
+    "copyUserId": "Copy user ID",
+    "copyJobId": "Copy job UUID",
+    "notFoundTitle": "Job not found",
+    "notFoundDesc": "The requested job does not exist or you do not have permission to view it.",
+    "dataTitle": "Data and Execution",
+    "dataDescription": "Results returned by worker, errors, or input parameters.",
+    "errorTitle": "Execution error",
+    "noResultTitle": "Job completed without additional return",
+    "noResultDesc": "The job finished its operations without emitting a specific result payload.",
+    "runningStatus": "Job is actively running",
+    "pendingStatus": "Job is enqueued awaiting an available worker",
+    "autoRefreshNotice": "Status updates automatically.",
+    "noPayload": "No payload or input parameters",
+    "status": {
+      "label": "Status",
+      "pending": "Pending",
+      "running": "Running",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "actions": {
+      "cancel": "Cancel job",
+      "retry": "Retry job"
+    },
+    "tabs": {
+      "output": "Output / Result",
+      "payload": "Payload",
+      "json": "Raw JSON"
+    },
+    "dialog": {
+      "cancelTitle": "Cancel background job?",
+      "cancelDescription": "The job will stop its cooperative execution and its status will change to CANCELLED.",
+      "confirmCancel": "Cancel job",
+      "retryTitle": "Retry job?",
+      "retryDescription": "The job will be rescheduled with PENDING status for immediate execution by workers.",
+      "confirmRetry": "Retry",
+      "enqueueTitle": "Enqueue new job",
+      "enqueueDescription": "Register and schedule a background job for processing.",
+      "enqueueSubmit": "Enqueue",
+      "nameRequired": "Job name is required",
+      "payloadMustBeObject": "Payload must be a valid JSON object",
+      "invalidJson": "Invalid JSON format",
+      "enqueueSuccess": "Job enqueued successfully",
+      "enqueueError": "Error enqueuing job"
+    },
+    "toast": {
+      "cancelSuccess": "Job cancelled successfully",
+      "cancelError": "Error cancelling job",
+      "retrySuccess": "Job scheduled for retry",
+      "retryError": "Error retrying job"
+    }
+  },
+  "modules": {
+    "names": {
+      "sessions": "Sessions"
+    }
+  },
+  "sessions": {
+    "title": "Sessions",
+    "subtitle": "Monitor, audit and manage active user sessions and devices.",
+    "user": "User",
+    "email": "Email",
+    "device": "Device",
+    "browser": "Browser",
+    "os": "Operating System",
+    "ipAddress": "IP Address",
+    "createdAt": "Logged in at",
+    "expiresAt": "Expiration",
+    "status": {
+      "label": "Status",
+      "active": "Active",
+      "revoked": "Inactive / Revoked",
+      "current": "Current session",
+      "impersonated": "Impersonated"
+    },
+    "statusOptions": {
+      "all": "All sessions",
+      "active": "Active",
+      "revoked": "Revoked / Expired"
+    },
+    "actions": {
+      "revoke": "Revoke session",
+      "bulkRevoke": "Revoke selected",
+      "viewDetail": "View detail"
+    },
+    "sheet": {
+      "title": "Session Details",
+      "description": "Technical information, traceability, and connection status.",
+      "sessionId": "Session ID",
+      "userSection": "User",
+      "copyUserId": "Copy ID",
+      "viewProfile": "View user profile",
+      "deviceSection": "Device & Connection",
+      "validitySection": "Dates & Validity",
+      "impersonatedAlertTitle": "Impersonated Session",
+      "impersonatedAlertDesc": "This session was generated by a SuperAdmin through the impersonation feature."
+    },
+    "dialog": {
+      "revokeTitle": "Revoke user session?",
+      "revokeDesc": "The user will immediately lose access on this device and will have to sign in again.",
+      "confirmRevoke": "Revoke session",
+      "selfRevokeTitle": "Revoke your current session?",
+      "selfRevokeDesc": "You are about to revoke the session you are currently using. You will be logged out immediately and redirected to the login screen.",
+      "confirmSelfRevoke": "Sign out and revoke",
+      "bulkTitle": "Revoke selected sessions?",
+      "bulkWithCurrentTitle": "Revoke selected sessions (includes your current session)?",
+      "bulkDesc": "{{count}} active sessions will be revoked. Affected devices will require re-authentication.",
+      "bulkCurrentWarning": "Warning: Your current session is selected. Proceeding will log you out immediately.",
+      "confirmBulkRevoke": "Revoke selected"
+    },
+    "toast": {
+      "revokeSuccess": "Session revoked successfully",
+      "revokeError": "Error revoking session",
+      "bulkSuccess": "{{count}} sessions revoked successfully",
+      "bulkPartialSuccess": "{{count}} sessions revoked. {{unprocessed}} could not be processed.",
+      "bulkError": "Error revoking selected sessions"
+    }
   }
 }
 

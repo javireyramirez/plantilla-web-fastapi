@@ -29,6 +29,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AuditTable } from '@/modules/audit/components/audit-table';
+import usePermissions from '@/hooks/use-permissions';
 
 import { SettingsForm } from '../components/settings-form';
 import { useSettingsDetail } from '../model/use-settings-detail';
@@ -36,6 +37,8 @@ import { useSettingsDetail } from '../model/use-settings-detail';
 export default function SettingsDetail() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { can } = usePermissions();
+  const canReadAudit = can('audit', 'READ');
   const { key } = useParams<{ key: string }>();
   const decodedKey = key ? decodeURIComponent(key) : '';
 
@@ -62,11 +65,11 @@ export default function SettingsDetail() {
   } = useSettingsDetail(decodedKey);
 
   const tabs = [
-    { value: 'detail', label: t('settings.tabs.detail', { defaultValue: 'Detalle' }) },
-    { value: 'audit', label: t('settings.tabs.audit', { defaultValue: 'Auditoría' }) },
-  ];
+    { value: 'detail', label: t('settings.tabs.detail', { defaultValue: 'Detalle' }), visible: true },
+    { value: 'audit', label: t('settings.tabs.audit', { defaultValue: 'Auditoría' }), visible: canReadAudit },
+  ].filter((tab) => tab.visible);
 
-  const currentTab = tabs.find((tab) => tab.value === activeTab);
+  const currentTab = tabs.find((tab) => tab.value === activeTab) || tabs[0];
 
   // --- Estado de Carga (Skeletons idénticos a CompanyDetail) ---
   if (isLoading) {
@@ -288,15 +291,17 @@ export default function SettingsDetail() {
           />
         </TabsContent>
 
-        <TabsContent value="audit" className="outline-none">
-          {setting?.id ? (
-            <AuditTable moduleSlug="settings" entityId={setting.id} />
-          ) : (
-            <div className="py-8 text-center text-sm text-muted-foreground">
-              {t('common.loading', { defaultValue: 'Cargando...' })}
-            </div>
-          )}
-        </TabsContent>
+        {canReadAudit && (
+          <TabsContent value="audit" className="outline-none">
+            {setting?.id ? (
+              <AuditTable moduleSlug="settings" entityId={setting.id} />
+            ) : (
+              <div className="py-8 text-center text-sm text-muted-foreground">
+                {t('common.loading', { defaultValue: 'Cargando...' })}
+              </div>
+            )}
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );

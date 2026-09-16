@@ -482,5 +482,15 @@ flowchart TD
 | **18** | Perfil y Páginas Generales | Ponytail & DRY | ⏳ Pendiente |
 | **19** | Build, Docker y Calidad Final | Verificación Integral | ⏳ Pendiente |
 
+## ⚡ Roadmap Paralelo: Tareas Asíncronas (Jobs) & Tiempo Real (SSE)
+
+Este plan sincroniza la evolución del módulo de **Tareas Asíncronas (`jobs`)** en el Frontend con las fases del Backend:
+
+| Hito | Backend | Frontend | Estado |
+| :--- | :--- | :--- | :---: |
+| **Jobs v1 (CRUD & Ejecución)** | Endpoints `/api/jobs`, `/cancel`, `/retry` | Vistas `/admin/jobs` y `/admin/jobs/:id`, tabla con filtros, polling condicional suave a 4s (sin parpadeos) y diálogos unificados | 🚀 En ejecución |
+| **Jobs v2 (Trazabilidad)** | Auditoría automática de cambios de estado en jobs | Pestaña "Historial de Auditoría" en detalle de Job incrustando `AuditTable moduleSlug="jobs" entityId={id}` | ⏳ Fase 2 |
+| **Fase 7 Backend (Real-Time & SSE)** | Stream SSE `/api/events/jobs` o sistema unificado de notificaciones push | Eliminación del polling temporal en cliente; suscripción nativa vía hook `useJobEvents` (EventSource) para actualizaciones instantáneas | 📅 Planificado (Fase 7) |
+
 ---
 *Roadmap generado conforme a las directrices de las skills `ponytail` y `srp-ssot`.*

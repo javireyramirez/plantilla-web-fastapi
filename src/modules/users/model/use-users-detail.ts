@@ -7,7 +7,12 @@ import { toast } from 'sonner';
 import { useEffect } from 'react';
 
 import { usersQueries } from './users.query';
-import { CreateUsers, CreateUsersBodySchema, UpdateUsers } from './users.schema';
+import {
+  CreateUsers,
+  CreateUsersBodySchema,
+  UpdateUsers,
+  UpdateUsersBodySchema,
+} from './users.schema';
 
 export function useUsersForm(id?: string) {
   const navigate = useNavigate();
@@ -31,13 +36,12 @@ export function useUsersForm(id?: string) {
     formData: CreateUsers | UpdateUsers,
     options?: { shouldClose?: boolean }
   ) => {
-    const payload = {
-      ...formData,
-    };
-
     const shouldClose = options?.shouldClose ?? false;
 
     if (isEditing) {
+      const payload = {
+        ...formData,
+      };
       update(
         { id, body: payload as UpdateUsers },
         {
@@ -52,7 +56,21 @@ export function useUsersForm(id?: string) {
         }
       );
     } else {
-      create(payload as CreateUsers, {
+      const createData = formData as CreateUsers;
+      const cleanPayload: Record<string, any> = {
+        name: createData.name,
+        email: createData.email,
+        send_invitation_email: Boolean(createData.send_invitation_email),
+        is_active: createData.is_active ?? true,
+        is_super_admin: createData.is_super_admin ?? false,
+        role_ids: createData.role_ids ?? [],
+      };
+
+      if (!createData.send_invitation_email && createData.password) {
+        cleanPayload.password = createData.password;
+      }
+
+      create(cleanPayload as CreateUsers, {
         onSuccess: (newUsers) => {
           toast.success(t('users.form.create'));
 
@@ -137,10 +155,15 @@ export function useUsersForm(id?: string) {
     : {
         name: '',
         email: '',
+        password: '',
+        send_invitation_email: false,
+        is_active: true,
+        is_super_admin: false,
+        role_ids: [] as string[],
       };
 
-  const form = useForm<CreateUsers>({
-    resolver: zodResolver(CreateUsersBodySchema),
+  const form = useForm<any>({
+    resolver: zodResolver(isEditing ? UpdateUsersBodySchema : CreateUsersBodySchema),
     mode: 'onBlur',
     defaultValues: formDefaultValues,
   });
@@ -154,7 +177,15 @@ export function useUsersForm(id?: string) {
         });
       }
     } else {
-      form.reset({ name: '' });
+      form.reset({
+        name: '',
+        email: '',
+        password: '',
+        send_invitation_email: false,
+        is_active: true,
+        is_super_admin: false,
+        role_ids: [],
+      });
     }
   }, [isEditing, data, isLoading, isFetching, form]);
 

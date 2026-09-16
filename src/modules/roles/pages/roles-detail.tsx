@@ -55,8 +55,9 @@ import { useRoleForm } from '../model/use-roles-detail';
 export default function RoleDetail() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { isSuperAdmin } = usePermissions();
-
+  const { can, isSuperAdmin } = usePermissions();
+  const canDelete = can('roles', 'DELETE');
+  const canCreate = can('roles', 'CREATE');
   // --- Estados locales ---
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('detail');
@@ -65,6 +66,9 @@ export default function RoleDetail() {
   const { id } = useParams<{ id: string }>();
   const { data, isEditing, roleName, isLoading, form, handleSubmit, handleDelete, isPending } =
     useRoleForm(id);
+
+  const canSave = isEditing ? can('roles', 'UPDATE') : can('roles', 'CREATE');
+  const canReadAudit = can('audit', 'READ');
 
   const { mutate: restore, isPending: isRestoring } = rolesQueries.useRestore();
 
@@ -84,13 +88,13 @@ export default function RoleDetail() {
   const isTrashed = data?.status === 'TRASHED';
 
   const tabs = [
-    { value: 'detail', label: t('roles.tabs.detail'), viewAtCreate: true },
-    { value: 'permissions', label: t('roles.tabs.permissions'), viewAtCreate: isEditing },
-    { value: 'users', label: t('roles.tabs.users'), viewAtCreate: isEditing && isSuperAdmin },
-    { value: 'audit', label: t('roles.tabs.audit'), viewAtCreate: isEditing },
-  ];
+    { value: 'detail', label: t('roles.tabs.detail'), visible: true },
+    { value: 'permissions', label: t('roles.tabs.permissions'), visible: isEditing },
+    { value: 'users', label: t('roles.tabs.users'), visible: isEditing && isSuperAdmin },
+    { value: 'audit', label: t('roles.tabs.audit'), visible: isEditing && canReadAudit },
+  ].filter((tab) => tab.visible);
 
-  const currentTab = tabs.find((tab) => tab.value === activeTab);
+  const currentTab = tabs.find((tab) => tab.value === activeTab) || tabs[0];
 
   // --- Estado de Carga (Skeletons) ---
   if (isLoading) {
@@ -232,108 +236,124 @@ export default function RoleDetail() {
               {isEditing && (
                 <>
                   {/* Eliminar: Visible a partir de pantallas grandes (lg) */}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="hidden lg:flex border-destructive text-destructive hover:bg-destructive hover:text-white gap-2"
-                    onClick={() => setDeleteDialogOpen(true)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    {t('roles.delete')}
-                  </Button>
+                  {canDelete && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="hidden lg:flex border-destructive text-destructive hover:bg-destructive hover:text-white gap-2"
+                      onClick={() => setDeleteDialogOpen(true)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      {t('roles.delete')}
+                    </Button>
+                  )}
 
                   {/* Nueva Compañía: Visible solo en pantallas muy grandes (xl) */}
+                  {canCreate && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="hidden xl:flex gap-2"
+                      disabled={isPending}
+                      asChild
+                    >
+                      <Link to="/admin/roles/new">
+                        <Plus className="h-4 w-4" />
+                        {t('roles.new')}
+                      </Link>
+                    </Button>
+                  )}
+                </>
+              )}
+
+              {canSave && (
+                <>
+                  {/* Botón Guardar y Cerrar: Visible a partir de pantallas medianas (md) */}
                   <Button
                     type="button"
                     variant="outline"
-                    className="hidden xl:flex gap-2"
                     disabled={isPending}
-                    asChild
+                    onClick={() =>
+                      form.handleSubmit((data) => handleSubmit(data, { shouldClose: true }))()
+                    }
+                    className="hidden md:flex gap-2"
                   >
-                    <Link to="/admin/roles/new">
-                      <Plus className="h-4 w-4" />
-                      {t('roles.new')}
-                    </Link>
+                    <Save className="h-4 w-4" />
+                    {t('roles.saveAndClose')}
+                  </Button>
+
+                  {/* Acción Principal: Siempre visible */}
+                  <Button
+                    type="button"
+                    disabled={isPending}
+                    onClick={() => form.handleSubmit((data) => handleSubmit(data))()}
+                    className="gap-2 shadow-sm flex-1 sm:flex-none justify-center"
+                  >
+                    <Save className="h-4 w-4" />
+                    {t('roles.save')}
                   </Button>
                 </>
               )}
 
-              {/* Botón Guardar y Cerrar: Visible a partir de pantallas medianas (md) */}
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isPending}
-                onClick={() =>
-                  form.handleSubmit((data) => handleSubmit(data, { shouldClose: true }))()
-                }
-                className="hidden md:flex gap-2"
-              >
-                <Save className="h-4 w-4" />
-                {t('roles.saveAndClose')}
-              </Button>
-
-              {/* Acción Principal: Siempre visible */}
-              <Button
-                type="button"
-                disabled={isPending}
-                onClick={() => form.handleSubmit((data) => handleSubmit(data))()}
-                className="gap-2 shadow-sm flex-1 sm:flex-none justify-center"
-              >
-                <Save className="h-4 w-4" />
-                {t('roles.save')}
-              </Button>
-
               {/* Menú Desplegable Adaptativo: Captura los botones que desaparecen según el breakpoint */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={`px-3 ${isEditing ? 'xl:hidden' : 'md:hidden'}`}
-                  >
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
+              {((canSave) || (isEditing && (canCreate || canDelete))) && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={`px-3 ${isEditing ? 'xl:hidden' : 'md:hidden'}`}
+                    >
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
 
-                <DropdownMenuContent align="end" className="w-48">
-                  {/* Se muestra en el menú si la pantalla es menor a md */}
-                  <DropdownMenuItem
-                    disabled={isPending}
-                    className="md:hidden gap-2"
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      form.handleSubmit((data) => handleSubmit(data, { shouldClose: true }))();
-                    }}
-                  >
-                    <Save className="h-4 w-4" />
-                    {t('roles.saveAndClose')}
-                  </DropdownMenuItem>
-
-                  {isEditing && (
-                    <>
-                      {/* Se muestra en el menú si la pantalla es menor a xl */}
-                      <DropdownMenuItem disabled={isPending} className="xl:hidden gap-2" asChild>
-                        <Link to="/admin/roles/new">
-                          <Plus className="h-4 w-4" />
-                          {t('roles.new')}
-                        </Link>
-                      </DropdownMenuItem>
-
-                      {/* Se muestra en el menú si la pantalla es menor a lg */}
+                  <DropdownMenuContent align="end" className="w-48">
+                    {/* Se muestra en el menú si la pantalla es menor a md */}
+                    {canSave && (
                       <DropdownMenuItem
                         disabled={isPending}
-                        className="lg:hidden gap-2 text-destructive focus:text-destructive focus:bg-destructive/10"
+                        className="md:hidden gap-2"
                         onSelect={(e) => {
                           e.preventDefault();
-                          setDeleteDialogOpen(true);
+                          form.handleSubmit((data) => handleSubmit(data, { shouldClose: true }))();
                         }}
                       >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                        {t('roles.delete')}
+                        <Save className="h-4 w-4" />
+                        {t('roles.saveAndClose')}
                       </DropdownMenuItem>
-                    </>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    )}
+
+                    {isEditing && (
+                      <>
+                        {/* Se muestra en el menú si la pantalla es menor a xl */}
+                        {canCreate && (
+                          <DropdownMenuItem disabled={isPending} className="xl:hidden gap-2" asChild>
+                            <Link to="/admin/roles/new">
+                              <Plus className="h-4 w-4" />
+                              {t('roles.new')}
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
+
+                        {/* Se muestra en el menú si la pantalla es menor a lg */}
+                        {canDelete && (
+                          <DropdownMenuItem
+                            disabled={isPending}
+                            className="lg:hidden gap-2 text-destructive focus:text-destructive focus:bg-destructive/10"
+                            onSelect={(e) => {
+                              e.preventDefault();
+                              setDeleteDialogOpen(true);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                            {t('roles.delete')}
+                          </DropdownMenuItem>
+                        )}
+                      </>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </>
           )}
         </div>
@@ -346,13 +366,11 @@ export default function RoleDetail() {
           variant="line"
           className="hidden md:flex h-auto w-fit justify-start gap-6 rounded-none border-b bg-transparent p-0"
         >
-          {tabs
-            .filter((t) => t.viewAtCreate === true)
-            .map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value} className="px-0 w-32 shrink-0">
-                {tab.label}
-              </TabsTrigger>
-            ))}
+          {tabs.map((tab) => (
+            <TabsTrigger key={tab.value} value={tab.value} className="px-0 w-32 shrink-0">
+              {tab.label}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
         {/* Vista Móvil */}
@@ -395,9 +413,11 @@ export default function RoleDetail() {
               </TabsContent>
             )}
 
-            <TabsContent value="audit" className="outline-none">
-              <AuditTable moduleSlug="roles" entityId={id} />
-            </TabsContent>
+            {canReadAudit && (
+              <TabsContent value="audit" className="outline-none">
+                <AuditTable moduleSlug="roles" entityId={id} />
+              </TabsContent>
+            )}
           </>
         )}
       </Tabs>

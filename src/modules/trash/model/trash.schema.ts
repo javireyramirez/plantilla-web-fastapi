@@ -6,7 +6,13 @@ export const GetTrashQuerySchema = z.object({
   page: z.coerce.number().min(1).optional().default(1),
   limit: z.coerce.number().min(1).max(100).optional().default(20),
   search: z.string().optional(),
-  category: z.enum(['entities', 'documents']).default('entities'),
+  category: z
+    .preprocess(
+      (val) => (val === 'documents' || val === 'files' ? 'storage' : val),
+      z.enum(['entities', 'storage'])
+    )
+    .optional()
+    .default('entities'),
   sort_by: z
     .enum([
       'deleted_at',

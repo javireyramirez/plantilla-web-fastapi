@@ -74,7 +74,9 @@
       "users": "Usuarios",
       "user": "Usuarios",
       "settings": "Configuración",
-      "setting": "Configuración"
+      "setting": "Configuración",
+      "jobs": "Tareas Asíncronas",
+      "job": "Tareas Asíncronas"
     }
   },
   "auth": {
@@ -153,7 +155,7 @@
       "organizations": "Organizaciones",
       "audit": "Auditoría",
       "recovery": "Restaurar datos",
-      "documents": "Recuperar documentación"
+      "documents": "Recuperar almacenamiento"
     },
     "groups": {
       "group1": "Grupo",
@@ -177,7 +179,7 @@
     "saveAndClose": "Guardar y cerrar",
     "tabs": {
       "detail": "Detalle",
-      "docs": "Documentación",
+      "docs": "Almacenamiento",
       "audit": "Auditoría"
     },
     "auditContent": "Aquí va la auditoría...",
@@ -209,8 +211,8 @@
     "deleteConfirmTitle": "¿Eliminar esta compañía?",
     "deleteConfirmDesc": "Esta acción no se puede deshacer. La compañía será eliminada permanentemente del sistema.",
     "cancel": "Cancelar",
-    "docsTitle": "Documentos",
-    "docsDescription": "Documentos de la compañía",
+    "docsTitle": "Almacenamiento",
+    "docsDescription": "Almacenamiento y archivos de la compañía",
     "sectors": {
       "tecnologia": "Tecnología",
       "banca": "Banca",
@@ -251,7 +253,7 @@
     "saveAndClose": "Guardar y cerrar",
     "delete": "Eliminar",
     "detail": "Detalle",
-    "docs": "Documentación",
+    "docs": "Almacenamiento",
     "audit": "Auditoría",
     "auditContent": "Aquí va la auditoría...",
     "basicData": "Datos básicos",
@@ -314,6 +316,7 @@
       "detail": "Detalle",
       "teams": "Equipos",
       "roles": "Roles",
+      "sessions": "Sesiones",
       "audit": "Auditoría"
     },
     "docs": "Documentación",
@@ -347,6 +350,20 @@
     "statusName": {
       "suspended": "Suspendido"
     },
+    "authAndAccess": "Acceso y Contraseña",
+    "authAndAccessDesc": "Configura cómo accederá el usuario al sistema.",
+    "sendInvitationEmail": "Enviar invitación por correo electrónico",
+    "sendInvitationDesc": "El usuario recibirá un email con un enlace seguro para crear su contraseña.",
+    "password": "Contraseña inicial",
+    "passwordPlaceholder": "Introduce al menos 8 caracteres",
+    "passwordHelp": "La contraseña debe contener al menos 8 caracteres.",
+    "invitationNotice": "Se enviará un correo electrónico de invitación al usuario para que active su cuenta y defina su contraseña.",
+    "statusAndRoles": "Estado y Permisos",
+    "statusAndRolesDesc": "Configura el estado inicial y los roles del usuario.",
+    "isSuperAdmin": "Super Administrador",
+    "isSuperAdminDesc": "Otorga permisos totales e ilimitados en toda la plataforma.",
+    "rolesSelect": "Roles iniciales",
+    "rolesSelectPlaceholder": "Selecciona los roles asignados",
     "teams": {
       "label": "Equipos",
       "assignedTitle": "Equipos Asignados",
@@ -514,7 +531,7 @@
       "roles": "Roles",
       "audit": "Auditoría"
     },
-    "docs": "Documentación",
+    "docs": "Almacenamiento",
     "auditContent": "Aquí va la auditoría...",
     "basicData": "Datos básicos",
     "identificationInfo": "Información principal de identificación.",
@@ -780,9 +797,11 @@
     "title": "Papelera de reciclaje",
     "subtitle": "Gestiona los elementos que han sido eliminados del sistema. Puedes restaurarlos o eliminarlos definitivamente.",
     "subtitleDocuments": "Gestiona los documentos que han sido eliminados del sistema. Puedes restaurarlos, descargarlos o eliminarlos definitivamente.",
+    "subtitleStorage": "Gestiona los documentos que han sido eliminados del sistema. Puedes restaurarlos, descargarlos o eliminarlos definitivamente.",
     "tabs": {
       "entities": "Entidades",
-      "documents": "Documentos"
+      "documents": "Documentos",
+      "storage": "Almacenamiento"
     },
     "table": {
       "selectTodo": "Seleccionar todos",
@@ -874,6 +893,148 @@
     "contactAdmin": "Si crees que esto es un error, contacta con el administrador del sistema.",
     "goBack": "Volver a la página anterior",
     "goHome": "Ir al inicio"
+  },
+  "jobs": {
+    "title": "Tareas Asíncronas",
+    "subtitle": "Monitoreo, trazabilidad y control de tareas asíncronas del sistema.",
+    "enqueueButton": "Encolar tarea",
+    "detail": "Detalle",
+    "createdAt": "Fecha",
+    "name": "Nombre",
+    "progress": "Progreso",
+    "attempts": "Intentos",
+    "entity": "Entidad",
+    "duration": "Duración",
+    "scheduledAt": "Programado para",
+    "startedAt": "Inicio de ejecución",
+    "completedAt": "Fin de ejecución",
+    "details": "Detalles de la tarea",
+    "detailsDescription": "Metadatos, ciclo de ejecución y tiempos del background job.",
+    "entityType": "Tipo de entidad",
+    "entityId": "ID de entidad",
+    "maxRetries": "Reintentos máx.",
+    "payload": "Carga útil (Payload JSON)",
+    "createdBy": "Creado por",
+    "jobId": "ID de tarea",
+    "copyEntityId": "Copiar ID de entidad",
+    "copyUserId": "Copiar ID de usuario",
+    "copyJobId": "Copiar UUID de tarea",
+    "notFoundTitle": "Tarea no encontrada",
+    "notFoundDesc": "La tarea solicitada no existe o no cuenta con los permisos necesarios para verla.",
+    "dataTitle": "Datos y Ejecución",
+    "dataDescription": "Resultados devueltos por el worker, errores o parámetros de entrada.",
+    "errorTitle": "Error durante la ejecución",
+    "noResultTitle": "Tarea finalizada sin retorno adicional",
+    "noResultDesc": "La tarea completó sus operaciones sin emitir un payload de resultado específico.",
+    "runningStatus": "Tarea en ejecución activa",
+    "pendingStatus": "Tarea encolada a la espera de un worker disponible",
+    "autoRefreshNotice": "El estado se actualiza automáticamente.",
+    "noPayload": "Sin payload o parámetros de entrada",
+    "status": {
+      "label": "Estado",
+      "pending": "Pendiente",
+      "running": "En ejecución",
+      "completed": "Completado",
+      "failed": "Fallido",
+      "cancelled": "Cancelado"
+    },
+    "actions": {
+      "cancel": "Cancelar tarea",
+      "retry": "Reintentar tarea"
+    },
+    "tabs": {
+      "output": "Resultado / Salida",
+      "payload": "Carga útil (Payload)",
+      "json": "JSON Crudo"
+    },
+    "dialog": {
+      "cancelTitle": "¿Cancelar tarea en segundo plano?",
+      "cancelDescription": "La tarea detendrá su ejecución cooperativa y su estado pasará a CANCELADO.",
+      "confirmCancel": "Cancelar tarea",
+      "retryTitle": "¿Reintentar tarea?",
+      "retryDescription": "Se reprogramará la tarea nuevamente con estado PENDIENTE para su ejecución inmediata por los workers.",
+      "confirmRetry": "Reintentar",
+      "enqueueTitle": "Encolar nueva tarea",
+      "enqueueDescription": "Registra y programa una tarea en segundo plano para su procesamiento.",
+      "enqueueSubmit": "Encolar",
+      "nameRequired": "El nombre de la tarea es obligatorio",
+      "payloadMustBeObject": "El payload debe ser un objeto JSON válido",
+      "invalidJson": "El formato JSON introducido no es válido",
+      "enqueueSuccess": "Tarea encolada correctamente",
+      "enqueueError": "Error al encolar la tarea"
+    },
+    "toast": {
+      "cancelSuccess": "Tarea cancelada correctamente",
+      "cancelError": "Error al cancelar la tarea",
+      "retrySuccess": "Tarea programada para reintento",
+      "retryError": "Error al reintentar la tarea"
+    }
+  },
+  "modules": {
+    "names": {
+      "sessions": "Sesiones"
+    }
+  },
+  "sessions": {
+    "title": "Sesiones",
+    "subtitle": "Control, trazabilidad y gestión de sesiones y dispositivos de usuario.",
+    "user": "Usuario",
+    "email": "Correo",
+    "device": "Dispositivo",
+    "browser": "Navegador",
+    "os": "Sistema Operativo",
+    "ipAddress": "Dirección IP",
+    "createdAt": "Inicio de sesión",
+    "expiresAt": "Expiración",
+    "status": {
+      "label": "Estado",
+      "active": "Activa",
+      "revoked": "Inactiva / Revocada",
+      "current": "Sesión actual",
+      "impersonated": "Suplantada"
+    },
+    "statusOptions": {
+      "all": "Todas las sesiones",
+      "active": "Activas",
+      "revoked": "Revocadas / Expiradas"
+    },
+    "actions": {
+      "revoke": "Revocar sesión",
+      "bulkRevoke": "Revocar seleccionadas",
+      "viewDetail": "Ver detalle"
+    },
+    "sheet": {
+      "title": "Detalle de Sesión",
+      "description": "Información técnica, trazabilidad y estado de conexión.",
+      "sessionId": "ID de Sesión",
+      "userSection": "Usuario",
+      "copyUserId": "Copiar ID",
+      "viewProfile": "Ver ficha de usuario",
+      "deviceSection": "Dispositivo y Conexión",
+      "validitySection": "Fechas y Expiración",
+      "impersonatedAlertTitle": "Sesión iniciada por suplantación",
+      "impersonatedAlertDesc": "Esta sesión fue generada por un SuperAdmin mediante la funcionalidad de impersonate."
+    },
+    "dialog": {
+      "revokeTitle": "¿Revocar sesión de usuario?",
+      "revokeDesc": "El usuario perderá el acceso en este dispositivo de forma inmediata y deberá volver a iniciar sesión.",
+      "confirmRevoke": "Revocar sesión",
+      "selfRevokeTitle": "¿Revocar tu sesión actual?",
+      "selfRevokeDesc": "Estás a punto de revocar la sesión con la que estás navegando. Se cerrará tu sesión de inmediato y serás redirigido al inicio de sesión.",
+      "confirmSelfRevoke": "Cerrar sesión y revocar",
+      "bulkTitle": "¿Revocar sesiones seleccionadas?",
+      "bulkWithCurrentTitle": "¿Revocar sesiones seleccionadas (incluye tu sesión actual)?",
+      "bulkDesc": "Se revocarán {{count}} sesiones activas. Los dispositivos afectados requerirán una nueva autenticación.",
+      "bulkCurrentWarning": "Atención: Tu sesión actual está seleccionada. Al proceder, tu acceso se cerrará de inmediato.",
+      "confirmBulkRevoke": "Revocar seleccionadas"
+    },
+    "toast": {
+      "revokeSuccess": "Sesión revocada correctamente",
+      "revokeError": "Error al revocar la sesión",
+      "bulkSuccess": "Se han revocado {{count}} sesiones correctamente",
+      "bulkPartialSuccess": "Se revocaron {{count}} sesiones. {{unprocessed}} no pudieron ser procesadas.",
+      "bulkError": "Error al revocar las sesiones seleccionadas"
+    }
   }
 }
 

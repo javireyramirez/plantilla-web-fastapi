@@ -61,7 +61,8 @@ export default function CompanyDetail() {
   const navigate = useNavigate();
   const { can } = usePermissions();
   const canExport = can('companies', 'EXPORT');
-
+  const canDelete = can('companies', 'DELETE');
+  const canCreate = can('companies', 'CREATE');
   // --- Estados locales ---
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('detail');
@@ -70,6 +71,10 @@ export default function CompanyDetail() {
   const { id } = useParams<{ id: string }>();
   const { data, isEditing, companyName, isLoading, form, handleSubmit, handleDelete, handleExport, isPending } =
     useCompanyForm(id);
+
+  const canSave = isEditing ? can('companies', 'UPDATE') : can('companies', 'CREATE');
+  const canReadAudit = can('audit', 'READ');
+  const canReadStorage = can('storage', 'READ');
 
   const { mutate: restore, isPending: isRestoring } = companiesQueries.useRestore();
 
@@ -89,12 +94,12 @@ export default function CompanyDetail() {
   const isTrashed = data?.status === 'TRASHED';
 
   const tabs = [
-    { value: 'detail', label: t('companies.tabs.detail'), viewAtCreate: true },
-    { value: 'docs', label: t('companies.tabs.docs'), viewAtCreate: isEditing },
-    { value: 'audit', label: t('companies.tabs.audit'), viewAtCreate: isEditing },
-  ];
+    { value: 'detail', label: t('companies.tabs.detail'), visible: true },
+    { value: 'docs', label: t('companies.tabs.docs'), visible: isEditing && canReadStorage },
+    { value: 'audit', label: t('companies.tabs.audit'), visible: isEditing && canReadAudit },
+  ].filter((tab) => tab.visible);
 
-  const currentTab = tabs.find((tab) => tab.value === activeTab);
+  const currentTab = tabs.find((tab) => tab.value === activeTab) || tabs[0];
 
   // --- Estado de Carga (Skeletons) ---
   if (isLoading) {
@@ -245,117 +250,133 @@ export default function CompanyDetail() {
                     />
                   )}
 
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="hidden lg:flex border-destructive text-destructive hover:bg-destructive hover:text-white gap-2"
-                    onClick={() => setDeleteDialogOpen(true)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    {t('companies.delete')}
-                  </Button>
+                  {canDelete && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="hidden lg:flex border-destructive text-destructive hover:bg-destructive hover:text-white gap-2"
+                      onClick={() => setDeleteDialogOpen(true)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      {t('companies.delete')}
+                    </Button>
+                  )}
 
                   {/* Nueva Compañía: Visible solo en pantallas muy grandes (xl) */}
+                  {canCreate && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="hidden xl:flex gap-2"
+                      disabled={isPending}
+                      asChild
+                    >
+                      <Link to="/companies/new">
+                        <Plus className="h-4 w-4" />
+                        {t('companies.new')}
+                      </Link>
+                    </Button>
+                  )}
+                </>
+              )}
+
+              {canSave && (
+                <>
+                  {/* Botón Guardar y Cerrar: Visible a partir de pantallas medianas (md) */}
                   <Button
                     type="button"
                     variant="outline"
-                    className="hidden xl:flex gap-2"
                     disabled={isPending}
-                    asChild
+                    onClick={() =>
+                      form.handleSubmit((data) => handleSubmit(data, { shouldClose: true }))()
+                    }
+                    className="hidden md:flex gap-2"
                   >
-                    <Link to="/companies/new">
-                      <Plus className="h-4 w-4" />
-                      {t('companies.new')}
-                    </Link>
+                    <Save className="h-4 w-4" />
+                    {t('companies.saveAndClose')}
+                  </Button>
+
+                  {/* Acción Principal: Siempre visible */}
+                  <Button
+                    type="button"
+                    disabled={isPending}
+                    onClick={() => form.handleSubmit((data) => handleSubmit(data))()}
+                    className="gap-2 shadow-sm flex-1 sm:flex-none justify-center"
+                  >
+                    <Save className="h-4 w-4" />
+                    {t('companies.save')}
                   </Button>
                 </>
               )}
 
-              {/* Botón Guardar y Cerrar: Visible a partir de pantallas medianas (md) */}
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isPending}
-                onClick={() =>
-                  form.handleSubmit((data) => handleSubmit(data, { shouldClose: true }))()
-                }
-                className="hidden md:flex gap-2"
-              >
-                <Save className="h-4 w-4" />
-                {t('companies.saveAndClose')}
-              </Button>
-
-              {/* Acción Principal: Siempre visible */}
-              <Button
-                type="button"
-                disabled={isPending}
-                onClick={() => form.handleSubmit((data) => handleSubmit(data))()}
-                className="gap-2 shadow-sm flex-1 sm:flex-none justify-center"
-              >
-                <Save className="h-4 w-4" />
-                {t('companies.save')}
-              </Button>
-
               {/* Menú Desplegable Adaptativo: Captura los botones que desaparecen según el breakpoint */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={`px-3 ${isEditing ? 'xl:hidden' : 'md:hidden'}`}
-                  >
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
+              {((canSave) || (isEditing && (canExport || canCreate || canDelete))) && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={`px-3 ${isEditing ? 'xl:hidden' : 'md:hidden'}`}
+                    >
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
 
-                <DropdownMenuContent align="end" className="w-48">
-                  {/* Se muestra en el menú si la pantalla es menor a md */}
-                  <DropdownMenuItem
-                    disabled={isPending}
-                    className="md:hidden gap-2"
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      form.handleSubmit((data) => handleSubmit(data, { shouldClose: true }))();
-                    }}
-                  >
-                    <Save className="h-4 w-4" />
-                    {t('companies.saveAndClose')}
-                  </DropdownMenuItem>
-
-                  {isEditing && (
-                    <>
-                      {canExport && (
-                        <ExportDropdownMenuSub
-                          entityName="companies"
-                          onExport={handleExport}
-                          disabled={isPending}
-                          className="lg:hidden"
-                        />
-                      )}
-
-                      {/* Se muestra en el menú si la pantalla es menor a xl */}
-                      <DropdownMenuItem disabled={isPending} className="xl:hidden gap-2" asChild>
-                        <Link to="/companies/new">
-                          <Download className="h-4 w-4" />
-                          {t('companies.new')}
-                        </Link>
-                      </DropdownMenuItem>
-
-                      {/* Se muestra en el menú si la pantalla es menor a lg */}
+                  <DropdownMenuContent align="end" className="w-48">
+                    {/* Se muestra en el menú si la pantalla es menor a md */}
+                    {canSave && (
                       <DropdownMenuItem
                         disabled={isPending}
-                        className="lg:hidden gap-2 text-destructive focus:text-destructive focus:bg-destructive/10"
+                        className="md:hidden gap-2"
                         onSelect={(e) => {
                           e.preventDefault();
-                          setDeleteDialogOpen(true);
+                          form.handleSubmit((data) => handleSubmit(data, { shouldClose: true }))();
                         }}
                       >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                        {t('companies.delete')}
+                        <Save className="h-4 w-4" />
+                        {t('companies.saveAndClose')}
                       </DropdownMenuItem>
-                    </>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    )}
+
+                    {isEditing && (
+                      <>
+                        {canExport && (
+                          <ExportDropdownMenuSub
+                            entityName="companies"
+                            onExport={handleExport}
+                            disabled={isPending}
+                            className="lg:hidden"
+                          />
+                        )}
+
+                        {/* Se muestra en el menú si la pantalla es menor a xl */}
+                        {canCreate && (
+                          <DropdownMenuItem disabled={isPending} className="xl:hidden gap-2" asChild>
+                            <Link to="/companies/new">
+                              <Plus className="h-4 w-4" />
+                              {t('companies.new')}
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
+
+                        {/* Se muestra en el menú si la pantalla es menor a lg */}
+                        {canDelete && (
+                          <DropdownMenuItem
+                            disabled={isPending}
+                            className="lg:hidden gap-2 text-destructive focus:text-destructive focus:bg-destructive/10"
+                            onSelect={(e) => {
+                              e.preventDefault();
+                              setDeleteDialogOpen(true);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                            {t('companies.delete')}
+                          </DropdownMenuItem>
+                        )}
+                      </>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </>
           )}
         </div>
@@ -368,13 +389,11 @@ export default function CompanyDetail() {
           variant="line"
           className="hidden md:flex h-auto w-fit justify-start gap-6 rounded-none border-b bg-transparent p-0"
         >
-          {tabs
-            .filter((t) => t.viewAtCreate === true)
-            .map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value} className="px-0 w-32 shrink-0">
-                {tab.label}
-              </TabsTrigger>
-            ))}
+          {tabs.map((tab) => (
+            <TabsTrigger key={tab.value} value={tab.value} className="px-0 w-32 shrink-0">
+              {tab.label}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
         {/* Vista Móvil */}
@@ -405,29 +424,29 @@ export default function CompanyDetail() {
           </div>
         </TabsContent>
 
-        {isEditing && (
-          <>
-            <TabsContent
-              value="docs"
-              className="outline-none rounded-xl border bg-card p-6 shadow-sm space-y-4"
-            >
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <h3 className="text-lg font-medium">{t('companies.docsTitle')}</h3>
-                  <p className="text-sm text-muted-foreground">{t('companies.docsDescription')}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <AddUrlDialog entityType="companies" entityId={id!} />
-                  <FileUploadButton entityType="companies" entityId={id!} />
-                </div>
+        {isEditing && canReadStorage && (
+          <TabsContent
+            value="docs"
+            className="outline-none rounded-xl border bg-card p-6 shadow-sm space-y-4"
+          >
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <h3 className="text-lg font-medium">{t('companies.docsTitle')}</h3>
+                <p className="text-sm text-muted-foreground">{t('companies.docsDescription')}</p>
               </div>
-              <DocumentsTable entityType="companies" entityId={id!} />
-            </TabsContent>
+              <div className="flex items-center gap-2">
+                <AddUrlDialog entityType="companies" entityId={id!} />
+                <FileUploadButton entityType="companies" entityId={id!} />
+              </div>
+            </div>
+            <DocumentsTable entityType="companies" entityId={id!} />
+          </TabsContent>
+        )}
 
-            <TabsContent value="audit" className="outline-none">
-              <AuditTable moduleSlug="companies" entityId={id} />
-            </TabsContent>
-          </>
+        {isEditing && canReadAudit && (
+          <TabsContent value="audit" className="outline-none">
+            <AuditTable moduleSlug="companies" entityId={id} />
+          </TabsContent>
         )}
       </Tabs>
 

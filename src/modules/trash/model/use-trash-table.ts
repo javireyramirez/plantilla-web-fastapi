@@ -21,9 +21,11 @@ import { DEFAULT_PAGE_SIZE, usePaginationConfig } from '@/hooks/use-settings';
 import { trashQueries } from './trash.query';
 import { GetTrashQuery, TrashBinItemS } from './trash.schema';
 
+export type TrashCategory = 'entities' | 'storage';
+
 export default function useTrashTable(
   columns: ColumnDef<TrashBinItemS>[],
-  category: 'entities' | 'documents'
+  category: TrashCategory
 ) {
   const { t } = useTranslation();
   const isMobile = useIsMobile();

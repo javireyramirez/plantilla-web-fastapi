@@ -6,8 +6,14 @@ import { BulkIdsBody, BulkResponse, GetTrashQuery, TrashListResponse } from './t
 class TrashService {
   async getTrash(params?: GetTrashQuery): Promise<TrashListResponse> {
     const apiParams = cleanApiParams(params as Record<string, any>);
-    if (params?.category === 'documents') {
-      apiParams.entity_type = 'document';
+    // Back `_build_category_filter`: "storage"/"files" -> entity_type == STORAGE,
+    // "entities" -> entity_type != STORAGE. Normalizar legacy "documents" -> "storage"
+    // y no forzar entity_type="document" (rompería el filtro de categoría).
+    if (apiParams.category === 'documents' || apiParams.category === 'files') {
+      apiParams.category = 'storage';
+    }
+    if (apiParams.entity_type === 'document' || apiParams.entity_type === 'documents') {
+      apiParams.entity_type = 'storage';
     }
 
     const response = await instance.get<any>(`/trash`, { params: apiParams });
