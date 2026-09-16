@@ -19,16 +19,16 @@ This skill establishes the non-negotiable architectural principles for ensuring 
 **Never hardcode entity types, module lists, categories, actions, or metadata in the frontend.**
 
 ### Anti-Patterns to Forbid
-- ❌ Hardcoding module arrays: `['users', 'roles', 'teams', 'audit', 'storage', 'settings']`.
-- ❌ Hardcoded navigation bars or sidebars that assume a fixed set of modules.
-- ❌ Hardcoded category mappings or category names (e.g. `business`, `security`, `system`).
-- ❌ Overwriting or bypassing backend data with static frontend tables or switch statements.
-- ❌ Duplicate top-level keys in translation files (`translation.json`) that wipe out module catalogues.
+- Do not hardcode module arrays (e.g. `['users', 'roles', 'teams', 'audit', 'storage', 'settings']`).
+- Do not build static navigation bars or sidebars that assume a fixed set of modules.
+- Do not hardcode category mappings or category names (e.g. `business`, `security`, `system`).
+- Do not overwrite or bypass backend data with static frontend tables or switch statements.
+- Do not introduce duplicate top-level keys in translation files (`translation.json`) that wipe out module catalogues.
 
 ### Canonical Patterns to Follow
-- ✅ Fetch module catalogs directly from the backend (`GET /api/rbac/modules` via `useModules()`).
-- ✅ Derive navigation, routes, sections, and permissions dynamically from backend responses.
-- ✅ Rely on backend attributes for module metadata:
+- Fetch module catalogs directly from the backend (`GET /api/rbac/modules` via `useModules()`).
+- Derive navigation, routes, sections, and permissions dynamically from backend responses.
+- Rely on backend attributes for module metadata:
   - `code` / `slug`: Unique identifier.
   - `name`: Authoritative default display name.
   - `category`: Category grouping key (`business`, `security`, `system`, `files`, etc.).
