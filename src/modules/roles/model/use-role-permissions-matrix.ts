@@ -11,8 +11,18 @@ import { PermissionScopeType, RolePermissionItem } from './roles.schema';
 export function useRolePermissionsMatrix(roleId: string) {
   const { t } = useTranslation();
 
-  // 1. Cargamos todos los módulos
-  const { data: modules = [], isLoading: isLoadingModules } = modulesQueries.useGetList();
+  // 1. Cargamos todos los módulos y filtramos los activos con acciones configurables
+  const { data: rawModules = [], isLoading: isLoadingModules } = modulesQueries.useGetList();
+
+  const modules = React.useMemo(() => {
+    return rawModules.filter(
+      (m: any) =>
+        m.isActive !== false &&
+        m.is_active !== false &&
+        Array.isArray(m.supportedActions) &&
+        m.supportedActions.length > 0
+    );
+  }, [rawModules]);
 
   // 2. Cargamos los permisos actuales asignados al rol desde FastAPI
   const { data: permissionsData, isLoading: isLoadingPermissions } = rolesQueries.useGetPermissions(

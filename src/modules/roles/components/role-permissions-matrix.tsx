@@ -133,7 +133,9 @@ export function RolePermissionsMatrix({ roleId }: { roleId: string }) {
       map.get(catCode)!.modules.push(mod);
     });
 
-    return Array.from(map.values()).sort((a, b) => a.order - b.order);
+    return Array.from(map.values())
+      .filter((cat) => cat.modules.length > 0)
+      .sort((a, b) => a.order - b.order);
   }, [filteredModules, t]);
 
   const defaultAccordionValues = React.useMemo(

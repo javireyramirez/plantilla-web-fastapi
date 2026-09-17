@@ -69,10 +69,14 @@ export default function LayoutSidebar() {
       const requiresSuperAdmin = mod.requiresSuperAdmin ?? mod.requires_super_admin ?? false;
       if (requiresSuperAdmin && !isSuperAdmin) return;
 
-      // Comprobar si el módulo está activo y el usuario tiene permiso de lectura
-      const isActive = mod.isActive !== false;
+      // Comprobar si el módulo está activo y marcado para navegación
+      const isActive = mod.isActive !== false && mod.is_active !== false;
+      const showInNav = Boolean(mod.showInNav ?? mod.show_in_nav);
+      if (!isActive || !showInNav) return;
+
+      // Comprobar si el usuario tiene permiso de lectura
       const hasReadAccess = isSuperAdmin || can(code, 'READ');
-      if (!isActive || !hasReadAccess) return;
+      if (!hasReadAccess) return;
 
       const categoryKey = (mod.category || 'system').toLowerCase();
 

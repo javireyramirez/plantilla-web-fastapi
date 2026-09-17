@@ -19,15 +19,21 @@ type IdType = string;
 type AllResponse = ModulesListResponse;
 
 function normalizeModule(m: any): Item {
+  const showInNav = m.show_in_nav ?? m.showInNav ?? true;
+  const isActive = m.is_active ?? m.isActive ?? true;
   return {
     ...m,
     code: m.code || m.slug,
     slug: m.slug || m.code,
+    isActive,
+    is_active: isActive,
     supportedActions: m.supported_actions ?? m.supportedActions ?? [],
     categoryName: m.category_name ?? m.categoryName ?? null,
     categoryIcon: m.category_icon ?? m.categoryIcon ?? null,
     categoryOrder: m.category_order ?? m.categoryOrder ?? 0,
     requiresSuperAdmin: m.requires_super_admin ?? m.requiresSuperAdmin ?? false,
+    showInNav,
+    show_in_nav: showInNav,
   };
 }
 

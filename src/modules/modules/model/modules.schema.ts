@@ -22,10 +22,13 @@ export const ModuleSchema = z
     description: z.string().optional().nullable(),
     icon: z.string().optional().nullable(),
     isActive: z.boolean().default(true),
+    is_active: z.boolean().optional().default(true),
     sortOrder: z.number().default(0),
     defaultPermissions: z.any().optional().nullable(),
     supportedActions: z.array(z.string()).default([]),
     requiresSuperAdmin: z.boolean().default(false),
+    show_in_nav: z.boolean().default(true),
+    showInNav: z.boolean().default(true),
   })
   .extend(AuditFieldsSchema.shape);
 
@@ -110,3 +113,20 @@ export type GetListQueryType = z.infer<typeof GetListQuery>;
 export type CreateModules = z.infer<typeof CreateModuleBodySchema>;
 export type UpdateModules = z.infer<typeof UpdateModuleBodySchema>;
 export type ModulesListResponse = z.infer<typeof ModulesListResponseSchema>;
+
+export interface SystemModule {
+  id: string;
+  code: string;
+  name: string;
+  description?: string | null;
+  category: string;
+  category_name?: string | null;
+  category_icon?: string | null;
+  category_order: number;
+  icon?: string | null;
+  sort_order: number;
+  is_active: boolean;
+  supported_actions: string[];
+  requires_super_admin: boolean;
+  show_in_nav: boolean;
+}

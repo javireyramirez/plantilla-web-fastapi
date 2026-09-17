@@ -51,26 +51,50 @@ export function useModules() {
   };
 }
 
-export function useModulesOptions(params?: { name?: string; [key: string]: any }) {
+export function useModulesOptions(params?: {
+  name?: string;
+  showInNavOnly?: boolean;
+  [key: string]: any;
+}) {
   const { t } = useTranslation();
   const { modules, isLoading } = useModules();
 
   const options = React.useMemo(() => {
     if (!modules) return [];
-    let items = modules.map((m: any) => {
-      const code = (m.code ?? m.slug ?? '').toLowerCase().trim();
-      const categoryKey = (m.category || 'system').toLowerCase().trim();
-      const label = t(`modules.names.${code}`, { defaultValue: m.name ?? code });
-      const groupLabel = t(`modules.categories.${categoryKey}`, {
-        defaultValue: m.categoryName || m.category_name || m.category || categoryKey,
+    let items = modules
+      .filter((m: any) => {
+        const isActive = m.isActive !== false && m.is_active !== false;
+        if (!isActive) return false;
+
+        if (params?.showInNavOnly && !(m.showInNav ?? m.show_in_nav)) {
+          return false;
+        }
+
+        const hasSupportedActions =
+          Array.isArray(m.supportedActions) && m.supportedActions.length > 0;
+        const showInNav = Boolean(m.showInNav ?? m.show_in_nav ?? true);
+
+        // Omitir módulos sin acciones o que no deben estar en selectores (ej. notifications con show_in_nav: false)
+        if (!hasSupportedActions && !showInNav) {
+          return false;
+        }
+
+        return true;
+      })
+      .map((m: any) => {
+        const code = (m.code ?? m.slug ?? '').toLowerCase().trim();
+        const categoryKey = (m.category || 'system').toLowerCase().trim();
+        const label = t(`modules.names.${code}`, { defaultValue: m.name ?? code });
+        const groupLabel = t(`modules.categories.${categoryKey}`, {
+          defaultValue: m.categoryName || m.category_name || m.category || categoryKey,
+        });
+        return {
+          id: code,
+          name: label,
+          group: groupLabel,
+          order: m.categoryOrder ?? m.category_order ?? 99,
+        };
       });
-      return {
-        id: code,
-        name: label,
-        group: groupLabel,
-        order: m.categoryOrder ?? m.category_order ?? 99,
-      };
-    });
     items.sort((a: any, b: any) => a.order - b.order || a.name.localeCompare(b.name));
     if (params?.name) {
       const q = params.name.toLowerCase().trim();
@@ -80,7 +104,7 @@ export function useModulesOptions(params?: { name?: string; [key: string]: any }
       );
     }
     return items;
-  }, [modules, params?.name, t]);
+  }, [modules, params?.name, params?.showInNavOnly, t]);
 
   return {
     data: options,
@@ -97,6 +121,8 @@ export function useEntityTrashModulesOptions(params?: { name?: string; [key: str
     let items = modules
       .filter(
         (m: any) =>
+          m.isActive !== false &&
+          m.is_active !== false &&
           m.supportedActions?.includes('RESTORE') &&
           m.code !== 'documents' &&
           m.code !== 'storage' &&

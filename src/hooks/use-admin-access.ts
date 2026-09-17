@@ -21,12 +21,13 @@ export function useAdminAccess() {
         const requiresSuperAdmin = mod.requiresSuperAdmin ?? mod.requires_super_admin ?? false;
         if (requiresSuperAdmin && !isSuperAdmin) return false;
 
-        // Solo módulos activos que no sean de negocio
-        const isActive = mod.isActive !== false;
+        // Solo módulos activos, marcados para navegación y que no sean de negocio
+        const isActive = mod.isActive !== false && mod.is_active !== false;
+        const showInNav = Boolean(mod.showInNav ?? mod.show_in_nav);
         const categoryKey = (mod.category || 'system').toLowerCase();
         const isNotBusiness = categoryKey !== 'business';
 
-        return isActive && isNotBusiness;
+        return isActive && showInNav && isNotBusiness;
       })
       .map((mod: any) => {
         const code = (mod.code || mod.slug || '').toLowerCase().trim();
