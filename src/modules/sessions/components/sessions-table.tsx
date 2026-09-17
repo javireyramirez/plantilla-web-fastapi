@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { CalendarIcon, Trash2 } from 'lucide-react';
+import { Ban, CalendarIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { type ColumnDef } from '@tanstack/react-table';
 
@@ -24,14 +24,12 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import usePermissions from '@/hooks/use-permissions';
 import { cn } from '@/lib/utils';
 
 import { SessionAdminType } from '../model/sessions.schema';
 import { getSessionStatusOptions } from '../model/sessions.types';
 import useSessionsTable from '../model/use-sessions-table';
-import { SessionDetailSheet } from './session-detail-sheet';
 import { SessionDeviceInfo } from './session-device-info';
 import { SessionStatusBadge } from './session-status-badge';
 
@@ -42,18 +40,11 @@ interface SessionsTableProps {
 
 export function SessionsTable({ userId, exportRef }: SessionsTableProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { can } = usePermissions();
 
   const canDelete = can('sessions', 'DELETE');
   const canExport = can('sessions', 'EXPORT');
-
-  // Sheet detail state
-  const [detailSession, setDetailSession] = React.useState<SessionAdminType | null>(null);
-  const [detailSheetOpen, setDetailSheetOpen] = React.useState(false);
-
-  // Single revoke dialog state
-  const [singleRevokeSession, setSingleRevokeSession] = React.useState<SessionAdminType | null>(null);
-  const [singleRevokeOpen, setSingleRevokeOpen] = React.useState(false);
 
   // Bulk revoke dialog state
   const [bulkRevokeOpen, setBulkRevokeOpen] = React.useState(false);
@@ -139,16 +130,12 @@ export function SessionsTable({ userId, exportRef }: SessionsTableProps) {
           <DataTableColumnHeader column={column} label={t('sessions.device', { defaultValue: 'Dispositivo' })} />
         ),
         cell: ({ row }) => (
-          <button
-            type="button"
-            className="cursor-pointer text-left focus:outline-none"
-            onClick={() => {
-              setDetailSession(row.original);
-              setDetailSheetOpen(true);
-            }}
+          <Link
+            to={`/admin/sessions/${row.original.id}`}
+            className="group block cursor-pointer text-left focus:outline-none hover:underline"
           >
             <SessionDeviceInfo userAgent={row.original.user_agent} ipAddress={row.original.ip_address} />
-          </button>
+          </Link>
         ),
       },
       {
@@ -212,40 +199,8 @@ export function SessionsTable({ userId, exportRef }: SessionsTableProps) {
           return <span className="text-muted-foreground tabular-nums text-xs">{formatted}</span>;
         },
       },
-      {
-        id: 'actions',
-        maxSize: 80,
-        enableHiding: false,
-        header: '',
-        cell: ({ row }) => {
-          const session = row.original;
-          return (
-            <div className="flex items-center justify-end gap-1">
-              {canDelete && session.is_valid && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-rose-500 hover:text-rose-600 hover:bg-rose-500/10"
-                      onClick={() => {
-                        setSingleRevokeSession(session);
-                        setSingleRevokeOpen(true);
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      <span className="sr-only">{t('sessions.actions.revoke', { defaultValue: 'Revocar sesión' })}</span>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>{t('sessions.actions.revoke', { defaultValue: 'Revocar sesión' })}</TooltipContent>
-                </Tooltip>
-              )}
-            </div>
-          );
-        },
-      },
     ],
-    [t, canDelete]
+    [t]
   );
 
   const {
@@ -255,12 +210,9 @@ export function SessionsTable({ userId, exportRef }: SessionsTableProps) {
     isFetching,
     isMobile,
     limit,
-    handleRevoke,
     handleBulkRevoke,
     handleExport,
-    isPendingRevoke,
     isPendingBulkRevoke,
-    isPendingExport,
     isPendingActions,
   } = useSessionsTable(columns, { userId });
 
@@ -292,7 +244,7 @@ export function SessionsTable({ userId, exportRef }: SessionsTableProps) {
             onClick={() => setBulkRevokeOpen(true)}
             className="gap-1.5 h-8 text-xs font-medium"
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <Ban className="h-3.5 w-3.5" />
             <span>{t('sessions.actions.bulkRevoke', { defaultValue: 'Revocar seleccionadas' })}</span>
           </Button>
         ),
@@ -341,8 +293,7 @@ export function SessionsTable({ userId, exportRef }: SessionsTableProps) {
           table={table}
           totalCount={totalRows}
           onRowDoubleClick={(row) => {
-            setDetailSession(row.original);
-            setDetailSheetOpen(true);
+            navigate(`/admin/sessions/${row.original.id}`);
           }}
           mobileConfig={{
             primaryColumn: 'user',
@@ -357,70 +308,6 @@ export function SessionsTable({ userId, exportRef }: SessionsTableProps) {
           {isMobile ? <DataTableToolbarMobile table={table} /> : <DataTableToolbar table={table} />}
         </DataTable>
       </div>
-
-      {/* Sheet de Detalle Técnico */}
-      <SessionDetailSheet
-        session={detailSession}
-        open={detailSheetOpen}
-        onOpenChange={setDetailSheetOpen}
-        canRevoke={canDelete}
-        onRevoke={(s) => {
-          setSingleRevokeSession(s);
-          setSingleRevokeOpen(true);
-        }}
-      />
-
-      {/* Diálogo de Confirmación Individual */}
-      <AlertDialog open={singleRevokeOpen} onOpenChange={setSingleRevokeOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {singleRevokeSession?.is_current
-                ? t('sessions.dialog.selfRevokeTitle', {
-                    defaultValue: '¿Revocar tu sesión actual?',
-                  })
-                : t('sessions.dialog.revokeTitle', {
-                    defaultValue: '¿Revocar sesión de usuario?',
-                  })}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {singleRevokeSession?.is_current
-                ? t('sessions.dialog.selfRevokeDesc', {
-                    defaultValue:
-                      'Estás a punto de revocar la sesión con la que estás navegando. Se cerrará tu sesión de inmediato y serás redirigido al inicio de sesión.',
-                  })
-                : t('sessions.dialog.revokeDesc', {
-                    defaultValue:
-                      'El usuario perderá el acceso en este dispositivo de forma inmediata y deberá volver a iniciar sesión.',
-                  })}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPendingRevoke}>
-              {t('common.cancel', { defaultValue: 'Cancelar' })}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              disabled={isPendingRevoke}
-              onClick={async (e) => {
-                e.preventDefault();
-                if (singleRevokeSession) {
-                  await handleRevoke(singleRevokeSession);
-                  setSingleRevokeOpen(false);
-                }
-              }}
-            >
-              {singleRevokeSession?.is_current
-                ? t('sessions.dialog.confirmSelfRevoke', {
-                    defaultValue: 'Cerrar sesión y revocar',
-                  })
-                : t('sessions.dialog.confirmRevoke', {
-                    defaultValue: 'Revocar sesión',
-                  })}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       {/* Diálogo de Confirmación Masiva */}
       <AlertDialog open={bulkRevokeOpen} onOpenChange={setBulkRevokeOpen}>

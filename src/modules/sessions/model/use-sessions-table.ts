@@ -38,7 +38,9 @@ export default function useSessionsTable(
 
   // ── Local filter/UI state ──────────────────────────────────────────────────
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([
+    { id: 'status', value: ['true'] },
+  ]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
@@ -57,13 +59,21 @@ export default function useSessionsTable(
 
   // Extract is_valid status filter safely
   const statusCol = columnFilters.find((f) => f.id === 'status' || f.id === 'is_valid');
-  const statusVal = Array.isArray(statusCol?.value) ? statusCol.value[0] : statusCol?.value;
-  const isValid =
-    statusVal === true || statusVal === 'true'
-      ? true
-      : statusVal === false || statusVal === 'false'
-        ? false
-        : undefined;
+  const selectedStatuses = Array.isArray(statusCol?.value)
+    ? (statusCol.value as string[])
+    : statusCol?.value !== undefined && statusCol?.value !== null
+      ? [String(statusCol.value)]
+      : [];
+
+  const hasActive = selectedStatuses.includes('true');
+  const hasInactive = selectedStatuses.includes('false');
+
+  let isValid: boolean | undefined = undefined;
+  if (hasActive && !hasInactive) {
+    isValid = true;
+  } else if (!hasActive && hasInactive) {
+    isValid = false;
+  }
 
   // Extract date range filter values
   const createdAtCol = columnFilters.find((f) => f.id === 'created_at');
@@ -85,7 +95,6 @@ export default function useSessionsTable(
   const queryParams: GetSessionsQuery = {
     page,
     limit,
-    is_trash: false,
     sort_by: sortBy,
     sort_order: sortOrder,
     ...(isValid !== undefined && { is_valid: isValid }),
@@ -235,7 +244,6 @@ export default function useSessionsTable(
           format,
           sort_by: sortBy,
           sort_order: sortOrder,
-          is_trash: false,
           filters: !ids
             ? {
                 ...(isValid !== undefined && { is_valid: isValid }),

@@ -31,6 +31,7 @@ import SettingsDetail from '@/modules/settings/pages/settings-detail';
 import JobsView from '@/modules/jobs/pages/jobs-view';
 import JobsDetail from '@/modules/jobs/pages/jobs-detail';
 import SessionsView from '@/modules/sessions/pages/sessions-view';
+import SessionsDetail from '@/modules/sessions/pages/sessions-detail';
 
 export default function Router() {
   return (
@@ -84,6 +85,7 @@ export default function Router() {
 
           <Route element={<PermissionRoute module="sessions" action="READ" />}>
             <Route path="/admin/sessions" element={<SessionsView />} />
+            <Route path="/admin/sessions/:id" element={<SessionsDetail />} />
           </Route>
 
           {/* Administración: Sistema y Archivos */}
@@ -120,6 +122,7 @@ export default function Router() {
           <Route path="/roles" element={<Navigate to="/admin/roles" replace />} />
           <Route path="/roles/*" element={<Navigate to="/admin/roles" replace />} />
           <Route path="/sessions" element={<Navigate to="/admin/sessions" replace />} />
+          <Route path="/sessions/:id" element={<SessionsDetail />} />
           <Route path="/sessions/*" element={<Navigate to="/admin/sessions" replace />} />
           <Route path="/audit" element={<Navigate to="/admin/audit" replace />} />
           <Route path="/audit/:id" element={<AuditDetail />} />

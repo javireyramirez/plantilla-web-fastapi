@@ -40,6 +40,25 @@ class SessionsService {
     };
   }
 
+  async getSessionById(id: string): Promise<SessionAdminType> {
+    const response = await instance.get<any>(`/sessions/${id}`);
+    const item = response.data;
+    return {
+      id: item.id,
+      user_id: item.user_id,
+      user_name: item.user_name,
+      user_email: item.user_email,
+      ip_address: item.ip_address ?? null,
+      user_agent: item.user_agent ?? null,
+      is_valid: Boolean(item.is_valid),
+      impersonated_by: item.impersonated_by ?? null,
+      is_impersonated: Boolean(item.is_impersonated),
+      created_at: item.created_at,
+      expires_at: item.expires_at,
+      is_current: Boolean(item.is_current),
+    };
+  }
+
   async revokeSession(id: string): Promise<MessageResponse> {
     const response = await instance.delete<MessageResponse>(`/sessions/${id}`);
     return response.data;
@@ -53,7 +72,6 @@ class SessionsService {
   async export(body: any): Promise<Blob> {
     const payload = {
       ...body,
-      is_trash: false,
       sort_by: body.sort_by ?? body.sortBy,
       sort_order: body.sort_order ?? body.sortOrder,
       filters: body.filters ? cleanApiParams(body.filters as Record<string, any>) : undefined,

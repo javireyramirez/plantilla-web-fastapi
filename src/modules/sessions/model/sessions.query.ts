@@ -4,6 +4,7 @@ import {
   BulkResponse,
   GetSessionsQuery,
   MessageResponse,
+  SessionAdminType,
   SessionsListResponse,
 } from './sessions.schema';
 import { sessionsService } from './sessions.service';
@@ -18,6 +19,22 @@ export const sessionsQueries = {
       queryFn: () => sessionsService.getSessions(query),
       staleTime: 1000 * 10,
       refetchOnWindowFocus: false,
+      ...options,
+    });
+  },
+
+  useGetById: (
+    id?: string,
+    options?: Omit<UseQueryOptions<SessionAdminType, Error>, 'queryKey' | 'queryFn'>
+  ) => {
+    return useQuery<SessionAdminType, Error>({
+      queryKey: ['sessions', 'detail', id],
+      queryFn: () => {
+        if (!id) throw new Error('ID de sesión requerido');
+        return sessionsService.getSessionById(id);
+      },
+      enabled: Boolean(id),
+      staleTime: 1000 * 10,
       ...options,
     });
   },
