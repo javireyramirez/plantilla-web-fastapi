@@ -43,21 +43,21 @@ export default function useJobsTable(
   // Get status filter value from TanStack columnFilters
   const statusCol = columnFilters.find((f) => f.id === 'status');
   const statusValue = statusCol?.value;
-  const status = (
+  const status =
     Array.isArray(statusValue) && statusValue.length > 0
-      ? statusValue[0]
+      ? (statusValue as string[]).join(',')
       : typeof statusValue === 'string'
         ? statusValue
-        : undefined
-  ) as JobStatus | undefined;
+        : undefined;
 
   // Get entity_type filter value
   const entityTypeCol = columnFilters.find((f) => f.id === 'entity_type');
+  const entityTypeValue = entityTypeCol?.value;
   const entityType =
-    Array.isArray(entityTypeCol?.value) && entityTypeCol.value.length > 0
-      ? (entityTypeCol.value[0] as string)
-      : typeof entityTypeCol?.value === 'string'
-        ? entityTypeCol.value
+    Array.isArray(entityTypeValue) && entityTypeValue.length > 0
+      ? (entityTypeValue as string[]).join(',')
+      : typeof entityTypeValue === 'string'
+        ? entityTypeValue
         : undefined;
 
   // Get date range filter values

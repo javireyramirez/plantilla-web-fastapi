@@ -58,7 +58,7 @@ export const JobRetryResponseSchema = z.object({
 });
 
 export const GetJobsQuerySchema = GetPaginatedQueryBaseSchema.extend({
-  status: JobStatusEnumSchema.optional(),
+  status: z.union([JobStatusEnumSchema, z.string()]).optional(),
   search: z.string().optional(),
   name: z.string().optional(),
   entity_type: z.string().optional(),

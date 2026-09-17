@@ -14,7 +14,7 @@ import { DataTableToolbarMobile } from '@/components/data-table/data-table-toolb
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import usePermissions from '@/hooks/use-permissions';
-import { useModules } from '@/modules/modules/model/modules.query';
+import { useModules, useModulesOptions } from '@/modules/modules/model/modules.query';
 import { getAuditModuleLabel, getEntityLink, normalizeModuleSlug } from '@/modules/audit/model/audit.types';
 
 import { JobType } from '../model/jobs.schema';
@@ -230,7 +230,8 @@ export function JobsTable({ entityType, entityId }: JobsTableProps) {
         },
         meta: {
           label: t('jobs.entity', { defaultValue: 'Entidad' }),
-          variant: 'text',
+          variant: 'asyncMultiSelect',
+          useGetList: useModulesOptions,
         },
       },
       {
