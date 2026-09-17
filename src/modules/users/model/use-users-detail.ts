@@ -19,7 +19,7 @@ export function useUsersForm(id?: string) {
   const { t } = useTranslation();
   const isEditing = !!id;
 
-  const { data, isLoading, isFetching } = usersQueries.useGetById(id as string, {
+  const { data, isLoading, isFetching, refetch } = usersQueries.useGetById(id as string, {
     enabled: isEditing,
   });
 
@@ -211,6 +211,8 @@ export function useUsersForm(id?: string) {
     userName,
     isActive,
     isLoading,
+    isFetching,
+    refetch,
     form,
     handleSubmit,
     handleDelete,

@@ -50,6 +50,7 @@ import { teamsQueries } from '@/modules/teams/model/teams.query';
 
 import { TeamsDetailForm } from '../components/teams-form';
 import { useTeamForm } from '../model/use-teams-detail';
+import { RefreshButton } from '@/components/refresh-button';
 import usePermissions from '@/hooks/use-permissions';
 
 export default function TeamDetail() {
@@ -64,8 +65,18 @@ export default function TeamDetail() {
 
   // --- Hooks de datos y formulario ---
   const { id } = useParams<{ id: string }>();
-  const { data, isEditing, teamName, isLoading, form, handleSubmit, handleDelete, isPending } =
-    useTeamForm(id);
+  const {
+    data,
+    isEditing,
+    teamName,
+    isLoading,
+    isFetching,
+    refetch,
+    form,
+    handleSubmit,
+    handleDelete,
+    isPending,
+  } = useTeamForm(id);
 
   const canSave = isEditing ? can('teams', 'UPDATE') : can('teams', 'CREATE');
   const canReadAudit = can('audit', 'READ');
@@ -197,9 +208,14 @@ export default function TeamDetail() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <Button onClick={() => navigate(-1)} variant="outline" className="w-full sm:w-auto">
-          <ArrowLeft className="mr-2 h-4 w-4" /> {t('audit.back')}
-        </Button>
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          {isEditing && (
+            <RefreshButton onClick={refetch} isFetching={isFetching} />
+          )}
+          <Button onClick={() => navigate(-1)} variant="outline" size="sm" className="w-full sm:w-auto shadow-sm">
+            <ArrowLeft className="mr-2 h-4 w-4" /> {t('common.back', { defaultValue: 'Volver' })}
+          </Button>
+        </div>
       </div>
 
       {/* SECCIÓN: Barra de Acciones Adaptativa Global */}

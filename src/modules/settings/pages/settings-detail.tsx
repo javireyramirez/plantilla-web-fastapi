@@ -33,6 +33,7 @@ import usePermissions from '@/hooks/use-permissions';
 
 import { SettingsForm } from '../components/settings-form';
 import { useSettingsDetail } from '../model/use-settings-detail';
+import { RefreshButton } from '@/components/refresh-button';
 
 export default function SettingsDetail() {
   const { t } = useTranslation();
@@ -47,6 +48,8 @@ export default function SettingsDetail() {
   const {
     setting,
     isLoading,
+    isFetching,
+    refetch,
     isError,
     isSaving,
     description,
@@ -169,9 +172,12 @@ export default function SettingsDetail() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <Button onClick={() => navigate('/admin/settings')} variant="outline" className="w-full sm:w-auto">
-          <ArrowLeft className="mr-2 h-4 w-4" /> {t('common.back', { defaultValue: 'Volver' })}
-        </Button>
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <RefreshButton onClick={refetch} isFetching={isFetching} />
+          <Button onClick={() => navigate('/admin/settings')} variant="outline" size="sm" className="w-full sm:w-auto shadow-sm">
+            <ArrowLeft className="mr-2 h-4 w-4" /> {t('common.back', { defaultValue: 'Volver' })}
+          </Button>
+        </div>
       </div>
 
       {/* SECCIÓN: Barra de Acciones Adaptativa Global */}

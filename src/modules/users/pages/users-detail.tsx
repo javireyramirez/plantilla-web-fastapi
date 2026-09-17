@@ -56,6 +56,7 @@ import { SessionsTable } from '@/modules/sessions/components/sessions-table';
 import { usersQueries } from '@/modules/users/model/users.query';
 
 import { ExportDropdown, ExportDropdownMenuSub } from '@/components/export-dropdown';
+import { RefreshButton } from '@/components/refresh-button';
 import usePermissions from '@/hooks/use-permissions';
 
 import { UsersDetailForm } from '../components/users-form';
@@ -85,6 +86,8 @@ export default function UsersDetail() {
     userName,
     isActive,
     isLoading,
+    isFetching,
+    refetch,
     form,
     handleSubmit,
     handleDelete,
@@ -153,9 +156,14 @@ export default function UsersDetail() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <Button onClick={() => navigate(-1)} variant="outline" className="w-full sm:w-auto">
-          <ArrowLeft className="mr-2 h-4 w-4" /> {t('audit.back')}
-        </Button>
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          {isEditing && (
+            <RefreshButton onClick={refetch} isFetching={isFetching} />
+          )}
+          <Button onClick={() => navigate(-1)} variant="outline" size="sm" className="w-full sm:w-auto shadow-sm">
+            <ArrowLeft className="mr-2 h-4 w-4" /> {t('common.back', { defaultValue: 'Volver' })}
+          </Button>
+        </div>
       </div>
 
       {/* SECCIÓN: Barra de Acciones Adaptativa Global */}

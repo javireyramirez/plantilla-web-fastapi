@@ -15,6 +15,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { ExportDropdown } from '@/components/export-dropdown';
+import { RefreshButton } from '@/components/refresh-button';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -80,7 +81,8 @@ export default function AuditDetail() {
   const { t } = useTranslation();
   const { can } = usePermissions();
   const { modulesMap } = useModules();
-  const { auditLog, isLoading, handleExport, isPendingExport } = useAuditDetail(id);
+  const { auditLog, isLoading, isFetching, refetch, handleExport, isPendingExport } =
+    useAuditDetail(id);
   const [copiedKey, setCopiedKey] = React.useState<string | null>(null);
 
   const handleCopy = (text: string, key: string) => {
@@ -192,6 +194,7 @@ export default function AuditDetail() {
         </Breadcrumb>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
+          <RefreshButton onClick={refetch} isFetching={isFetching} />
           {can('audit', 'EXPORT') && (
             <ExportDropdown
               entityName="audit"

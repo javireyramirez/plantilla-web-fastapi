@@ -14,7 +14,7 @@ export function useSettingsDetail(key: string) {
   const { t } = useTranslation();
   const { isSuperAdmin } = usePermissions();
 
-  const { data: setting, isLoading, isError } = settingsQueries.useGetByKey(key);
+  const { data: setting, isLoading, isFetching, isError, refetch } = settingsQueries.useGetByKey(key);
   const updateMutation = settingsQueries.useUpdate(key);
 
   const [description, setDescription] = React.useState('');
@@ -138,6 +138,8 @@ export function useSettingsDetail(key: string) {
   return {
     setting,
     isLoading,
+    isFetching,
+    refetch,
     isError,
     isSaving: updateMutation.isPending,
     description,

@@ -16,7 +16,7 @@ export function useTeamForm(id?: string) {
   const { t } = useTranslation();
   const isEditing = !!id;
 
-  const { data, isLoading, isFetching } = teamsQueries.useGetById(id as string, {
+  const { data, isLoading, isFetching, refetch } = teamsQueries.useGetById(id as string, {
     enabled: isEditing,
   });
 
@@ -112,6 +112,8 @@ export function useTeamForm(id?: string) {
     isEditing,
     teamName,
     isLoading,
+    isFetching,
+    refetch,
     form,
     handleSubmit,
     handleDelete,

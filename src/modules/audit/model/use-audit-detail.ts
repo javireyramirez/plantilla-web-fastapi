@@ -5,7 +5,7 @@ import { auditQueries } from './audit.query';
 
 export function useAuditDetail(id?: string) {
   const { t } = useTranslation();
-  const { data, isLoading, isFetching, error } = auditQueries.useGetById(id as string, {
+  const { data, isLoading, isFetching, error, refetch } = auditQueries.useGetById(id as string, {
     enabled: !!id,
   });
 
@@ -29,6 +29,7 @@ export function useAuditDetail(id?: string) {
     auditLog: data,
     isLoading,
     isFetching,
+    refetch,
     error,
     handleExport,
     isPendingExport,

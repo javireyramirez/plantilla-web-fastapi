@@ -14,7 +14,7 @@ export function useCompanyForm(id?: string) {
   const { t } = useTranslation();
   const isEditing = !!id;
 
-  const { data, isLoading } = companiesQueries.useGetById(id as string, {
+  const { data, isLoading, isFetching, refetch } = companiesQueries.useGetById(id as string, {
     enabled: isEditing,
   });
 
@@ -134,6 +134,8 @@ export function useCompanyForm(id?: string) {
     isEditing,
     companyName,
     isLoading,
+    isFetching,
+    refetch,
     form,
     handleSubmit,
     handleDelete,

@@ -11,10 +11,11 @@ import {
   FileCode,
   Info,
   Loader2,
-  RefreshCw,
   RotateCcw,
 } from 'lucide-react';
 import { toast } from 'sonner';
+
+import { RefreshButton } from '@/components/refresh-button';
 
 import {
   Breadcrumb,
@@ -181,16 +182,7 @@ export default function JobsDetail() {
         </Breadcrumb>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Button
-            onClick={() => refetch()}
-            variant="outline"
-            size="sm"
-            className="gap-1.5 shadow-sm"
-            disabled={isFetching}
-          >
-            <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">{t('common.refresh', { defaultValue: 'Refrescar' })}</span>
-          </Button>
+          <RefreshButton onClick={refetch} isFetching={isFetching} />
 
           {canUpdate && isCancellable && (
             <Button

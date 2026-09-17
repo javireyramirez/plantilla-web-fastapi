@@ -13,13 +13,14 @@ import {
   Info,
   Laptop,
   Loader2,
-  RefreshCw,
   ShieldAlert,
   Smartphone,
   Tablet,
   User,
 } from 'lucide-react';
 import { toast } from 'sonner';
+
+import { RefreshButton } from '@/components/refresh-button';
 
 import {
   AlertDialog,
@@ -166,16 +167,7 @@ export default function SessionsDetail() {
         </Breadcrumb>
 
         <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-          <Button
-            onClick={() => refetch()}
-            variant="outline"
-            size="sm"
-            className="gap-1.5 shadow-sm"
-            disabled={isFetching}
-          >
-            <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? 'animate-spin' : ''}`} />
-            <span>{t('common.refresh', { defaultValue: 'Actualizar' })}</span>
-          </Button>
+          <RefreshButton onClick={refetch} isFetching={isFetching} />
 
           {canDelete && session.is_valid && (
             <Button

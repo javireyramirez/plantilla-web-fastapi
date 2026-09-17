@@ -16,7 +16,7 @@ export function useRoleForm(id?: string) {
   const { t } = useTranslation();
   const isEditing = !!id;
 
-  const { data, isLoading, isFetching } = rolesQueries.useGetById(id as string, {
+  const { data, isLoading, isFetching, refetch } = rolesQueries.useGetById(id as string, {
     enabled: isEditing,
   });
 
@@ -112,6 +112,8 @@ export function useRoleForm(id?: string) {
     isEditing,
     roleName,
     isLoading,
+    isFetching,
+    refetch,
     form,
     handleSubmit,
     handleDelete,

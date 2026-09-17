@@ -32,6 +32,7 @@
   },
   "common": {
     "cancel": "Cancel",
+    "refresh": "Refresh",
     "save": "Save",
     "view": "View"
   },
