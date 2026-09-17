@@ -181,7 +181,7 @@ export default function JobsDetail() {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
           <RefreshButton onClick={refetch} isFetching={isFetching} />
 
           {canUpdate && isCancellable && (
@@ -233,37 +233,38 @@ export default function JobsDetail() {
               <span>{t('jobs.actions.retry', { defaultValue: 'Reintentar tarea' })}</span>
             </Button>
           )}
-
-          <Button
-            onClick={() => navigate('/admin/jobs')}
-            variant="outline"
-            size="sm"
-            className="gap-2 flex-1 sm:flex-none shadow-sm"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            {t('common.back', { defaultValue: 'Volver' })}
-          </Button>
         </div>
       </div>
 
       {/* SECCIÓN: Header Card */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-card p-5 rounded-xl border shadow-sm">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Loader2
-              className={`h-5 w-5 text-muted-foreground flex-shrink-0 ${
-                job.status === 'RUNNING' ? 'animate-spin text-blue-500' : ''
-              }`}
-            />
-            <h1 className="text-xl font-bold tracking-tight text-foreground">{job.name}</h1>
-            <JobStatusBadge status={job.status} />
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => navigate('/admin/jobs')}
+            className="h-10 w-10 shrink-0"
+            aria-label={t('common.back', { defaultValue: 'Volver' })}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="space-y-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Loader2
+                className={`h-5 w-5 text-muted-foreground flex-shrink-0 ${
+                  job.status === 'RUNNING' ? 'animate-spin text-blue-500' : ''
+                }`}
+              />
+              <h1 className="text-xl font-bold tracking-tight text-foreground">{job.name}</h1>
+              <JobStatusBadge status={job.status} />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {job.progress_message ? (
+                <span>{job.progress_message} &bull; </span>
+              ) : null}
+              {t('jobs.progress', { defaultValue: 'Progreso' })}: {job.progress}%
+            </p>
           </div>
-          <p className="text-sm text-muted-foreground">
-            {job.progress_message ? (
-              <span>{job.progress_message} &bull; </span>
-            ) : null}
-            {t('jobs.progress', { defaultValue: 'Progreso' })}: {job.progress}%
-          </p>
         </div>
 
         <div className="w-full sm:w-60 space-y-1.5">

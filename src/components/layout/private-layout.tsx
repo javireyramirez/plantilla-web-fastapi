@@ -1,14 +1,17 @@
-import { Bell } from 'lucide-react';
 import { Outlet } from 'react-router-dom';
 
 import logo from '@/assets/logo.png';
 import { Separator } from '@/components/ui/separator.js';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar.js';
+import { NotificationBell, useNotificationStream } from '@/modules/notifications';
 
 import NavUser from './nav-user.js';
 import AppSidebar from './sidebar-common.js';
 
 export default function PrivateLayout() {
+  // Activate SSE notification stream for the authenticated session
+  useNotificationStream();
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -22,7 +25,7 @@ export default function PrivateLayout() {
             </div>
           </div>
           <div className="ml-auto flex items-center gap-2">
-            <Bell />
+            <NotificationBell />
             <div className="hidden md:block">
               <NavUser />
             </div>

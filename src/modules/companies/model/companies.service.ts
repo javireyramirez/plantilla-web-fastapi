@@ -9,6 +9,8 @@ import {
   GetListQueryType,
   UpdateCompany,
 } from './companies.schema';
+import { CompanyNotifyPayload } from './companies.types';
+
 
 type Item = Company;
 type CreateBody = CreateCompany;
@@ -124,6 +126,12 @@ class CompaniesService extends CrudService<
     const { data } = await instance.patch<any>(`/${this.entityName}/${id}`, body);
     return normalizeCompany(data);
   };
+
+  notify = async (companyId: string, payload: CompanyNotifyPayload): Promise<any> => {
+    const { data } = await instance.post<any>(`/${this.entityName}/${companyId}/notify`, payload);
+    return data;
+  };
 }
+
 
 export const companiesService = new CompaniesService();

@@ -141,6 +141,7 @@ export default function Router() {
 
           {/* Redirecciones de conveniencia */}
           <Route path="/home" element={<Navigate to="/companies" replace />} />
+          <Route path="/dashboard" element={<Navigate to="/home" replace />} />
           <Route path="/admin" element={<AdminRedirect />} />
         </Route>
       </Route>

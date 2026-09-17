@@ -210,28 +210,36 @@ export default function RoleDetail() {
           {isEditing && (
             <RefreshButton onClick={refetch} isFetching={isFetching} />
           )}
-          <Button onClick={() => navigate(-1)} variant="outline" size="sm" className="w-full sm:w-auto shadow-sm">
-            <ArrowLeft className="h-4 w-4" /> {t('common.back', { defaultValue: 'Volver' })}
-          </Button>
         </div>
       </div>
 
       {/* SECCIÓN: Barra de Acciones Adaptativa Global */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-card p-4 rounded-xl border shadow-sm">
-        <div className="space-y-1">
-          <h1 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <Shield className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-            {isEditing ? (
-              <span className="truncate">
-                <span className="text-primary">{roleName}</span>
-              </span>
-            ) : (
-              t('roles.createTitle')
-            )}
-          </h1>
-          <p className="text-sm text-muted-foreground hidden sm:block">
-            {isEditing ? t('roles.editDescription') : t('roles.createDescription')}
-          </p>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => navigate(-1)}
+            className="h-10 w-10 shrink-0"
+            aria-label={t('common.back', { defaultValue: 'Volver' })}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="space-y-1 min-w-0">
+            <h1 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
+              <Shield className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+              {isEditing ? (
+                <span className="truncate">
+                  <span className="text-primary">{roleName}</span>
+                </span>
+              ) : (
+                t('roles.createTitle')
+              )}
+            </h1>
+            <p className="text-sm text-muted-foreground hidden sm:block">
+              {isEditing ? t('roles.editDescription') : t('roles.createDescription')}
+            </p>
+          </div>
         </div>
 
         {/* Contenedor Único de Botones (Control de responsividad fluido) */}

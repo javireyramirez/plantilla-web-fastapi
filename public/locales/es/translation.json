@@ -239,8 +239,30 @@
         "create": "Error al crear la compañía",
         "delete": "Error al eliminar la compañía"
       }
+    },
+    "notify": {
+      "button": "Enviar notificación",
+      "dialogTitle": "Enviar notificación de compañía",
+      "dialogDescription": "Envía una notificación en tiempo real a un usuario vinculada a esta compañía.",
+      "userLabel": "Usuario destinatario",
+      "selectUserPlaceholder": "Seleccionar usuario...",
+      "searchUserPlaceholder": "Buscar usuario...",
+      "noUsersFound": "No se encontraron usuarios",
+      "titleLabel": "Título",
+      "titlePlaceholder": "Título de la notificación",
+      "commentLabel": "Mensaje / Comentario",
+      "commentPlaceholder": "Escribe el mensaje o comentario...",
+      "defaultTitle": "Notificación sobre {{company}}",
+      "defaultComment": "Ejemplo de notificación de compañía: {{company}}",
+      "actionUrlLabel": "Enlace de acción",
+      "send": "Enviar notificación",
+      "sending": "Enviando...",
+      "cancel": "Cancelar",
+      "success": "Notificación enviada con éxito",
+      "error": "Error al enviar la notificación"
     }
   },
+
 
   "organizations": {
     "title": "Organizaciones",
@@ -1043,6 +1065,31 @@
       "bulkSuccess": "Se han revocado {{count}} sesiones correctamente",
       "bulkPartialSuccess": "Se revocaron {{count}} sesiones. {{unprocessed}} no pudieron ser procesadas.",
       "bulkError": "Error al revocar las sesiones seleccionadas"
+    }
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "unreadCount_one": "{{count}} no leída",
+    "unreadCount_other": "{{count}} no leídas",
+    "markAllAsRead": "Marcar leídas",
+    "all": "Todas",
+    "unreadOnly": "No leídas",
+    "empty": "No tienes notificaciones",
+    "emptyUnread": "No tienes notificaciones sin leer",
+    "delete": "Eliminar notificación",
+    "viewAction": "Ver",
+    "timeAgo": {
+      "justNow": "hace un momento",
+      "minutesAgo": "hace {{count}} min",
+      "hoursAgo": "hace {{count}} h",
+      "daysAgo": "hace {{count}} d"
+    },
+    "types": {
+      "info": "Información",
+      "success": "Completado",
+      "warning": "Advertencia",
+      "error": "Error",
+      "system": "Sistema"
     }
   }
 }

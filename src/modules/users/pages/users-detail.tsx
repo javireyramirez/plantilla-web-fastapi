@@ -160,40 +160,48 @@ export default function UsersDetail() {
           {isEditing && (
             <RefreshButton onClick={refetch} isFetching={isFetching} />
           )}
-          <Button onClick={() => navigate(-1)} variant="outline" size="sm" className="w-full sm:w-auto shadow-sm">
-            <ArrowLeft className="mr-2 h-4 w-4" /> {t('common.back', { defaultValue: 'Volver' })}
-          </Button>
         </div>
       </div>
 
       {/* SECCIÓN: Barra de Acciones Adaptativa Global */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-card p-4 rounded-xl border shadow-sm">
-        <div className="space-y-1">
-          <h1 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <User className="h-5 w-5 text-muted-foreground shrink-0" />
-            {isEditing ? (
-              <span className="truncate flex items-center gap-2">
-                <span className="text-primary">{userName}</span>
-                {/* Candado / Tag indicador visual al lado del nombre principal */}
-                {isTrashed ? (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive">
-                    <Trash2 className="h-3 w-3" />
-                    {t('trash.table.expired') || 'Eliminado'}
-                  </span>
-                ) : !isActive ? (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive">
-                    <Lock className="h-3 w-3" />
-                    {t('users.statusName.suspended')}
-                  </span>
-                ) : null}
-              </span>
-            ) : (
-              t('users.createTitle')
-            )}
-          </h1>
-          <p className="text-sm text-muted-foreground hidden sm:block">
-            {isEditing ? t('users.editDescription') : t('users.createDescription')}
-          </p>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => navigate(-1)}
+            className="h-10 w-10 shrink-0"
+            aria-label={t('common.back', { defaultValue: 'Volver' })}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="space-y-1 min-w-0">
+            <h1 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
+              <User className="h-5 w-5 text-muted-foreground shrink-0" />
+              {isEditing ? (
+                <span className="truncate flex items-center gap-2">
+                  <span className="text-primary">{userName}</span>
+                  {/* Candado / Tag indicador visual al lado del nombre principal */}
+                  {isTrashed ? (
+                    <span className="inline-flex items-center gap-1 rounded-md bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive">
+                      <Trash2 className="h-3 w-3" />
+                      {t('trash.table.expired') || 'Eliminado'}
+                    </span>
+                  ) : !isActive ? (
+                    <span className="inline-flex items-center gap-1 rounded-md bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive">
+                      <Lock className="h-3 w-3" />
+                      {t('users.statusName.suspended')}
+                    </span>
+                  ) : null}
+                </span>
+              ) : (
+                t('users.createTitle')
+              )}
+            </h1>
+            <p className="text-sm text-muted-foreground hidden sm:block">
+              {isEditing ? t('users.editDescription') : t('users.createDescription')}
+            </p>
+          </div>
         </div>
 
         {/* Contenedor Único de Botones (con flex-wrap para pantallas intermedias) */}

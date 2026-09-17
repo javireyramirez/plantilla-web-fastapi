@@ -1,5 +1,7 @@
 import { Ban, CheckCircle2, Clock, Loader2, XCircle, type LucideIcon } from 'lucide-react';
 
+import { formatRelativeTime as sharedFormatRelativeTime } from '@/lib/date';
+
 export type JobStatus = 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
 
 export interface SelectOption {
@@ -115,13 +117,5 @@ export function formatJobDuration(startedAt?: string | Date | null, completedAt?
 }
 
 export function formatRelativeTime(date: Date | string): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
-  const diffSeconds = Math.max(0, Math.round((Date.now() - d.getTime()) / 1000));
-  if (diffSeconds < 60) return 'hace un momento';
-  const diffMinutes = Math.round(diffSeconds / 60);
-  if (diffMinutes < 60) return `hace ${diffMinutes} min`;
-  const diffHours = Math.round(diffMinutes / 60);
-  if (diffHours < 24) return `hace ${diffHours} h`;
-  const diffDays = Math.round(diffHours / 24);
-  return `hace ${diffDays} d`;
+  return sharedFormatRelativeTime(date);
 }

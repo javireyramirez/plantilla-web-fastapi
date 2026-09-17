@@ -240,8 +240,30 @@
         "create": "Error creating the company",
         "delete": "Error deleting the company"
       }
+    },
+    "notify": {
+      "button": "Send notification",
+      "dialogTitle": "Send company notification",
+      "dialogDescription": "Send a real-time notification to a user regarding this company.",
+      "userLabel": "Recipient user",
+      "selectUserPlaceholder": "Select user...",
+      "searchUserPlaceholder": "Search user...",
+      "noUsersFound": "No users found",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Notification title",
+      "commentLabel": "Message / Comment",
+      "commentPlaceholder": "Type the message or comment...",
+      "defaultTitle": "Notification regarding {{company}}",
+      "defaultComment": "Example of company notification: {{company}}",
+      "actionUrlLabel": "Action link",
+      "send": "Send notification",
+      "sending": "Sending...",
+      "cancel": "Cancel",
+      "success": "Notification sent successfully",
+      "error": "Error sending notification"
     }
   },
+
   "organizations": {
     "title": "Organizations",
     "subtitle": "Manage and view the list of registered organizations.",
@@ -1033,6 +1055,31 @@
       "bulkSuccess": "{{count}} sessions revoked successfully",
       "bulkPartialSuccess": "{{count}} sessions revoked. {{unprocessed}} could not be processed.",
       "bulkError": "Error revoking selected sessions"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unreadCount_one": "{{count}} unread",
+    "unreadCount_other": "{{count}} unread",
+    "markAllAsRead": "Mark read",
+    "all": "All",
+    "unreadOnly": "Unread",
+    "empty": "You have no notifications",
+    "emptyUnread": "You have no unread notifications",
+    "delete": "Delete notification",
+    "viewAction": "View",
+    "timeAgo": {
+      "justNow": "just now",
+      "minutesAgo": "{{count}} min ago",
+      "hoursAgo": "{{count}} h ago",
+      "daysAgo": "{{count}} d ago"
+    },
+    "types": {
+      "info": "Information",
+      "success": "Completed",
+      "warning": "Warning",
+      "error": "Error",
+      "system": "System"
     }
   }
 }

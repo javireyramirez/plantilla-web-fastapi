@@ -193,7 +193,7 @@ export default function AuditDetail() {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
           <RefreshButton onClick={refetch} isFetching={isFetching} />
           {can('audit', 'EXPORT') && (
             <ExportDropdown
@@ -203,28 +203,29 @@ export default function AuditDetail() {
               size="sm"
             />
           )}
-          <Button
-            onClick={() => navigate(-1)}
-            variant="outline"
-            size="sm"
-            className="gap-2 flex-1 sm:flex-none shadow-sm"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            {t('audit.back', { defaultValue: 'Volver' })}
-          </Button>
         </div>
       </div>
 
       {/* SECCIÓN: Header Card */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-card p-5 rounded-xl border shadow-sm">
-        <div className="space-y-1">
-          <h1 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <History className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-            <span>
-              {auditLog.details ||
-                `${getAuditActionLabel(t, auditLog.action)} - ${entityName}`}
-            </span>
-          </h1>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => navigate(-1)}
+            className="h-10 w-10 shrink-0"
+            aria-label={t('common.back', { defaultValue: 'Volver' })}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="space-y-1 min-w-0">
+            <h1 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
+              <History className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+              <span>
+                {auditLog.details ||
+                  `${getAuditActionLabel(t, auditLog.action)} - ${entityName}`}
+              </span>
+            </h1>
           <p className="text-sm text-muted-foreground">
             {(auditLog.module_name || (auditLog as any).moduleName) || getAuditModuleLabel(t, entityType, modulesMap)} &bull;{' '}
             {link ? (
@@ -240,6 +241,7 @@ export default function AuditDetail() {
           </p>
         </div>
       </div>
+    </div>
 
       {/* SECCIÓN: Detalle del Registro */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">

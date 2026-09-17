@@ -129,3 +129,31 @@ export const usersQueries = {
     });
   },
 };
+
+export function useUsersOptions(params: {
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  name?: string;
+  [key: string]: any;
+}) {
+  const { name, limit = 20, sortBy = 'name', sortOrder = 'asc' } = params;
+  const { data, isLoading } = usersQueries.useGetAll({
+    page: 1,
+    limit,
+    is_trash: false,
+    sort_by: sortBy as any,
+    sort_order: sortOrder,
+    name,
+  });
+
+  return {
+    data:
+      data?.data?.map((u: { id: string; name?: string | null; email?: string | null }) => ({
+        id: u.id,
+        name: u.name ?? u.email ?? u.id,
+      })) ?? [],
+    isLoading,
+  };
+}
+

@@ -174,24 +174,32 @@ export default function SettingsDetail() {
         </Breadcrumb>
         <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
           <RefreshButton onClick={refetch} isFetching={isFetching} />
-          <Button onClick={() => navigate('/admin/settings')} variant="outline" size="sm" className="w-full sm:w-auto shadow-sm">
-            <ArrowLeft className="mr-2 h-4 w-4" /> {t('common.back', { defaultValue: 'Volver' })}
-          </Button>
         </div>
       </div>
 
       {/* SECCIÓN: Barra de Acciones Adaptativa Global */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-card p-4 rounded-xl border shadow-sm">
-        <div className="space-y-1">
-          <h1 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <Sliders className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-            <span className="truncate text-primary font-mono">{decodedKey}</span>
-          </h1>
-          <p className="text-sm text-muted-foreground hidden sm:block">
-            {t('settings.editDescription', {
-              defaultValue: 'Modifica el valor y metadatos de esta configuración del sistema.',
-            })}
-          </p>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => navigate('/admin/settings')}
+            className="h-10 w-10 shrink-0"
+            aria-label={t('common.back', { defaultValue: 'Volver' })}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="space-y-1 min-w-0">
+            <h1 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
+              <Sliders className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+              <span className="truncate text-primary font-mono">{decodedKey}</span>
+            </h1>
+            <p className="text-sm text-muted-foreground hidden sm:block">
+              {t('settings.editDescription', {
+                defaultValue: 'Modifica el valor y metadatos de esta configuración del sistema.',
+              })}
+            </p>
+          </div>
         </div>
 
         {/* Contenedor Único de Botones (Guardar y Cerrar / Guardar) */}

@@ -1,5 +1,6 @@
 import {
   ArrowLeft,
+  BellRing,
   Building2,
   ChevronDown,
   Download,
@@ -9,6 +10,7 @@ import {
   Save,
   Trash2,
 } from 'lucide-react';
+
 import { FormProvider } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -55,7 +57,9 @@ import { RefreshButton } from '@/components/refresh-button';
 import usePermissions from '@/hooks/use-permissions';
 
 import { CompaniesDetailForm } from '../components/companies-form';
+import { CompanyNotifyDialog } from '../components/company-notify-dialog';
 import { SECTOR_OPTIONS } from '../model/companies.types';
+
 
 export default function CompanyDetail() {
   const { t } = useTranslation();
@@ -66,6 +70,7 @@ export default function CompanyDetail() {
   const canCreate = can('companies', 'CREATE');
   // --- Estados locales ---
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [notifyDialogOpen, setNotifyDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('detail');
 
   // --- Hooks de datos y formulario ---
@@ -216,28 +221,36 @@ export default function CompanyDetail() {
           {isEditing && (
             <RefreshButton onClick={refetch} isFetching={isFetching} />
           )}
-          <Button onClick={() => navigate(-1)} variant="outline" size="sm" className="w-full sm:w-auto shadow-sm">
-            <ArrowLeft className="h-4 w-4" /> {t('common.back', { defaultValue: 'Volver' })}
-          </Button>
         </div>
       </div>
 
       {/* SECCIÓN: Barra de Acciones Adaptativa Global */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-card p-4 rounded-xl border shadow-sm">
-        <div className="space-y-1">
-          <h1 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <Building2 className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-            {isEditing ? (
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="truncate text-primary">{companyName}</span>
-              </div>
-            ) : (
-              t('companies.createTitle')
-            )}
-          </h1>
-          <p className="text-sm text-muted-foreground hidden sm:block">
-            {isEditing ? t('companies.editDescription') : t('companies.createDescription')}
-          </p>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => navigate(-1)}
+            className="h-10 w-10 shrink-0"
+            aria-label={t('common.back', { defaultValue: 'Volver' })}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="space-y-1 min-w-0">
+            <h1 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
+              <Building2 className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+              {isEditing ? (
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="truncate text-primary">{companyName}</span>
+                </div>
+              ) : (
+                t('companies.createTitle')
+              )}
+            </h1>
+            <p className="text-sm text-muted-foreground hidden sm:block">
+              {isEditing ? t('companies.editDescription') : t('companies.createDescription')}
+            </p>
+          </div>
         </div>
 
         {/* Contenedor Único de Botones (Control de responsividad fluido) */}
@@ -257,6 +270,17 @@ export default function CompanyDetail() {
             <>
               {isEditing && (
                 <>
+                  {/* Enviar notificación */}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="hidden sm:flex gap-2"
+                    onClick={() => setNotifyDialogOpen(true)}
+                  >
+                    <BellRing className="h-4 w-4" />
+                    {t('companies.notify.button', { defaultValue: 'Enviar notificación' })}
+                  </Button>
+
                   {/* Exportar y Eliminar: Visibles a partir de pantallas grandes (lg) */}
                   {canExport && (
                     <ExportDropdown
@@ -327,7 +351,7 @@ export default function CompanyDetail() {
               )}
 
               {/* Menú Desplegable Adaptativo: Captura los botones que desaparecen según el breakpoint */}
-              {((canSave) || (isEditing && (canExport || canCreate || canDelete))) && (
+              {((canSave) || isEditing) && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -356,6 +380,18 @@ export default function CompanyDetail() {
 
                     {isEditing && (
                       <>
+                        {/* Se muestra en el menú si la pantalla es menor a sm */}
+                        <DropdownMenuItem
+                          className="sm:hidden gap-2"
+                          onSelect={(e) => {
+                            e.preventDefault();
+                            setNotifyDialogOpen(true);
+                          }}
+                        >
+                          <BellRing className="h-4 w-4" />
+                          {t('companies.notify.button', { defaultValue: 'Enviar notificación' })}
+                        </DropdownMenuItem>
+
                         {canExport && (
                           <ExportDropdownMenuSub
                             entityName="companies"
@@ -482,6 +518,18 @@ export default function CompanyDetail() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* SECCIÓN: Diálogo de Notificación a Usuario */}
+      {isEditing && id && (
+        <CompanyNotifyDialog
+          open={notifyDialogOpen}
+          onOpenChange={setNotifyDialogOpen}
+          companyId={id}
+          companyName={companyName || ''}
+        />
+      )}
+
     </div>
   );
 }
+
