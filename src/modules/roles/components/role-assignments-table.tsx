@@ -208,6 +208,14 @@ export function RoleAssignmentsTable({ roleId }: RoleAssignmentsTableProps) {
       <DataTable
         table={table}
         totalCount={totalRows}
+        onRowDoubleClick={(row) => {
+          const assignment = row.original;
+          if (assignment.teamId) {
+            navigate(`/admin/teams/edit/${assignment.teamId}`);
+          } else if (assignment.userId) {
+            navigate(`/admin/users/edit/${assignment.userId}`);
+          }
+        }}
         mobileConfig={{
           primaryColumn: 'name',
           stackedColumns: ['assignedAt'],

@@ -2,14 +2,16 @@ import { Laptop, Monitor, Smartphone, Tablet } from 'lucide-react';
 import * as React from 'react';
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 import { parseUserAgent } from '../model/sessions.types';
 
 interface SessionDeviceInfoProps {
   userAgent?: string | null;
   ipAddress?: string | null;
+  className?: string;
 }
 
-export function SessionDeviceInfo({ userAgent, ipAddress }: SessionDeviceInfoProps) {
+export function SessionDeviceInfo({ userAgent, ipAddress, className }: SessionDeviceInfoProps) {
   const info = React.useMemo(() => parseUserAgent(userAgent), [userAgent]);
 
   const Icon = React.useMemo(() => {
@@ -30,9 +32,9 @@ export function SessionDeviceInfo({ userAgent, ipAddress }: SessionDeviceInfoPro
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <div className="flex items-center gap-2 max-w-[240px] cursor-help">
+        <div className={cn("flex items-center gap-2 max-w-[240px] text-left", className)}>
           <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
-          <span className="truncate text-sm font-medium text-foreground">{displayName}</span>
+          <span className="truncate text-sm font-medium text-blue-500 hover:text-blue-700 hover:underline">{displayName}</span>
         </div>
       </TooltipTrigger>
       <TooltipContent side="top" className="max-w-md p-3 text-xs space-y-1.5">

@@ -224,6 +224,7 @@ export function CompaniesTable({ exportRef }: CompaniesTableProps = {}) {
       <DataTable
         table={table}
         totalCount={totalRows}
+        onRowDoubleClick={(row) => navigate(`/companies/edit/${row.original.id}`)}
         mobileConfig={{
           primaryColumn: 'name',
           stackedColumns: ['sector', 'created_at'],

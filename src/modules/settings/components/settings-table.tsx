@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import * as React from 'react';
 
@@ -17,6 +17,7 @@ import { Setting } from '../model/settings.schema';
 import useSettingsTable from '../model/use-settings-table';
 
 export function SettingsTable() {
+  const navigate = useNavigate();
   const { t } = useTranslation();
 
   const columns = React.useMemo<ColumnDef<Setting>[]>(
@@ -30,12 +31,13 @@ export function SettingsTable() {
           const key = row.getValue('key') as string;
           return (
             <div className="flex items-center gap-2 min-w-0">
-              <Link
-                to={`/admin/settings/edit/${encodeURIComponent(key)}`}
-                className="truncate font-mono text-xs font-semibold max-w-xs text-blue-500 hover:text-blue-700 hover:underline text-left"
+              <button
+                type="button"
+                className="truncate font-mono text-xs font-semibold max-w-xs text-blue-500 hover:text-blue-700 hover:underline text-left cursor-pointer"
+                onClick={() => navigate(`/admin/settings/edit/${encodeURIComponent(key)}`)}
               >
                 {key}
-              </Link>
+              </button>
             </div>
           );
         },
@@ -110,7 +112,7 @@ export function SettingsTable() {
         },
       },
     ],
-    [t]
+    [t, navigate]
   );
 
   const { table, totalRows, isLoading, isFetching, isMobile, limit } = useSettingsTable(columns);
@@ -136,6 +138,7 @@ export function SettingsTable() {
       <DataTable
         table={table}
         totalCount={totalRows}
+        onRowDoubleClick={(row) => navigate(`/admin/settings/edit/${encodeURIComponent(row.original.key)}`)}
         mobileConfig={{
           primaryColumn: 'key',
           stackedColumns: ['value', 'category'],

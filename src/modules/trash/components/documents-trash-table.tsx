@@ -330,6 +330,7 @@ export function DocumentsTrashTable() {
       <DataTable
         table={table}
         totalCount={totalRows}
+        onRowDoubleClick={(row) => handleDownload(row.original)}
         mobileConfig={{
           primaryColumn: 'display_name',
           stackedColumns: ['parentModule', 'deleted_at'],

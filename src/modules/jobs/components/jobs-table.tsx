@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { Ban, CalendarIcon, Eye, RotateCcw } from 'lucide-react';
+import { Ban, CalendarIcon, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { type ColumnDef } from '@tanstack/react-table';
@@ -34,6 +34,7 @@ interface JobsTableProps {
 }
 
 export function JobsTable({ entityType, entityId }: JobsTableProps) {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const { modulesMap } = useModules();
   const { can } = usePermissions();
@@ -315,23 +316,6 @@ export function JobsTable({ entityType, entityId }: JobsTableProps) {
                   <TooltipContent>{t('jobs.actions.retry', { defaultValue: 'Reintentar tarea' })}</TooltipContent>
                 </Tooltip>
               )}
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                    asChild
-                  >
-                    <Link to={`/admin/jobs/${job.id}`}>
-                      <Eye className="h-4 w-4" />
-                      <span className="sr-only">{t('jobs.detail', { defaultValue: 'Ver detalle' })}</span>
-                    </Link>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>{t('jobs.detail', { defaultValue: 'Ver detalle' })}</TooltipContent>
-              </Tooltip>
             </div>
           );
         },
@@ -362,6 +346,7 @@ export function JobsTable({ entityType, entityId }: JobsTableProps) {
         <DataTable
           table={table}
           totalCount={totalRows}
+          onRowDoubleClick={(row) => navigate(`/admin/jobs/${row.original.id}`)}
           mobileConfig={{
             primaryColumn: 'name',
             stackedColumns: ['status', 'progress', 'created_at'],

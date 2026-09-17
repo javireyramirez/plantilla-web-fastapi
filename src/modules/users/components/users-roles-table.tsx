@@ -206,6 +206,7 @@ export function UserRolesTable({ userId }: { userId?: string }) {
       <DataTable
         table={table}
         totalCount={totalRows}
+        onRowDoubleClick={(row) => navigate(`/admin/roles/edit/${row.original.id}`)}
         mobileConfig={{
           primaryColumn: 'name',
           stackedColumns: [],

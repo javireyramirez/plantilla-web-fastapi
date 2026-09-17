@@ -176,6 +176,7 @@ export function MembersTable({ teamId }: MembersTableProps) {
       <DataTable
         table={table}
         totalCount={totalRows}
+        onRowDoubleClick={(row) => navigate(`/admin/users/edit/${row.original.id}`)}
         mobileConfig={{
           primaryColumn: 'name',
           stackedColumns: ['joinedAt'],

@@ -147,6 +147,7 @@ export function TeamsTable() {
       <DataTable
         table={table}
         totalCount={totalRows}
+        onRowDoubleClick={(row) => navigate(`/admin/teams/edit/${row.original.id}`)}
         mobileConfig={{
           primaryColumn: 'name',
           stackedColumns: ['created_at'],

@@ -1,6 +1,6 @@
-import { CalendarIcon, Download, Eye } from 'lucide-react';
+import { CalendarIcon, Download } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import * as React from 'react';
 
@@ -13,7 +13,6 @@ import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar-desktop';
 import { DataTableToolbarMobile } from '@/components/data-table/data-table-toolbar-mobile';
 import { ExportDropdown } from '@/components/export-dropdown';
-import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import usePermissions from '@/hooks/use-permissions';
 import { cn } from '@/lib/utils';
@@ -64,6 +63,7 @@ function useUsersOptions(params: {
 }
 
 export function AuditTable({ moduleSlug, entityId, exportRef }: AuditTableProps) {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const { modulesMap } = useModules();
 
@@ -257,25 +257,6 @@ export function AuditTable({ moduleSlug, entityId, exportRef }: AuditTableProps)
           variant: 'text',
         },
       },
-      {
-        id: 'actions',
-        maxSize: 50,
-        enableHiding: false,
-        header: '',
-        cell: ({ row }) => (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-muted-foreground hover:text-foreground"
-            asChild
-          >
-            <Link to={`/admin/audit/${row.original.id}`}>
-              <Eye className="h-4 w-4" />
-              <span className="sr-only">{t('audit.detail')}</span>
-            </Link>
-          </Button>
-        ),
-      },
     ],
     [t, modulesMap]
   );
@@ -346,6 +327,7 @@ export function AuditTable({ moduleSlug, entityId, exportRef }: AuditTableProps)
       <DataTable
         table={table}
         totalCount={totalRows}
+        onRowDoubleClick={(row) => navigate(`/admin/audit/${row.original.id}`)}
         mobileConfig={{
           primaryColumn: 'created_at',
           stackedColumns: ['action', 'description'],

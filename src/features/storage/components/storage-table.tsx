@@ -312,6 +312,7 @@ export function DocumentsTable({
       <DataTable
         table={table}
         totalCount={totalRows}
+        onRowDoubleClick={(row) => handleDownloadUrl(row.original.id)}
         mobileConfig={{
           primaryColumn: 'fileName',
           stackedColumns: ['size', 'createdAt'],

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { CalendarIcon, Eye, Trash2 } from 'lucide-react';
+import { CalendarIcon, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
@@ -139,7 +139,16 @@ export function SessionsTable({ userId, exportRef }: SessionsTableProps) {
           <DataTableColumnHeader column={column} label={t('sessions.device', { defaultValue: 'Dispositivo' })} />
         ),
         cell: ({ row }) => (
-          <SessionDeviceInfo userAgent={row.original.user_agent} ipAddress={row.original.ip_address} />
+          <button
+            type="button"
+            className="cursor-pointer text-left focus:outline-none"
+            onClick={() => {
+              setDetailSession(row.original);
+              setDetailSheetOpen(true);
+            }}
+          >
+            <SessionDeviceInfo userAgent={row.original.user_agent} ipAddress={row.original.ip_address} />
+          </button>
         ),
       },
       {
@@ -212,24 +221,6 @@ export function SessionsTable({ userId, exportRef }: SessionsTableProps) {
           const session = row.original;
           return (
             <div className="flex items-center justify-end gap-1">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                    onClick={() => {
-                      setDetailSession(session);
-                      setDetailSheetOpen(true);
-                    }}
-                  >
-                    <Eye className="h-4 w-4" />
-                    <span className="sr-only">{t('sessions.actions.viewDetail', { defaultValue: 'Ver detalle' })}</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>{t('sessions.actions.viewDetail', { defaultValue: 'Ver detalle' })}</TooltipContent>
-              </Tooltip>
-
               {canDelete && session.is_valid && (
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -349,6 +340,10 @@ export function SessionsTable({ userId, exportRef }: SessionsTableProps) {
         <DataTable
           table={table}
           totalCount={totalRows}
+          onRowDoubleClick={(row) => {
+            setDetailSession(row.original);
+            setDetailSheetOpen(true);
+          }}
           mobileConfig={{
             primaryColumn: 'user',
             stackedColumns: ['status', 'device', 'created_at'],

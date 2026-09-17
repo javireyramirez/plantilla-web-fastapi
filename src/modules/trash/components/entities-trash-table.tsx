@@ -1,6 +1,6 @@
 import { CalendarIcon, RotateCcw, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import * as React from 'react';
 
@@ -32,6 +32,7 @@ import { TrashBinItemS } from '../model/trash.schema';
 import useTrashTable from '../model/use-trash-table';
 
 export function EntitiesTrashTable() {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const { modulesMap } = useModules();
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
@@ -256,6 +257,14 @@ export function EntitiesTrashTable() {
       <DataTable
         table={table}
         totalCount={totalRows}
+        onRowDoubleClick={(row) => {
+          const slug = row.original.entity_type || row.original.moduleSlug;
+          const entityId = row.original.entity_id || row.original.entityId;
+          const link = getEntityLink(slug, entityId);
+          if (link) {
+            navigate(link);
+          }
+        }}
         mobileConfig={{
           primaryColumn: 'display_name',
           stackedColumns: ['module_slug', 'deleted_at'],

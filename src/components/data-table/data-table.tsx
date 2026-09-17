@@ -1,7 +1,7 @@
 // data-table-mobile.tsx
 import type * as React from 'react';
 
-import { type Table as TanstackTable, flexRender } from '@tanstack/react-table';
+import { type Row, type Table as TanstackTable, flexRender } from '@tanstack/react-table';
 
 import { DataTablePagination } from '@/components/data-table/data-table-pagination';
 import { useDataTableI18n } from '@/components/data-table/data-table-i18n';
@@ -31,6 +31,7 @@ interface DataTableProps<TData> extends React.ComponentProps<'div'> {
   pageSizeOptions?: number[];
   /** Config para la vista móvil. Si no se pasa, se usa la tabla normal siempre. */
   mobileConfig?: MobileStackConfig;
+  onRowDoubleClick?: (row: Row<TData>) => void;
 }
 
 export function DataTable<TData>({
@@ -41,6 +42,7 @@ export function DataTable<TData>({
   children,
   className,
   mobileConfig,
+  onRowDoubleClick,
   ...props
 }: DataTableProps<TData>) {
   const rows = table.getRowModel().rows;
@@ -85,8 +87,17 @@ export function DataTable<TData>({
                   data-state={row.getIsSelected() && 'selected'}
                   className={cn(
                     'rounded-md border bg-card px-4 py-3 shadow-sm',
-                    'data-[state=selected]:bg-muted'
+                    'data-[state=selected]:bg-muted',
+                    onRowDoubleClick && 'cursor-pointer select-none'
                   )}
+                  onDoubleClick={(e) => {
+                    if (!onRowDoubleClick) return;
+                    const target = e.target as HTMLElement | null;
+                    if (target?.closest('button, a, input, [role="checkbox"]')) {
+                      return;
+                    }
+                    onRowDoubleClick(row);
+                  }}
                 >
                   <div className="flex items-start gap-3">
                     {/* Checkbox */}
@@ -152,7 +163,19 @@ export function DataTable<TData>({
           <TableBody>
             {rows.length ? (
               rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                  className={cn(onRowDoubleClick && 'cursor-pointer select-none')}
+                  onDoubleClick={(e) => {
+                    if (!onRowDoubleClick) return;
+                    const target = e.target as HTMLElement | null;
+                    if (target?.closest('button, a, input, [role="checkbox"]')) {
+                      return;
+                    }
+                    onRowDoubleClick(row);
+                  }}
+                >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}

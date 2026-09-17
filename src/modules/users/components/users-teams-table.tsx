@@ -195,6 +195,7 @@ export function UsersTeamsTable({ userId }: { userId?: string }) {
 
       <DataTable
         table={table}
+        onRowDoubleClick={(row) => navigate(`/admin/teams/edit/${row.original.id}`)}
         mobileConfig={{ primaryColumn: 'name', stackedColumns: [] }}
         actionBar={
           <DataTableFloatingBar
