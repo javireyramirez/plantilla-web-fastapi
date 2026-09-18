@@ -1,15 +1,18 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
+  AlertTriangle,
   CheckCircle2,
   ChevronDown,
   Eye,
   EyeOff,
   KeyRound,
+  Laptop,
   LoaderCircle,
   Lock,
   Mail,
   MailCheck,
   ShieldCheck,
+  Trash2,
   User,
 } from 'lucide-react';
 import React, { useState } from 'react';
@@ -54,7 +57,10 @@ import {
   ChangePasswordSchema,
   ChangePasswordSchemaValues,
 } from '@/modules/auth/model/auth.schema';
+import ChangeEmailDialog from '@/modules/profile/components/change-email-dialog';
+import DeleteAccountDialog from '@/modules/profile/components/delete-account-dialog';
 import TwoFactorSettings from '@/modules/profile/components/two-factor-settings';
+import UserSessionsSettings from '@/modules/profile/components/user-sessions-settings';
 
 export default function Profile() {
   const { t } = useTranslation();
@@ -62,6 +68,8 @@ export default function Profile() {
   const { data: currentUser } = useCurrentUser();
 
   const [activeTab, setActiveTab] = useState('general');
+  const [showChangeEmailDialog, setShowChangeEmailDialog] = useState(false);
+  const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false);
 
   const [showPassword, setShowPassword] = useState({
     currentPassword: false,
@@ -111,7 +119,12 @@ export default function Profile() {
   }
 
   const user = currentUser || session.user;
-  const isVerified = Boolean(user.emailVerified);
+  const isVerified = Boolean(
+    user?.email_verified === true ||
+      (user as any)?.email_verified === 'true' ||
+      (user as any)?.emailVerified === true ||
+      (user as any)?.emailVerified === 'true'
+  );
 
   const getUserInitials = () => {
     if (user.name) {
@@ -163,6 +176,11 @@ export default function Profile() {
       value: 'security',
       label: t('profile.tabs.security', { defaultValue: 'Seguridad' }),
       icon: <Lock className="size-4" />,
+    },
+    {
+      value: 'sessions',
+      label: t('profile.tabs.sessions', { defaultValue: 'Dispositivos' }),
+      icon: <Laptop className="size-4" />,
     },
     {
       value: 'two-factor',
@@ -277,8 +295,17 @@ export default function Profile() {
                   <FieldLabel className="text-xs text-muted-foreground">{t('auth.name', { defaultValue: 'Nombre' })}</FieldLabel>
                   <Input value={user.name || ''} readOnly className="bg-muted/50" />
                 </div>
-                <div className="space-y-1">
-                  <FieldLabel className="text-xs text-muted-foreground">{t('auth.email', { defaultValue: 'Email' })}</FieldLabel>
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <FieldLabel className="text-xs text-muted-foreground">{t('auth.email', { defaultValue: 'Email' })}</FieldLabel>
+                    <button
+                      type="button"
+                      onClick={() => setShowChangeEmailDialog(true)}
+                      className="text-xs text-primary hover:underline font-medium"
+                    >
+                      {t('profile.changeEmailLink', { defaultValue: 'Cambiar correo' })}
+                    </button>
+                  </div>
                   <Input value={user.email || ''} readOnly className="bg-muted/50" />
                 </div>
               </CardContent>
@@ -372,6 +399,44 @@ export default function Profile() {
                   </p>
                 )}
               </CardFooter>
+            </Card>
+
+            {/* Tarjeta: Zona de Peligro */}
+            <Card className="md:col-span-2 border-destructive/30 bg-destructive/5 shadow-xs">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2 text-destructive">
+                  <AlertTriangle className="size-5" />
+                  {t('profile.dangerZoneTitle', { defaultValue: 'Zona de Peligro' })}
+                </CardTitle>
+                <CardDescription>
+                  {t('profile.dangerZoneDesc', {
+                    defaultValue: 'Acciones irreversibles sobre tu cuenta de usuario.',
+                  })}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <h4 className="font-semibold text-sm text-foreground">
+                    {t('profile.deleteAccountAction', { defaultValue: 'Eliminar esta cuenta' })}
+                  </h4>
+                  <p className="text-xs text-muted-foreground">
+                    {t('profile.deleteAccountActionDesc', {
+                      defaultValue:
+                        'Una vez eliminada tu cuenta, se cerrarán todas las sesiones y tus datos se borrarán de forma definitiva.',
+                    })}
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setShowDeleteAccountDialog(true)}
+                  className="gap-2 shrink-0 font-medium"
+                >
+                  <Trash2 className="size-4" />
+                  {t('profile.deleteAccountBtn', { defaultValue: 'Eliminar cuenta' })}
+                </Button>
+              </CardContent>
             </Card>
           </div>
         </TabsContent>
@@ -576,11 +641,28 @@ export default function Profile() {
           </Card>
         </TabsContent>
 
-        {/* CONTENIDO PESTAÑA 3: DOBLE FACTOR (2FA) */}
+        {/* CONTENIDO PESTAÑA 3: DISPOSITIVOS Y SESIONES */}
+        <TabsContent value="sessions" className="outline-none space-y-6">
+          <UserSessionsSettings />
+        </TabsContent>
+
+        {/* CONTENIDO PESTAÑA 4: DOBLE FACTOR (2FA) */}
         <TabsContent value="two-factor" className="outline-none space-y-6">
           <TwoFactorSettings />
         </TabsContent>
       </Tabs>
+
+      {/* DIÁLOGOS DE GESTIÓN DE CUENTA */}
+      <ChangeEmailDialog
+        open={showChangeEmailDialog}
+        onOpenChange={setShowChangeEmailDialog}
+        currentEmail={user.email}
+      />
+      <DeleteAccountDialog
+        open={showDeleteAccountDialog}
+        onOpenChange={setShowDeleteAccountDialog}
+        userEmail={user.email}
+      />
     </div>
   );
 }

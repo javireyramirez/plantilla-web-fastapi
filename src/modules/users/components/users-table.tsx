@@ -1,4 +1,4 @@
-import { Ban, CalendarIcon, Download, Send, Trash2, UserCheck } from 'lucide-react';
+import { Ban, CalendarIcon, Download, LoaderCircle, Send, Trash2, UserCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -16,6 +16,19 @@ import { DataTableToolbarMobile } from '@/components/data-table/data-table-toolb
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ExportDropdown } from '@/components/export-dropdown';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { useSession } from '@/config/auth-client';
+import { useImpersonateUser } from '@/hooks/use-auth';
 import usePermissions from '@/hooks/use-permissions';
 import { formatDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -29,7 +42,10 @@ interface UsersTableProps {
 export function UsersTable({ exportRef }: UsersTableProps = {}) {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { can } = usePermissions();
+  const { can, isSuperAdmin } = usePermissions();
+  const { data: session } = useSession();
+  const impersonateMutation = useImpersonateUser();
+  const [userToImpersonate, setUserToImpersonate] = React.useState<UsersResponse | null>(null);
 
   const columns = React.useMemo<ColumnDef<UsersResponse>[]>(
     () => [
@@ -207,8 +223,36 @@ export function UsersTable({ exportRef }: UsersTableProps = {}) {
           icon: CalendarIcon,
         },
       },
+      {
+        id: 'actions',
+        header: () => null,
+        cell: ({ row }) => {
+          const user = row.original;
+          const isCurrentUser = user.id === session?.user?.id;
+          if (!isSuperAdmin || isCurrentUser) return null;
+          return (
+            <div className="flex items-center justify-end">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2 text-xs text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700 dark:text-indigo-400 dark:hover:bg-indigo-950/50 gap-1.5 font-medium"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setUserToImpersonate(user);
+                }}
+              >
+                <UserCheck className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">{t('impersonate.actionButton', { defaultValue: 'Impersonar' })}</span>
+              </Button>
+            </div>
+          );
+        },
+        enableSorting: false,
+        enableHiding: false,
+      },
     ],
-    [t, navigate]
+    [t, navigate, isSuperAdmin, session?.user?.id]
   );
 
   const {
@@ -230,6 +274,10 @@ export function UsersTable({ exportRef }: UsersTableProps = {}) {
   if (exportRef) {
     exportRef.current = (format: string, asyncJob?: boolean) => handleExport(undefined, format, asyncJob);
   }
+
+  const selectedRows = table.getFilteredSelectedRowModel().rows;
+  const hasActive = selectedRows.some((r) => r.original.is_active ?? (r.original as any).isActive);
+  const hasInactive = selectedRows.some((r) => !(r.original.is_active ?? (r.original as any).isActive));
 
   const floatingActions = React.useMemo(() => {
     const list = [];
@@ -255,20 +303,24 @@ export function UsersTable({ exportRef }: UsersTableProps = {}) {
         disabled: isPendingActions,
         onClick: (rows: any) => handleResendInvitation(rows),
       });
-      list.push({
-        label: t('users.suspend'),
-        icon: <Ban className="h-4 w-4" />,
-        disabled: isPendingActions,
-        onClick: (rows: any) => handleSuspend(rows),
-        className: 'border-amber-500 text-amber-600 hover:bg-amber-500 hover:text-white',
-      });
-      list.push({
-        label: t('users.unsuspend'),
-        icon: <UserCheck className="h-4 w-4" />,
-        disabled: isPendingActions,
-        onClick: (rows: any) => handleUnsuspend(rows),
-        className: 'border-emerald-500 text-emerald-600 hover:bg-emerald-500 hover:text-white',
-      });
+      if (hasActive) {
+        list.push({
+          label: t('users.suspend'),
+          icon: <Ban className="h-4 w-4" />,
+          disabled: isPendingActions,
+          onClick: (rows: any) => handleSuspend(rows),
+          className: 'border-amber-500 text-amber-600 hover:bg-amber-500 hover:text-white',
+        });
+      }
+      if (hasInactive) {
+        list.push({
+          label: t('users.unsuspend'),
+          icon: <UserCheck className="h-4 w-4" />,
+          disabled: isPendingActions,
+          onClick: (rows: any) => handleUnsuspend(rows),
+          className: 'border-emerald-500 text-emerald-600 hover:bg-emerald-500 hover:text-white',
+        });
+      }
     }
     if (can('users', 'DELETE')) {
       list.push({
@@ -284,6 +336,8 @@ export function UsersTable({ exportRef }: UsersTableProps = {}) {
     can,
     t,
     isPendingActions,
+    hasActive,
+    hasInactive,
     handleExport,
     handleResendInvitation,
     handleSuspend,
@@ -327,6 +381,53 @@ export function UsersTable({ exportRef }: UsersTableProps = {}) {
       >
         {isMobile ? <DataTableToolbarMobile table={table} /> : <DataTableToolbar table={table} />}
       </DataTable>
+
+      {/* DIÁLOGO: Confirmar Impersonación */}
+      <AlertDialog
+        open={Boolean(userToImpersonate)}
+        onOpenChange={(open) => !open && setUserToImpersonate(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t('impersonate.dialogTitle', { defaultValue: '¿Iniciar sesión como este usuario?' })}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('impersonate.dialogDesc', {
+                defaultValue:
+                  'Accederás a la plataforma suplantando la identidad de {{name}}. Podrás salir de la suplantación en cualquier momento desde el banner superior.',
+                name: userToImpersonate?.name || userToImpersonate?.email,
+              })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={impersonateMutation.isPending}>
+              {t('common.cancel', { defaultValue: 'Cancelar' })}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={impersonateMutation.isPending}
+              onClick={() => {
+                if (userToImpersonate) {
+                  impersonateMutation.mutate(userToImpersonate.id);
+                }
+              }}
+              className="bg-indigo-600 text-white hover:bg-indigo-700 gap-2"
+            >
+              {impersonateMutation.isPending ? (
+                <>
+                  <LoaderCircle className="h-4 w-4 animate-spin" />
+                  {t('impersonate.starting', { defaultValue: 'Iniciando...' })}
+                </>
+              ) : (
+                <>
+                  <UserCheck className="h-4 w-4" />
+                  {t('impersonate.confirmBtn', { defaultValue: 'Iniciar suplantación' })}
+                </>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

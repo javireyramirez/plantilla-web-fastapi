@@ -153,7 +153,13 @@ export default function NavUser() {
               </DropdownMenuSubContent>
             </DropdownMenuSub>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => signOut()} disabled={isPending}>
+            <DropdownMenuItem
+              onSelect={(e) => {
+                e.preventDefault();
+                signOut();
+              }}
+              disabled={isPending}
+            >
               {isPending ? (
                 <>
                   <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />

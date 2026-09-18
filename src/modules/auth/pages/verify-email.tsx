@@ -44,8 +44,12 @@ export default function VerifyEmail() {
   }, [searchParams, navigate]);
 
   useEffect(() => {
-    if (status !== 'success') {
+    if (status === 'error') {
       toast.error(t('auth.toastErrorVerifyEmail'), { id: 'unauthorized-toast' });
+      return;
+    }
+
+    if (status !== 'success') {
       return;
     }
 
@@ -60,7 +64,7 @@ export default function VerifyEmail() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [countdown, navigate, status]);
+  }, [countdown, navigate, status, t]);
 
   if (status === 'loading' || isPending) {
     return (
@@ -89,8 +93,8 @@ export default function VerifyEmail() {
               {t('auth.verifyEmailDescriptionError')}
             </CardDescription>
 
-            <Button className="w-full mt-2" onClick={() => navigate('/login')}>
-              {t('auth.verifyEmailGoToLogin')}{' '}
+            <Button className="w-full mt-2" onClick={() => navigate('/signin')}>
+              {t('auth.verifyEmailGoToLogin')}
             </Button>
           </CardHeader>
         </Card>
@@ -109,15 +113,15 @@ export default function VerifyEmail() {
 
           <div className="flex flex-col items-center gap-2">
             <CheckCircle className="size-10 text-success" />
-            <CardTitle className="text-center">t('auth.verifyEmailTitleSuccess')</CardTitle>
+            <CardTitle className="text-center">{t('auth.verifyEmailTitleSuccess')}</CardTitle>
           </div>
 
           <CardDescription className="text-center">
-            {t('redirecting_message', { count: countdown })}{' '}
+            {t('auth.redirecting_message', { count: countdown })}
           </CardDescription>
 
           <Button className="w-full mt-2" onClick={() => navigate('/home')}>
-            {t('auth.verifyEmailGoNow')}{' '}
+            {t('auth.verifyEmailGoNow')}
           </Button>
         </CardHeader>
       </Card>

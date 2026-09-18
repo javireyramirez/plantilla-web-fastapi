@@ -5,6 +5,7 @@ import {
   Building2,
   ChevronDown,
   Download,
+  LoaderCircle,
   Lock,
   MoreHorizontal,
   Plus,
@@ -20,7 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { FormSkeleton } from '@/components/skeleton/form-skeleton';
 import {
@@ -57,6 +58,8 @@ import { usersQueries } from '@/modules/users/model/users.query';
 
 import { ExportDropdown, ExportDropdownMenuSub } from '@/components/export-dropdown';
 import { RefreshButton } from '@/components/refresh-button';
+import { useSession } from '@/config/auth-client';
+import { useImpersonateUser } from '@/hooks/use-auth';
 import usePermissions from '@/hooks/use-permissions';
 
 import { UsersDetailForm } from '../components/users-form';
@@ -67,17 +70,24 @@ import { useUsersForm } from '../model/use-users-detail';
 export default function UsersDetail() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { can } = usePermissions();
+  const { data: session } = useSession();
+  const impersonateMutation = useImpersonateUser();
+  const { can, isSuperAdmin } = usePermissions();
   const canExport = can('users', 'EXPORT');
   const canDelete = can('users', 'DELETE');
   const canCreate = can('users', 'CREATE');
   const canUpdate = can('users', 'UPDATE');
   // --- Estados locales ---
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [impersonateDialogOpen, setImpersonateDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('detail');
 
   // --- Hooks de datos y formulario ---
   const { id } = useParams<{ id: string }>();
+
+  useEffect(() => {
+    setActiveTab('detail');
+  }, [id]);
 
   // Extraemos las nuevas propiedades y funciones desde tu hook
   const {
@@ -98,9 +108,11 @@ export default function UsersDetail() {
     isPending,
   } = useUsersForm(id);
 
+  const isTrashed = (data as any)?.status === 'TRASHED';
+  const canImpersonate = isSuperAdmin && isEditing && !!id && id !== session?.user?.id && isActive && !isTrashed;
   const canSave = isEditing ? can('users', 'UPDATE') : can('users', 'CREATE');
-  const canReadAudit = can('audit', 'READ');
-  const canReadSessions = can('sessions', 'READ');
+  const canReadAudit = isSuperAdmin || can('audit', 'READ');
+  const canReadSessions = isSuperAdmin || can('sessions', 'READ');
 
   const { mutate: restore, isPending: isRestoring } = usersQueries.useRestore();
 
@@ -119,7 +131,7 @@ export default function UsersDetail() {
     });
   };
 
-  const isTrashed = (data as any)?.status === 'TRASHED';
+  
 
   const tabs = [
     { value: 'detail', label: t('users.tabs.detail'), visible: true },
@@ -224,6 +236,19 @@ export default function UsersDetail() {
                   {/* Ocultos en tablets/portátiles (< lg), visibles en pantallas grandes */}
                   {canUpdate && (
                     <>
+                      {canImpersonate && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="hidden lg:flex border-indigo-500 text-indigo-600 hover:bg-indigo-500 hover:text-white gap-2"
+                          disabled={isPending || impersonateMutation.isPending}
+                          onClick={() => setImpersonateDialogOpen(true)}
+                        >
+                          <UserCheck className="h-4 w-4" />
+                          {t('impersonate.actionButton', { defaultValue: 'Impersonar' })}
+                        </Button>
+                      )}
+
                       <Button
                         type="button"
                         variant="outline"
@@ -291,7 +316,7 @@ export default function UsersDetail() {
                       disabled={isPending}
                       asChild
                     >
-                      <Link to="/admin/users/new">
+                      <Link to="/admin/users/new" onClick={() => setActiveTab('detail')}>
                         <Plus className="h-4 w-4" />
                         {t('users.new')}
                       </Link>
@@ -362,6 +387,17 @@ export default function UsersDetail() {
                         {/* Aparecen aquí si la pantalla es menor que LG (portátiles pequeños/tablets) */}
                         {canUpdate && (
                           <>
+                            {canImpersonate && (
+                              <DropdownMenuItem
+                                disabled={isPending || impersonateMutation.isPending}
+                                className="lg:hidden gap-2 text-indigo-600 focus:text-indigo-700 font-medium"
+                                onSelect={() => setImpersonateDialogOpen(true)}
+                              >
+                                <UserCheck className="h-4 w-4" />
+                                {t('impersonate.actionButton', { defaultValue: 'Impersonar' })}
+                              </DropdownMenuItem>
+                            )}
+
                             <DropdownMenuItem
                               disabled={isPending}
                               className="lg:hidden gap-2"
@@ -405,7 +441,7 @@ export default function UsersDetail() {
                         {/* Se muestra en el menú si la pantalla es menor a xl */}
                         {canCreate && (
                           <DropdownMenuItem disabled={isPending} className="xl:hidden gap-2" asChild>
-                            <Link to="/admin/users/new">
+                            <Link to="/admin/users/new" onClick={() => setActiveTab('detail')}>
                               <Plus className="h-4 w-4" />
                               {t('users.new')}
                             </Link>
@@ -513,6 +549,49 @@ export default function UsersDetail() {
             <AlertDialogCancel disabled={isPending}>{t('users.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} disabled={isPending} variant="destructive">
               {t('users.delete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* SECCIÓN: Dialogo de Confirmación de Impersonación */}
+      <AlertDialog open={impersonateDialogOpen} onOpenChange={setImpersonateDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-indigo-600">
+              <UserCheck className="h-5 w-5" />
+              {t('impersonate.dialogTitle', { defaultValue: 'Impersonar Usuario' })}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('impersonate.dialogDescription', {
+                defaultValue: `¿Estás seguro de que deseas iniciar sesión como ${userName}? Actuarás temporalmente con su cuenta y permisos. Podrás salir de la suplantación en cualquier momento desde la barra superior.`,
+              })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={impersonateMutation.isPending}>
+              {t('common.cancel', { defaultValue: 'Cancelar' })}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              disabled={impersonateMutation.isPending}
+              onClick={() => {
+                if (!id) return;
+                impersonateMutation.mutate(id, {
+                  onSuccess: () => {
+                    setImpersonateDialogOpen(false);
+                  },
+                });
+              }}
+            >
+              {impersonateMutation.isPending ? (
+                <>
+                  <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                  {t('impersonate.starting', { defaultValue: 'Iniciando...' })}
+                </>
+              ) : (
+                t('impersonate.confirmButton', { defaultValue: 'Iniciar Impersonación' })
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

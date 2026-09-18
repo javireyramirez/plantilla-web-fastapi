@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useSession } from '@/config/auth-client.js';
-import { markSigningOut } from '@/lib/auth-flags.js';
+import { clearSigningOut, markSigningOut } from '@/lib/auth-flags.js';
 import authService from '@/services/auth.service.js';
 
 export function useSignIn() {
@@ -13,6 +13,10 @@ export function useSignIn() {
 
     onSuccess: async (data: any) => {
       if (!data?.two_factor_required) {
+        clearSigningOut();
+        if (data?.session && data?.user) {
+          queryClient.setQueryData(['session'], data);
+        }
         await queryClient.invalidateQueries({ queryKey: ['session'] });
         await queryClient.invalidateQueries({ queryKey: ['current-user'] });
         console.log('Sesión iniciada');
@@ -30,7 +34,11 @@ export function useSignUp() {
   return useMutation({
     mutationFn: (data: any) => authService.signUp(data),
 
-    onSuccess: async () => {
+    onSuccess: async (data: any) => {
+      clearSigningOut();
+      if (data?.session && data?.user) {
+        queryClient.setQueryData(['session'], data);
+      }
       await queryClient.invalidateQueries({ queryKey: ['session'] });
       console.log('Cuenta creada');
     },
@@ -42,15 +50,18 @@ export function useSignUp() {
 }
 
 export function useVerifyEmail() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: { token: string; callbackURL?: string }) => authService.verifyEmail(data),
 
-    onSuccess: (user) => {
+    onSuccess: async (user) => {
       console.log('Email verificado', user);
+      await queryClient.invalidateQueries({ queryKey: ['session'] });
+      await queryClient.invalidateQueries({ queryKey: ['current-user'] });
     },
 
     onError: (error) => {
-      console.error('Error env erifyEmail:', error);
+      console.error('Error en verifyEmail:', error);
     },
   });
 }
@@ -120,17 +131,20 @@ export function useSignOut() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   return useMutation({
-    mutationFn: () => authService.signOut(),
-
-    onSuccess: () => {
+    mutationFn: async () => {
       markSigningOut();
+      try {
+        localStorage.removeItem('is_impersonated');
+      } catch {}
+      await authService.signOut();
+    },
+    onMutate: () => {
+      markSigningOut();
+      queryClient.setQueryData(['session'], null);
+    },
+    onSettled: () => {
       queryClient.clear();
       navigate('/signin', { replace: true });
-      console.log('Sesión cerrada');
-    },
-
-    onError: (error) => {
-      console.error('Sign-Out error:', error);
     },
   });
 }
@@ -185,11 +199,21 @@ export function useVerifyMagicLink() {
 
 export function useCurrentUser() {
   const { data: session } = useSession();
+  const sessionUser = session?.user
+    ? {
+        ...session.user,
+        ...session,
+        user: session.user,
+        session: (session as any).session,
+      }
+    : undefined;
+
   return useQuery({
     queryKey: ['current-user'],
     queryFn: () => authService.getMe(),
+    initialData: sessionUser,
     enabled: !!session?.user,
-    staleTime: 30 * 1000,
+    staleTime: 60 * 1000,
   });
 }
 
@@ -234,8 +258,106 @@ export function useTwoFactorSignIn() {
     mutationFn: (data: { two_factor_token: string; code: string }) =>
       authService.signInTwoFactor(data),
     onSuccess: async () => {
+      clearSigningOut();
+      queryClient.clear();
       await queryClient.invalidateQueries({ queryKey: ['session'] });
       await queryClient.invalidateQueries({ queryKey: ['current-user'] });
+    },
+  });
+}
+
+export function useChangeEmail() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { new_email: string; current_password?: string | null }) =>
+      authService.changeEmail(data),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['session'] });
+      await queryClient.invalidateQueries({ queryKey: ['current-user'] });
+    },
+  });
+}
+
+export function useDeleteAccount() {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  return useMutation({
+    mutationFn: (data: { password?: string | null }) => authService.deleteUser(data),
+    onSuccess: () => {
+      markSigningOut();
+      queryClient.clear();
+      navigate('/signin', { replace: true });
+    },
+  });
+}
+
+export function useMySessions() {
+  return useQuery({
+    queryKey: ['my-sessions'],
+    queryFn: () => authService.listMySessions(),
+    staleTime: 10 * 1000,
+  });
+}
+
+export function useRevokeSession() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (sessionId: string) => authService.revokeMySession(sessionId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['my-sessions'] });
+    },
+  });
+}
+
+export function useRevokeAllSessions() {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  return useMutation({
+    mutationFn: () => authService.revokeAllMySessions(),
+    onSuccess: () => {
+      markSigningOut();
+      queryClient.clear();
+      navigate('/signin', { replace: true });
+    },
+  });
+}
+
+export function useImpersonateUser() {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  return useMutation({
+    mutationFn: (userId: string) => authService.impersonateUser(userId),
+    onSuccess: async () => {
+      try {
+        localStorage.setItem('is_impersonated', 'true');
+      } catch {
+        // ignore
+      }
+      queryClient.clear();
+      await queryClient.invalidateQueries({ queryKey: ['session'] });
+      await queryClient.invalidateQueries({ queryKey: ['current-user'] });
+      await queryClient.invalidateQueries({ queryKey: ['my-permissions'] });
+      navigate('/home', { replace: true });
+    },
+  });
+}
+
+export function useExitImpersonation() {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  return useMutation({
+    mutationFn: () => authService.exitImpersonation(),
+    onSuccess: async () => {
+      try {
+        localStorage.removeItem('is_impersonated');
+      } catch {
+        // ignore
+      }
+      queryClient.clear();
+      await queryClient.invalidateQueries({ queryKey: ['session'] });
+      await queryClient.invalidateQueries({ queryKey: ['current-user'] });
+      await queryClient.invalidateQueries({ queryKey: ['my-permissions'] });
+      navigate('/admin/users', { replace: true });
     },
   });
 }

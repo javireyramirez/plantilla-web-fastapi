@@ -18,6 +18,7 @@ import {
 import { FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { useTwoFactorSignIn } from '@/hooks/use-auth';
+import { clearSigningOut } from '@/lib/auth-flags.js';
 import { useTwoFactorStore } from '@/modules/auth/model/two-factor.store';
 
 export default function TwoFactorPage() {
@@ -65,44 +66,13 @@ export default function TwoFactorPage() {
     inputRef.current?.focus();
   }, [mode]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawVal = e.target.value;
-    setInlineError(null);
-
-    if (mode === 'totp') {
-      // Filtrar solo dígitos y limitar a 6 caracteres
-      const digitsOnly = rawVal.replace(/\D/g, '').slice(0, 6);
-      setCode(digitsOnly);
-    } else {
-      // Formato para código de recuperación (ej. K7X9-M2W4): mayúsculas y permitir guion
-      const cleaned = rawVal.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 9);
-      setCode(cleaned);
-    }
-  };
-
-  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    const pasted = e.clipboardData.getData('text');
-    setInlineError(null);
-
-    if (mode === 'totp') {
-      const digits = pasted.replace(/\D/g, '').slice(0, 6);
-      setCode(digits);
-    } else {
-      const formatted = pasted.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 9);
-      setCode(formatted);
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const submitCode = (candidateCode: string) => {
     if (!twoFactorToken) {
       setIsExpired(true);
       return;
     }
 
-    const trimmedCode = code.trim();
+    const trimmedCode = candidateCode.trim();
 
     if (mode === 'totp') {
       if (trimmedCode.length !== 6) {
@@ -130,9 +100,10 @@ export default function TwoFactorPage() {
       },
       {
         onSuccess: () => {
+          clearSigningOut();
           clearChallenge();
           toast.success(t('auth.toastSuccessSignIn', { defaultValue: 'Sesión iniciada correctamente' }));
-          navigate(callbackUrl, { replace: true });
+          window.location.href = callbackUrl;
         },
         onError: (err: any) => {
           const status = err.status || err.response?.status;
@@ -156,6 +127,52 @@ export default function TwoFactorPage() {
         },
       }
     );
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawVal = e.target.value;
+    setInlineError(null);
+
+    if (mode === 'totp') {
+      // Filtrar solo dígitos y limitar a 6 caracteres
+      const digitsOnly = rawVal.replace(/\D/g, '').slice(0, 6);
+      setCode(digitsOnly);
+      if (digitsOnly.length === 6 && twoFactorToken && !signInMutation.isPending) {
+        submitCode(digitsOnly);
+      }
+    } else {
+      // Formato para código de recuperación (ej. K7X9-M2W4): mayúsculas y permitir guion
+      const cleaned = rawVal.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 9);
+      setCode(cleaned);
+      if (cleaned.replace(/-/g, '').length === 8 && twoFactorToken && !signInMutation.isPending) {
+        submitCode(cleaned);
+      }
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData('text');
+    setInlineError(null);
+
+    if (mode === 'totp') {
+      const digits = pasted.replace(/\D/g, '').slice(0, 6);
+      setCode(digits);
+      if (digits.length === 6 && twoFactorToken && !signInMutation.isPending) {
+        submitCode(digits);
+      }
+    } else {
+      const formatted = pasted.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 9);
+      setCode(formatted);
+      if (formatted.replace(/-/g, '').length === 8 && twoFactorToken && !signInMutation.isPending) {
+        submitCode(formatted);
+      }
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    submitCode(code);
   };
 
   // 1. Pantalla cuando el token es inválido o ha expirado (más de 5 minutos o ausente)

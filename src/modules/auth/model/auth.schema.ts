@@ -141,6 +141,28 @@ export const TwoFactorDisableSchema = z
     path: ['code'],
   });
 
+export const ChangeEmailSchema = z.object({
+  new_email: emailValidation,
+  current_password: z.string().optional().nullable(),
+});
+
+export const DeleteAccountSchema = z.object({
+  password: z.string().optional().nullable(),
+  confirmText: z.string().refine((val) => val === 'ELIMINAR' || val === 'DELETE', {
+    message: 'Escribe ELIMINAR para confirmar la eliminación de la cuenta',
+  }),
+});
+
+export interface UserSessionItem {
+  id: string;
+  ip_address: string | null;
+  user_agent: string | null;
+  created_at: string;
+  expires_at: string;
+  is_current: boolean;
+  impersonated_by: string | null;
+}
+
 export type SignInValues = z.input<typeof SignInSchema>;
 export type SignUpValues = z.input<typeof SignUpSchema>;
 export type ForgotPasswordValues = z.input<typeof ForgotPasswordSchema>;
@@ -152,4 +174,6 @@ export type MagicLinkVerifyValues = z.input<typeof MagicLinkVerifySchema>;
 export type TwoFactorCodeValues = z.input<typeof TwoFactorCodeSchema>;
 export type TwoFactorRecoveryCodeValues = z.input<typeof TwoFactorRecoveryCodeSchema>;
 export type TwoFactorDisableValues = z.input<typeof TwoFactorDisableSchema>;
+export type ChangeEmailValues = z.input<typeof ChangeEmailSchema>;
+export type DeleteAccountValues = z.input<typeof DeleteAccountSchema>;
 

@@ -1,4 +1,3 @@
-import { error } from 'better-auth/api';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 

@@ -5,6 +5,7 @@ import { Separator } from '@/components/ui/separator.js';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar.js';
 import { NotificationBell, useNotificationStream } from '@/modules/notifications';
 
+import ImpersonateBanner from './impersonate-banner';
 import NavUser from './nav-user.js';
 import AppSidebar from './sidebar-common.js';
 
@@ -16,6 +17,7 @@ export default function PrivateLayout() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
+        <ImpersonateBanner />
         <header className="flex h-14 shrink-0 items-center px-3">
           <div className="flex items-center gap-2">
             <SidebarTrigger />

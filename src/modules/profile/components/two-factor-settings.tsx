@@ -68,6 +68,7 @@ export default function TwoFactorSettings() {
     secret: string;
     uri: string;
     qr_code_data_uri: string;
+    qr_code?: string;
   } | null>(null);
 
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
@@ -354,7 +355,7 @@ export default function TwoFactorSettings() {
               {/* Imagen QR */}
               <div className="flex justify-center p-2 bg-white rounded-lg border shadow-xs">
                 <img
-                  src={setupData.qr_code_data_uri}
+                  src={setupData.qr_code_data_uri || setupData.qr_code}
                   alt="Código QR 2FA"
                   className="size-48 object-contain"
                 />
