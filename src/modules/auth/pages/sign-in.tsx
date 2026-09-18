@@ -2,7 +2,7 @@ import { Eye, EyeOff, LoaderCircle, MailCheck } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import logo from '@/assets/logo.png';
@@ -25,6 +25,7 @@ import { clearSigningOut } from '@/lib/auth-flags';
 import { cn } from '@/lib/utils';
 import OauthButton from '@/modules/auth/components/oauth-button';
 import { MagicLinkRequestSchema } from '@/modules/auth/model/auth.schema';
+import { useTwoFactorStore } from '@/modules/auth/model/two-factor.store';
 
 interface FormValues {
   email: string;
@@ -38,6 +39,8 @@ export default function SignIn() {
   const [magicLinkSent, setMagicLinkSent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const setTwoFactorChallenge = useTwoFactorStore((state) => state.setChallenge);
 
   const signInMutation = useSignIn();
   const magicLinkMutation = useRequestMagicLink();
@@ -123,8 +126,16 @@ export default function SignIn() {
           rememberMe: values.rememberMe ?? false,
         },
         {
-          onSuccess: () => {
-            toast.success(t('auth.toastSuccessSignIn'), { id: 'auth-success' });
+          onSuccess: (response: any) => {
+            if (response?.two_factor_required && response?.two_factor_token) {
+              const destination = location.state?.from || '/companies';
+              setTwoFactorChallenge(response.two_factor_token, destination);
+              navigate(
+                `/two-factor?token=${encodeURIComponent(response.two_factor_token)}&callback_url=${encodeURIComponent(destination)}`
+              );
+            } else {
+              toast.success(t('auth.toastSuccessSignIn'), { id: 'auth-success' });
+            }
           },
           onError: (error: any) => {
             toast.error(error?.message || t('auth.toastErrorSignIN'), { id: 'auth-error' });

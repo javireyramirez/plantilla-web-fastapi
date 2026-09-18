@@ -66,7 +66,14 @@ export default function MagicLinkVerifyPage() {
 
     authService
       .verifyMagicLink({ token })
-      .then(() => {
+      .then((res: any) => {
+        if (res?.two_factor_required && res?.two_factor_token) {
+          navigate(
+            `/two-factor?token=${encodeURIComponent(res.two_factor_token)}&callback_url=${encodeURIComponent(callbackUrl)}`,
+            { replace: true }
+          );
+          return;
+        }
         // Redirección con reemplazo de historial para recargar sesión y cookies de forma limpia
         window.location.replace(callbackUrl);
       })

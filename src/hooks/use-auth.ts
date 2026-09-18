@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { useSession } from '@/config/auth-client.js';
 import { markSigningOut } from '@/lib/auth-flags.js';
 import authService from '@/services/auth.service.js';
 
@@ -10,9 +11,12 @@ export function useSignIn() {
   return useMutation({
     mutationFn: (data: any) => authService.signIn(data),
 
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['session'] });
-      console.log('Sesión iniciada');
+    onSuccess: async (data: any) => {
+      if (!data?.two_factor_required) {
+        await queryClient.invalidateQueries({ queryKey: ['session'] });
+        await queryClient.invalidateQueries({ queryKey: ['current-user'] });
+        console.log('Sesión iniciada');
+      }
     },
 
     onError: (error) => {
@@ -165,13 +169,73 @@ export function useVerifyMagicLink() {
   return useMutation({
     mutationFn: (data: { token: string }) => authService.verifyMagicLink(data),
 
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['session'] });
-      console.log('Enlace mágico verificado y sesión iniciada');
+    onSuccess: async (data: any) => {
+      if (!data?.two_factor_required) {
+        await queryClient.invalidateQueries({ queryKey: ['session'] });
+        await queryClient.invalidateQueries({ queryKey: ['current-user'] });
+        console.log('Enlace mágico verificado y sesión iniciada');
+      }
     },
 
     onError: (error) => {
       console.error('Error al verificar enlace mágico:', error);
+    },
+  });
+}
+
+export function useCurrentUser() {
+  const { data: session } = useSession();
+  return useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => authService.getMe(),
+    enabled: !!session?.user,
+    staleTime: 30 * 1000,
+  });
+}
+
+export function useTwoFactorSetup() {
+  return useMutation({
+    mutationFn: () => authService.setupTwoFactor(),
+  });
+}
+
+export function useTwoFactorEnable() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { code: string }) => authService.enableTwoFactor(data),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['session'] });
+      await queryClient.invalidateQueries({ queryKey: ['current-user'] });
+    },
+  });
+}
+
+export function useTwoFactorDisable() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { code?: string | null; password?: string | null }) =>
+      authService.disableTwoFactor(data),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['session'] });
+      await queryClient.invalidateQueries({ queryKey: ['current-user'] });
+    },
+  });
+}
+
+export function useTwoFactorRecoveryCodes() {
+  return useMutation({
+    mutationFn: (data: { code: string }) => authService.regenerateRecoveryCodes(data),
+  });
+}
+
+export function useTwoFactorSignIn() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { two_factor_token: string; code: string }) =>
+      authService.signInTwoFactor(data),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['session'] });
+      await queryClient.invalidateQueries({ queryKey: ['current-user'] });
     },
   });
 }

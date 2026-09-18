@@ -116,6 +116,31 @@ export const MagicLinkVerifySchema = z.object({
   token: z.string().min(1, 'Se requiere un token').trim(),
 });
 
+export const TwoFactorCodeSchema = z.object({
+  code: z
+    .string()
+    .trim()
+    .length(6, 'El código debe tener exactamente 6 dígitos')
+    .regex(/^\d{6}$/, 'El código debe contener solo números'),
+});
+
+export const TwoFactorRecoveryCodeSchema = z.object({
+  code: z
+    .string()
+    .trim()
+    .regex(/^[A-Za-z0-9]{4}-?[A-Za-z0-9]{4}$/, 'Formato inválido. Debe ser de 8 caracteres (ej. K7X9-M2W4)'),
+});
+
+export const TwoFactorDisableSchema = z
+  .object({
+    code: z.string().trim().optional().nullable(),
+    password: z.string().optional().nullable(),
+  })
+  .refine((data) => (data.code && data.code.trim().length > 0) || (data.password && data.password.trim().length > 0), {
+    message: 'Debes proporcionar tu código de autenticación o tu contraseña actual',
+    path: ['code'],
+  });
+
 export type SignInValues = z.input<typeof SignInSchema>;
 export type SignUpValues = z.input<typeof SignUpSchema>;
 export type ForgotPasswordValues = z.input<typeof ForgotPasswordSchema>;
@@ -124,4 +149,7 @@ export type ChangePasswordSchemaValues = z.input<typeof ChangePasswordSchema>;
 export type UpdateUserSchemaValues = z.input<typeof UpdateUserSchema>;
 export type MagicLinkRequestValues = z.input<typeof MagicLinkRequestSchema>;
 export type MagicLinkVerifyValues = z.input<typeof MagicLinkVerifySchema>;
+export type TwoFactorCodeValues = z.input<typeof TwoFactorCodeSchema>;
+export type TwoFactorRecoveryCodeValues = z.input<typeof TwoFactorRecoveryCodeSchema>;
+export type TwoFactorDisableValues = z.input<typeof TwoFactorDisableSchema>;
 

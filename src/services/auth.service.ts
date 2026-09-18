@@ -173,6 +173,146 @@ class AuthService {
       throw customError;
     }
   }
+
+  async getMe(): Promise<any> {
+    try {
+      const response = await instance.get<any>('/auth/me');
+      return response.data;
+    } catch (error: any) {
+      const message = error.response?.data?.detail || error.message || 'Error al obtener usuario';
+      const customError: any = new Error(message);
+      customError.status = error.response?.status;
+      customError.response = error.response;
+      throw customError;
+    }
+  }
+
+  async setupTwoFactor(): Promise<{
+    secret: string;
+    uri: string;
+    qr_code_data_uri: string;
+  }> {
+    try {
+      const response = await instance.post<{
+        secret: string;
+        uri: string;
+        qr_code_data_uri: string;
+      }>('/auth/two-factor/setup');
+      return response.data;
+    } catch (error: any) {
+      const message = error.response?.data?.detail || error.message || 'Error al configurar el doble factor';
+      const customError: any = new Error(message);
+      customError.status = error.response?.status;
+      customError.response = error.response;
+      throw customError;
+    }
+  }
+
+  async enableTwoFactor(data: { code: string }): Promise<{
+    two_factor_enabled: boolean;
+    backup_codes: string[];
+  }> {
+    try {
+      const response = await instance.post<{
+        two_factor_enabled: boolean;
+        backup_codes: string[];
+      }>('/auth/two-factor/enable', {
+        code: data.code.trim(),
+      });
+      return response.data;
+    } catch (error: any) {
+      const message =
+        error.response?.data?.detail || error.message || 'Código incorrecto. Vuelve a intentarlo';
+      const customError: any = new Error(message);
+      customError.status = error.response?.status;
+      customError.response = error.response;
+      throw customError;
+    }
+  }
+
+  async disableTwoFactor(data: {
+    code?: string | null;
+    password?: string | null;
+  }): Promise<{ message: string }> {
+    try {
+      const payload: { code?: string | null; password?: string | null } = {};
+      if (data.code && data.code.trim().length > 0) {
+        payload.code = data.code.trim();
+        payload.password = null;
+      } else if (data.password && data.password.length > 0) {
+        payload.code = null;
+        payload.password = data.password;
+      }
+      const response = await instance.post<{ message: string }>('/auth/two-factor/disable', payload);
+      return response.data;
+    } catch (error: any) {
+      const message =
+        error.response?.data?.detail || error.message || 'Código 2FA o contraseña incorrectos';
+      const customError: any = new Error(message);
+      customError.status = error.response?.status;
+      customError.response = error.response;
+      throw customError;
+    }
+  }
+
+  async regenerateRecoveryCodes(data: { code: string }): Promise<{
+    backup_codes: string[];
+  }> {
+    try {
+      const response = await instance.post<{
+        backup_codes: string[];
+      }>('/auth/two-factor/recovery-codes', {
+        code: data.code.trim(),
+      });
+      return response.data;
+    } catch (error: any) {
+      const message =
+        error.response?.data?.detail || error.message || 'Código 2FA incorrecto';
+      const customError: any = new Error(message);
+      customError.status = error.response?.status;
+      customError.response = error.response;
+      throw customError;
+    }
+  }
+
+  async signInTwoFactor(data: {
+    two_factor_token: string;
+    code: string;
+  }): Promise<{
+    user: any;
+    session: any;
+    two_factor_required: boolean;
+    two_factor_token: string | null;
+  }> {
+    try {
+      const response = await instance.post<{
+        user: any;
+        session: any;
+        two_factor_required: boolean;
+        two_factor_token: string | null;
+      }>('/auth/sign-in/two-factor', {
+        two_factor_token: data.two_factor_token,
+        code: data.code.trim(),
+      });
+      return response.data;
+    } catch (error: any) {
+      const status = error.response?.status;
+      let message = error.response?.data?.detail || error.message;
+
+      if (status === 400 && (!message || message.includes('expirado') || message.includes('inválido'))) {
+        message = 'El token de desafío es inválido o ha expirado';
+      } else if (status === 401 && !message) {
+        message = 'Código de autenticación o código de recuperación inválido';
+      } else if (status === 429 && !message) {
+        message = 'Demasiadas peticiones. Por favor, espera antes de volver a intentarlo';
+      }
+
+      const customError: any = new Error(message || 'Error al verificar doble factor');
+      customError.status = status;
+      customError.response = error.response;
+      throw customError;
+    }
+  }
 }
 
 export default new AuthService();
