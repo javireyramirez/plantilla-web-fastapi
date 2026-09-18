@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 
 import * as React from 'react';
 
+import { usePermissions } from '@/hooks/use-permissions';
 import { modulesQueries } from '@/modules/modules/model/modules.query';
 
 import { rolesQueries } from './roles.query';
@@ -10,6 +11,7 @@ import { PermissionScopeType, RolePermissionItem } from './roles.schema';
 
 export function useRolePermissionsMatrix(roleId: string) {
   const { t } = useTranslation();
+  const { isSuperAdmin } = usePermissions();
 
   // 1. Cargamos todos los módulos y filtramos los activos con acciones configurables
   const { data: rawModules = [], isLoading: isLoadingModules } = modulesQueries.useGetList();
@@ -71,6 +73,7 @@ export function useRolePermissionsMatrix(roleId: string) {
 
   const setPendingScope = React.useCallback(
     (moduleCode: string, action: string, newScope: PermissionScopeType | 'NONE') => {
+      if (!isSuperAdmin) return;
       const key = `${moduleCode}::${action}`;
       const existing = getPermissionCell(moduleCode, action);
       const originalScope = existing ? (existing.scope as PermissionScopeType) : 'NONE';
@@ -85,7 +88,7 @@ export function useRolePermissionsMatrix(roleId: string) {
         return next;
       });
     },
-    [getPermissionCell]
+    [isSuperAdmin, getPermissionCell]
   );
 
   const handleCancel = React.useCallback(() => {
@@ -93,6 +96,10 @@ export function useRolePermissionsMatrix(roleId: string) {
   }, []);
 
   const handleSave = React.useCallback(async () => {
+    if (!isSuperAdmin) {
+      toast.error(t('roles.permissions.superAdminRequired', { defaultValue: 'Solo un SuperAdmin puede modificar permisos de roles' }));
+      return;
+    }
     setIsSaving(true);
     try {
       const permMap = new Map<string, PermissionScopeType>();
@@ -136,16 +143,18 @@ export function useRolePermissionsMatrix(roleId: string) {
     } finally {
       setIsSaving(false);
     }
-  }, [currentPermissions, modules, pendingEdits, setPermissionsMutation, t]);
+  }, [isSuperAdmin, currentPermissions, modules, pendingEdits, setPermissionsMutation, t]);
 
   return {
     modules,
     isLoading,
+    isSuperAdmin,
+    canEditPermissions: isSuperAdmin,
     getEffectiveScope,
     setPendingScope,
     handleSave,
     handleCancel,
-    hasChanges: Object.keys(pendingEdits).length > 0,
+    hasChanges: isSuperAdmin && Object.keys(pendingEdits).length > 0,
     isSaving,
     isMutating: setPermissionsMutation.isPending || isSaving,
   };

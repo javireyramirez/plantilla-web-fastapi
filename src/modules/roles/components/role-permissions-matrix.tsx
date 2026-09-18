@@ -5,6 +5,7 @@ import {
   FileText,
   Globe,
   Loader2,
+  Lock,
   Save,
   Search,
   Shield,
@@ -81,6 +82,7 @@ export function RolePermissionsMatrix({ roleId }: { roleId: string }) {
   const {
     modules = [],
     isLoading,
+    canEditPermissions,
     getEffectiveScope,
     setPendingScope,
     handleSave,
@@ -163,7 +165,15 @@ export function RolePermissionsMatrix({ roleId }: { roleId: string }) {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {hasChanges && (
+          {!canEditPermissions && (
+            <Badge variant="outline" className="gap-1.5 px-2.5 py-1 text-xs text-muted-foreground bg-muted/30">
+              <Lock className="h-3 w-3" />
+              {t('roles.permissions.readOnlySuperAdmin', {
+                defaultValue: 'Solo lectura (Requiere SuperAdmin)',
+              })}
+            </Badge>
+          )}
+          {canEditPermissions && hasChanges && (
             <>
               <Button
                 variant="ghost"
@@ -275,7 +285,8 @@ export function RolePermissionsMatrix({ roleId }: { roleId: string }) {
                             defaultValue: mod.name || t('roles.permissions.unknownModule'),
                           });
 
-                          const isSuperAdminOnly = Boolean(mod.requiresSuperAdmin);
+                          const isSuperAdminOnly = Boolean(mod.requiresSuperAdmin ?? mod.requires_super_admin);
+                          const isFieldDisabled = isSaving || !canEditPermissions || isSuperAdminOnly;
 
                           return (
                             <TableRow key={mod.id || moduleCode} className="hover:bg-muted/20 transition-colors">
@@ -321,7 +332,7 @@ export function RolePermissionsMatrix({ roleId }: { roleId: string }) {
                                 return (
                                   <TableCell key={action} className="p-2 text-center">
                                     <Select
-                                      disabled={isSaving || isSuperAdminOnly}
+                                      disabled={isFieldDisabled}
                                       value={currentValue}
                                       onValueChange={(val) =>
                                         setPendingScope(
@@ -337,11 +348,15 @@ export function RolePermissionsMatrix({ roleId }: { roleId: string }) {
                                             ? t('roles.permissions.superAdminOnlyHelp', {
                                                 defaultValue: 'Módulo reservado exclusivamente a SuperAdministradores',
                                               })
-                                            : undefined
+                                            : !canEditPermissions
+                                              ? t('roles.permissions.superAdminRequiredHelp', {
+                                                  defaultValue: 'Solo los SuperAdministradores pueden modificar los permisos de un rol',
+                                                })
+                                              : undefined
                                         }
                                         className={cn(
                                           'h-8 w-full text-xs font-medium border-dashed bg-transparent transition-all',
-                                          isSuperAdminOnly && 'opacity-60 cursor-not-allowed',
+                                          isFieldDisabled && 'opacity-60 cursor-not-allowed',
                                           currentValue === 'NONE' &&
                                             'text-muted-foreground border-transparent hover:border-input',
                                           currentValue === 'OWN' &&
