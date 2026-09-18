@@ -107,9 +107,21 @@ export const UpdateUserSchema = z
     }
   });
 
+export const MagicLinkRequestSchema = z.object({
+  email: emailValidation,
+  callback_url: z.string().optional(),
+});
+
+export const MagicLinkVerifySchema = z.object({
+  token: z.string().min(1, 'Se requiere un token').trim(),
+});
+
 export type SignInValues = z.input<typeof SignInSchema>;
 export type SignUpValues = z.input<typeof SignUpSchema>;
 export type ForgotPasswordValues = z.input<typeof ForgotPasswordSchema>;
 export type ResetPasswordSchemaValues = z.input<typeof ResetPasswordSchema>;
 export type ChangePasswordSchemaValues = z.input<typeof ChangePasswordSchema>;
 export type UpdateUserSchemaValues = z.input<typeof UpdateUserSchema>;
+export type MagicLinkRequestValues = z.input<typeof MagicLinkRequestSchema>;
+export type MagicLinkVerifyValues = z.input<typeof MagicLinkVerifySchema>;
+

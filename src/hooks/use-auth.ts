@@ -144,3 +144,35 @@ export function useOuthGoogle() {
     },
   });
 }
+
+export function useRequestMagicLink() {
+  return useMutation({
+    mutationFn: (data: { email: string; callback_url?: string }) =>
+      authService.requestMagicLink(data),
+
+    onSuccess: () => {
+      console.log('Enlace mágico solicitado');
+    },
+
+    onError: (error) => {
+      console.error('Error al solicitar enlace mágico:', error);
+    },
+  });
+}
+
+export function useVerifyMagicLink() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { token: string }) => authService.verifyMagicLink(data),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['session'] });
+      console.log('Enlace mágico verificado y sesión iniciada');
+    },
+
+    onError: (error) => {
+      console.error('Error al verificar enlace mágico:', error);
+    },
+  });
+}
+

@@ -1,3 +1,4 @@
+import instance from '@/config/api';
 import { authClient } from '@/config/auth-client.js';
 
 class AuthService {
@@ -10,6 +11,7 @@ class AuthService {
 
     return session;
   }
+
 
   async signUp(data: {
     email: string;
@@ -139,6 +141,39 @@ class AuthService {
 
     return user;
   }
+
+  async requestMagicLink(data: { email: string; callback_url?: string }): Promise<boolean> {
+    try {
+      const payload: { email: string; callback_url?: string } = {
+        email: data.email,
+      };
+      if (data.callback_url) {
+        payload.callback_url = data.callback_url;
+      }
+      const response = await instance.post<boolean>('/auth/sign-in/magic-link', payload);
+      return response.data;
+    } catch (error: any) {
+      const message = error.response?.data?.detail || error.message || 'Error al solicitar el enlace mágico';
+      throw new Error(message);
+    }
+  }
+
+  async verifyMagicLink(data: { token: string }): Promise<{ user: any; session: any }> {
+    try {
+      const response = await instance.post<{ user: any; session: any }>('/auth/verify-magic-link', {
+        token: data.token,
+      });
+      return response.data;
+    } catch (error: any) {
+      const customError: any = new Error(
+        error.response?.data?.detail || error.message || 'Error al verificar el enlace mágico'
+      );
+      customError.status = error.response?.status;
+      customError.response = error.response;
+      throw customError;
+    }
+  }
 }
 
 export default new AuthService();
+

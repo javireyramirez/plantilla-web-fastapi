@@ -13,6 +13,7 @@ import SignIn from '@/modules/auth/pages/sign-in';
 import SignUp from '@/modules/auth/pages/sign-up';
 import UnauthorizedPage from '@/modules/auth/pages/unauthorized-page';
 import VerifyEmail from '@/modules/auth/pages/verify-email';
+import MagicLinkVerifyPage from '@/modules/auth/pages/magic-link';
 import CompanyDetail from '@/modules/companies/pages/companies-detail';
 import CompaniesView from '@/modules/companies/pages/companies-view';
 import AuditView from '@/modules/audit/pages/audit-view';
@@ -49,6 +50,7 @@ export default function Router() {
       <Route element={<PublicLayout />}>
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/magic-link" element={<MagicLinkVerifyPage />} />
       </Route>
 
       {/* Rutas privadas unificadas */}
