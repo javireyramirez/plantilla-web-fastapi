@@ -17,9 +17,11 @@ import usePermissions from '@/hooks/use-permissions';
 import { useModules, useModulesOptions } from '@/modules/modules/model/modules.query';
 import { getAuditModuleLabel, getEntityLink, normalizeModuleSlug } from '@/modules/audit/model/audit.types';
 
-import { JobType } from '../model/jobs.schema';
+import { JobDefinition, JobType } from '../model/jobs.schema';
 import {
   formatJobDuration,
+  getJobDefinitionTitle,
+  getJobIcon,
   getJobStatusLabel,
   getJobStatusOptions,
 } from '../model/jobs.types';
@@ -35,7 +37,7 @@ interface JobsTableProps {
 
 export function JobsTable({ entityType, entityId }: JobsTableProps) {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { modulesMap } = useModules();
   const { can } = usePermissions();
 
@@ -71,22 +73,30 @@ export function JobsTable({ entityType, entityId }: JobsTableProps) {
     try {
       if (action === 'cancel') {
         const res = await cancelJob(jobId);
-        toast.success(res.message || t('jobs.toast.cancelSuccess', { defaultValue: 'Tarea cancelada correctamente' }));
+        toast.success(t('jobs.toast.cancelSuccess', { defaultValue: res.message || 'Tarea cancelada correctamente' }));
       } else {
         const res = await retryJob(jobId);
-        toast.success(res.message || t('jobs.toast.retrySuccess', { defaultValue: 'Tarea programada para reintento' }));
+        toast.success(t('jobs.toast.retrySuccess', { defaultValue: res.message || 'Tarea programada para reintento' }));
       }
       setConfirmState((prev) => ({ ...prev, open: false }));
     } catch (err: any) {
       const msg = err?.response?.data?.message || err?.message;
       toast.error(
-        msg ||
-          (action === 'cancel'
-            ? t('jobs.toast.cancelError', { defaultValue: 'Error al cancelar la tarea' })
-            : t('jobs.toast.retryError', { defaultValue: 'Error al reintentar la tarea' }))
+        (action === 'cancel'
+          ? t('jobs.toast.cancelError', { defaultValue: msg || 'Error al cancelar la tarea' })
+          : t('jobs.toast.retryError', { defaultValue: msg || 'Error al reintentar la tarea' }))
       );
     }
   };
+
+  const { data: definitions } = jobsQueries.useDefinitions();
+  const definitionsMap = React.useMemo(() => {
+    const map: Record<string, JobDefinition> = {};
+    definitions?.forEach((def) => {
+      map[def.name] = def;
+    });
+    return map;
+  }, [definitions]);
 
   const columns = React.useMemo<ColumnDef<JobType>[]>(
     () => [
@@ -99,7 +109,7 @@ export function JobsTable({ entityType, entityId }: JobsTableProps) {
         cell: ({ row }) => {
           const dateVal = row.getValue('created_at') as string;
           if (!dateVal) return '-';
-          const formatted = new Date(dateVal).toLocaleString('es-ES', {
+          const formatted = new Date(dateVal).toLocaleString(i18n.language, {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric',
@@ -123,12 +133,16 @@ export function JobsTable({ entityType, entityId }: JobsTableProps) {
         header: ({ column }) => <DataTableColumnHeader column={column} label={t('jobs.name', { defaultValue: 'Nombre' })} />,
         cell: ({ row }) => {
           const name = row.getValue('name') as string;
+          const def = definitionsMap[name];
+          const Icon = def ? getJobIcon(def.icon) : null;
+          const title = getJobDefinitionTitle(t, name, def?.title);
           return (
             <Link
               to={`/admin/jobs/${row.original.id}`}
-              className="font-medium text-blue-500 hover:text-blue-700 hover:underline block truncate max-w-[220px]"
+              className="font-medium text-blue-500 hover:text-blue-700 hover:underline flex items-center gap-1.5 truncate max-w-[260px]"
             >
-              {name}
+              {Icon && <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
+              <span className="truncate">{title}</span>
             </Link>
           );
         },
@@ -143,7 +157,33 @@ export function JobsTable({ entityType, entityId }: JobsTableProps) {
         enableColumnFilter: true,
         enableSorting: true,
         header: ({ column }) => <DataTableColumnHeader column={column} label={t('jobs.status.label', { defaultValue: 'Estado' })} />,
-        cell: ({ row }) => <JobStatusBadge status={row.original.status} />,
+        cell: ({ row }) => {
+          const job = row.original;
+          const isPendingFuture =
+            job.status === 'PENDING' &&
+            job.scheduled_at &&
+            new Date(job.scheduled_at).getTime() > Date.now();
+
+          return (
+            <div className="flex flex-col items-start gap-1">
+              <JobStatusBadge status={job.status} />
+              {isPendingFuture && (
+                <span
+                  className="text-[11px] text-muted-foreground flex items-center gap-1 tabular-nums whitespace-nowrap"
+                  title={`${t('jobs.scheduledAt', { defaultValue: 'Programado para' })}: ${new Date(job.scheduled_at!).toLocaleString(i18n.language)}`}
+                >
+                  <CalendarIcon className="h-3 w-3 shrink-0 inline text-muted-foreground/80" />
+                  {new Date(job.scheduled_at!).toLocaleString(i18n.language, {
+                    day: '2-digit',
+                    month: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </span>
+              )}
+            </div>
+          );
+        },
         meta: {
           label: t('jobs.status.label', { defaultValue: 'Estado' }),
           variant: 'multiSelect',
@@ -321,7 +361,7 @@ export function JobsTable({ entityType, entityId }: JobsTableProps) {
         },
       },
     ],
-    [t, modulesMap, canUpdate, canSettings]
+    [t, i18n.language, modulesMap, canUpdate, canSettings, definitionsMap]
   );
 
   const { table, totalRows, isLoading, isMobile, limit } = useJobsTable(columns, {

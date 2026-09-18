@@ -16,7 +16,7 @@ export default function UsersView() {
   const canCreate = can('users', 'CREATE');
   const canExport = can('users', 'EXPORT');
 
-  const exportRef = React.useRef<((format: string) => Promise<void> | void) | null>(null);
+  const exportRef = React.useRef<((format: string, asyncJob?: boolean) => Promise<void> | void) | null>(null);
 
   return (
     <div className="flex flex-col space-y-6">
@@ -32,7 +32,7 @@ export default function UsersView() {
           {canExport && (
             <ExportDropdown
               entityName="users"
-              onExport={(format) => exportRef.current?.(format)}
+              onExport={(format, asyncJob) => exportRef.current?.(format, asyncJob)}
               variant="outline"
               size="sm"
             />

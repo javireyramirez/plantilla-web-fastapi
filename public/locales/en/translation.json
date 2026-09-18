@@ -50,7 +50,10 @@
       "json": "JSON (.json)",
       "tsv": "TSV (.tsv)",
       "google_sheets": "Google Sheets (.tsv)"
-    }
+    },
+    "asyncStarted": "Generating export in background...",
+    "asyncCompleted": "Export completed. Downloading file...",
+    "asyncFailed": "Error generating background export"
   },
   "import": {
     "button": "Import",
@@ -162,7 +165,6 @@
     "toastUnauthorized": "You must sign in to access this page",
     "toastSessionError": "Error verifying your session",
     "toastSessionExpired": "Your session has expired, please log in again",
-
     "recoverInstructions": "Enter your email address and we will send you an email with the steps to follow",
     "send": "Send",
     "sending": "Sending...",
@@ -172,7 +174,6 @@
     "toastErrorSignIN": "Invalid credentials",
     "toastSuccessSignUp": "Account created successfully",
     "toastErrorSignUp": "Error creating account",
-
     "resetPasswordTitle": "Change Password",
     "newPassword": "New Password",
     "confirmPassword": "Confirm Password",
@@ -181,7 +182,6 @@
     "toastSuccessReset": "Password changed successfully",
     "toastErrorReset": "Failed to change password",
     "unauthorizedReset": "Unauthorized access. Recovery link is required",
-
     "verifyEmailTitleError": "Verification error",
     "verifyEmailDescriptionError": "The link is invalid, has expired, or has already been used",
     "verifyEmailGoToLogin": "Back to login",
@@ -320,7 +320,6 @@
       "error": "Error sending notification"
     }
   },
-
   "organizations": {
     "title": "Organizations",
     "subtitle": "Manage and view the list of registered organizations.",
@@ -717,8 +716,10 @@
     "descriptionLabel": "Description",
     "descriptionPlaceholder": "Details or notes about the link (optional)",
     "toast": {
-      "urlSuccess": "Link added successfully",
-      "urlError": "Failed to add link"
+      "uploadSuccessMultiple": "Files uploaded successfully",
+      "uploadSuccessSingle": "File uploaded successfully",
+      "uploadError": "Failed to upload file",
+      "fileTooLarge": "File \"{{name}}\" exceeds the maximum allowed size of {{size}}"
     },
     "dropzone": {
       "dropActive": "Drop files here...",
@@ -774,12 +775,9 @@
       "sendToTrash": "Send to trash",
       "deletePermanent": "Delete permanently"
     },
-    "toast": {
-      "uploadSuccessMultiple": "Files uploaded successfully",
-      "uploadSuccessSingle": "File uploaded successfully",
-      "uploadError": "Failed to upload file",
-      "fileTooLarge": "File \"{{name}}\" exceeds the maximum allowed size of {{size}}"
-    }
+    "zipAsyncStarted": "Generating ZIP archive in background...",
+    "zipAsyncCompleted": "ZIP archive ready. Downloading...",
+    "zipAsyncFailed": "Error generating ZIP archive in background"
   },
   "audit": {
     "title": "Audit Trail",
@@ -1005,6 +1003,7 @@
     "status": {
       "label": "Status",
       "pending": "Pending",
+      "scheduled": "Scheduled",
       "running": "Running",
       "completed": "Completed",
       "failed": "Failed",
@@ -1033,13 +1032,57 @@
       "payloadMustBeObject": "Payload must be a valid JSON object",
       "invalidJson": "Invalid JSON format",
       "enqueueSuccess": "Job enqueued successfully",
-      "enqueueError": "Error enqueuing job"
+      "enqueueError": "Error enqueuing job",
+      "namePlaceholder": "e.g.: exports.generate, trash.purge",
+      "entityTypePlaceholder": "e.g.: companies, users",
+      "entityIdPlaceholder": "00000000-0000-0000-0000-000000000000"
     },
     "toast": {
       "cancelSuccess": "Job cancelled successfully",
       "cancelError": "Error cancelling job",
       "retrySuccess": "Job scheduled for retry",
       "retryError": "Error retrying job"
+    },
+    "noLinkedEntity": "No linked entity",
+    "generatedFile": "Generated file",
+    "downloadResult": "Download file",
+    "totalRows": "Total records",
+    "files": "files",
+    "catalog": {
+      "selectDefinition": "Registered jobs catalog",
+      "selectPlaceholder": "Select job type...",
+      "dispatchable": "Dispatchable",
+      "customJob": "Custom job (manual)..."
+    },
+    "definitions": {
+      "exports_generate": {
+        "title": "Data Export",
+        "description": "Background generation of tabular data exports in CSV, Excel, TSV, and JSON formats."
+      },
+      "storage_compress": {
+        "title": "File Compression",
+        "description": "Batch compression of storage attachments into ZIP archives."
+      },
+      "trash_purge": {
+        "title": "Trash Purge",
+        "description": "Permanent purge of soft-deleted records past the retention period."
+      },
+      "audit_purge": {
+        "title": "Audit Purge",
+        "description": "Periodic cleanup of expired historical audit logs."
+      },
+      "imports_validate": {
+        "title": "Import Validation",
+        "description": "Validation and processing of bulk records from CSV or Excel spreadsheets."
+      },
+      "emails_send": {
+        "title": "Email Delivery",
+        "description": "Asynchronous transactional email sending with retries and exponential backoff."
+      },
+      "notifications_fan_out": {
+        "title": "Notification Fan-out",
+        "description": "Mass distribution of alerts and notifications to multiple users."
+      }
     }
   },
   "sessions": {
@@ -1140,4 +1183,3 @@
     }
   }
 }
-

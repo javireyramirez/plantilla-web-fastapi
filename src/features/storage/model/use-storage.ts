@@ -1,7 +1,9 @@
+import i18n from 'i18next';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import storageService from '@/features/storage/model/storage.service';
+import { trackJob, triggerFileDownload } from '@/modules/jobs/model/job-tracker';
 import { GetDocumentsQuery } from '@/schemas/storage.schema';
 
 // ==========================================
@@ -248,13 +250,39 @@ export const useBulkDownloadZip = () => {
       entityType,
       entityId,
       documentIds,
+      archiveName,
+      asyncJob,
     }: {
       entityType: string;
       entityId: string;
       documentIds: string[];
-    }) => storageService.bulkDownloadZip(entityType, entityId, documentIds),
-    onSuccess: (blob) => {
-      triggerZipBlobDownload(blob);
+      archiveName?: string;
+      asyncJob?: boolean;
+    }) => storageService.bulkDownloadZip(entityType, entityId, documentIds, archiveName, asyncJob),
+    onSuccess: (data: any, variables) => {
+      if (data && 'id' in data && 'status' in data) {
+        // Modo asíncrono (HTTP 202)
+        toast.info(
+          i18n.t('storage.zipAsyncStarted', { defaultValue: 'Generando archivo ZIP en segundo plano...' })
+        );
+        trackJob(data.id, {
+          onCompleted: (result) => {
+            if (result?.download_url) {
+              triggerFileDownload(result.download_url, result.filename || variables.archiveName || 'adjuntos.zip');
+              toast.success(
+                i18n.t('storage.zipAsyncCompleted', { defaultValue: 'Archivo ZIP listo. Descargando...' })
+              );
+            }
+          },
+          onFailed: (err) => {
+            toast.error(
+              err || i18n.t('storage.zipAsyncFailed', { defaultValue: 'Error al generar el archivo ZIP en segundo plano' })
+            );
+          },
+        });
+      } else {
+        triggerZipBlobDownload(data, variables.archiveName);
+      }
     },
     onError: (error: any) => {
       console.error('Error al descargar ZIP:', error);

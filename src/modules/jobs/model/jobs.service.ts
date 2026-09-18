@@ -3,6 +3,7 @@ import { cleanApiParams } from '@/services/crud.service';
 import {
   JobCancelResponse,
   JobCreateRequest,
+  JobDefinition,
   JobRetryResponse,
   JobType,
   JobsListResponse,
@@ -85,6 +86,25 @@ class JobsService {
   async enqueueJob(payload: JobCreateRequest): Promise<JobType> {
     const response = await instance.post<any>('/jobs', payload);
     return response.data?.data ?? response.data;
+  }
+
+  async getJobDefinitions(): Promise<JobDefinition[]> {
+    const response = await instance.get<any>('/jobs/definitions');
+    const raw = response.data;
+    const items = Array.isArray(raw)
+      ? raw
+      : Array.isArray(raw?.data)
+        ? raw.data
+        : [];
+    return items.map((item: any) => ({
+      name: item.name,
+      title: item.title ?? item.name,
+      description: item.description ?? '',
+      category: item.category ?? 'system',
+      icon: item.icon,
+      is_dispatchable: item.is_dispatchable ?? false,
+      payload_schema: item.payload_schema ?? null,
+    }));
   }
 }
 

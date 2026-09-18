@@ -236,10 +236,10 @@ export default function useSessionsTable(
   );
 
   const handleExport = React.useCallback(
-    async (rows?: Row<SessionAdminType>[], format: string = 'csv') => {
+    async (rows?: Row<SessionAdminType>[], format: string = 'csv', asyncJob?: boolean) => {
       const ids = rows && rows.length > 0 ? rows.map((item) => item.original.id) : undefined;
       try {
-        await mutateExport({
+        const res = await mutateExport({
           ids,
           format,
           sort_by: sortBy,
@@ -255,9 +255,12 @@ export default function useSessionsTable(
                 ...(expiresTo && { expires_at_to: expiresTo }),
               }
             : undefined,
+          async_job: asyncJob,
         });
         if (ids) setRowSelection({});
-        toast.success(t('export.success', { defaultValue: 'Exportado con éxito' }));
+        if (!res || !('id' in (res as any))) {
+          toast.success(t('export.success', { defaultValue: 'Exportado con éxito' }));
+        }
       } catch (err: any) {
         const serverMessage = err?.response?.data?.message || err?.message;
         toast.error(serverMessage || t('export.error', { defaultValue: 'Error al exportar' }));

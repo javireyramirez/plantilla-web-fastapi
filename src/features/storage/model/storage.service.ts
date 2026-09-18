@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 import instance from '@/config/api';
+import type { JobType } from '@/modules/jobs/model/jobs.schema';
 import { GetDocumentsQuery } from '@/schemas/storage.schema';
 
 class StorageService {
@@ -246,15 +247,40 @@ class StorageService {
     return await this.bulkDownloadZip(entityType, entityId, documentIds);
   };
 
-  bulkDownloadZip = async (_entityType: string, _entityId: string, documentIds: string[]) => {
+  bulkDownloadZip = async (
+    _entityType: string,
+    _entityId: string,
+    documentIds: string[],
+    archiveName?: string,
+    asyncJob?: boolean
+  ): Promise<Blob | JobType> => {
+    const params = asyncJob ? { async_job: true } : undefined;
     const response = await instance.post(
       `/storage/zip`,
-      { storage_ids: documentIds },
       {
+        storage_ids: documentIds,
+        archive_name: archiveName || 'adjuntos.zip',
+      },
+      {
+        params,
         responseType: 'blob',
         timeout: 120000,
       }
     );
+
+    const contentType = response.headers?.['content-type'] || '';
+    const isJson =
+      response.status === 202 ||
+      contentType.includes('application/json') ||
+      response.data?.type?.includes('application/json');
+
+    if (isJson) {
+      const text =
+        response.data instanceof Blob ? await response.data.text() : JSON.stringify(response.data);
+      const jobData = (typeof text === 'string' ? JSON.parse(text) : text) as JobType;
+      return jobData;
+    }
+
     return response.data;
   };
 

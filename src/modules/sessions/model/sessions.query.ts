@@ -8,6 +8,7 @@ import {
   SessionsListResponse,
 } from './sessions.schema';
 import { sessionsService } from './sessions.service';
+import type { JobType } from '@/modules/jobs/model/jobs.schema';
 
 export const sessionsQueries = {
   useGetAll: (
@@ -60,7 +61,7 @@ export const sessionsQueries = {
   },
 
   useExport: () => {
-    return useMutation<Blob, Error, any>({
+    return useMutation<Blob | JobType, Error, any>({
       mutationFn: (payload: any) => sessionsService.export(payload),
     });
   },

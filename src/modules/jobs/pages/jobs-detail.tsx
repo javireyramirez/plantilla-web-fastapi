@@ -8,6 +8,7 @@ import {
   Check,
   CheckCircle2,
   Copy,
+  Download,
   FileCode,
   Info,
   Loader2,
@@ -36,15 +37,23 @@ import { getAuditModuleLabel, getEntityLink, normalizeModuleSlug } from '@/modul
 
 import { JobConfirmDialog } from '../components/job-confirm-dialog';
 import { JobStatusBadge } from '../components/job-status-badge';
-import { formatJobDuration, formatRelativeTime } from '../model/jobs.types';
+import { triggerFileDownload } from '../model/job-tracker';
+import { jobsQueries } from '../model/jobs.query';
+import {
+  formatJobDuration,
+  formatRelativeTime,
+  getJobDefinitionTitle,
+  getJobIcon,
+} from '../model/jobs.types';
 import { useJobDetail } from '../model/use-job-detail';
 
 export default function JobsDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { can } = usePermissions();
   const { modulesMap } = useModules();
+  const { data: definitions } = jobsQueries.useDefinitions();
 
   const canUpdate = can('jobs', 'UPDATE');
   const canSettings = can('jobs', 'SETTINGS');
@@ -141,13 +150,15 @@ export default function JobsDetail() {
       </div>
     );
   }
+ 
+  const jobDef = definitions?.find((d) => d.name === job?.name);
 
   const isCancellable = job.status === 'PENDING' || job.status === 'RUNNING';
   const isRetryable = job.status === 'FAILED' || job.status === 'CANCELLED';
 
   const formatIsoDate = (isoDate?: string | Date | null) => {
     if (!isoDate) return '-';
-    return new Date(isoDate).toLocaleString('es-ES', {
+    return new Date(isoDate).toLocaleString(i18n.language, {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -255,7 +266,10 @@ export default function JobsDetail() {
                   job.status === 'RUNNING' ? 'animate-spin text-blue-500' : ''
                 }`}
               />
-              <h1 className="text-xl font-bold tracking-tight text-foreground">{job.name}</h1>
+              <h1 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
+                <span>{getJobDefinitionTitle(t, job.name, jobDef?.title)}</span>
+                <span className="text-xs font-mono font-normal text-muted-foreground">({job.name})</span>
+              </h1>
               <JobStatusBadge status={job.status} />
             </div>
             <p className="text-sm text-muted-foreground">
@@ -352,7 +366,7 @@ export default function JobsDetail() {
                 {t('jobs.createdAt', { defaultValue: 'Fecha de creación' })}
               </span>
               <span className="text-foreground font-medium">{formatIsoDate(job.created_at)}</span>
-              <span className="text-xs text-muted-foreground">{formatRelativeTime(job.created_at)}</span>
+              <span className="text-xs text-muted-foreground">{formatRelativeTime(job.created_at, t)}</span>
             </div>
 
             {/* Programado para */}
@@ -398,7 +412,9 @@ export default function JobsDetail() {
                       <span className="text-foreground font-medium truncate">{entityLabel}</span>
                     )
                   ) : (
-                    <span className="text-muted-foreground italic text-xs">Sin entidad vinculada</span>
+                    <span className="text-muted-foreground italic text-xs">
+                      {t('jobs.noLinkedEntity', { defaultValue: 'Sin entidad vinculada' })}
+                    </span>
                   )}
                 </div>
                 {job.entity_id && (
@@ -531,28 +547,64 @@ export default function JobsDetail() {
                       {job.error}
                     </pre>
                   </div>
-                ) : job.result ? (
-                  <div className="relative flex-1 flex flex-col">
-                    <div className="absolute top-2 right-2 z-10">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-7 text-xs gap-1.5 bg-background/80 backdrop-blur shadow-sm"
-                        onClick={() => handleCopy(JSON.stringify(job.result, null, 2), 'resultJson')}
-                      >
-                        {copiedKey === 'resultJson' ? (
-                          <Check className="h-3.5 w-3.5 text-emerald-500" />
-                        ) : (
-                          <Copy className="h-3.5 w-3.5" />
-                        )}
-                        {t('common.copy', { defaultValue: 'Copiar' })}
-                      </Button>
+                ) : job.result ? (() => {
+                  const result = job.result;
+                  return (
+                    <div className="relative flex-1 flex flex-col gap-3">
+                      {result.download_url && (
+                        <div className="p-4 rounded-lg border bg-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+                          <div className="space-y-1 min-w-0">
+                            <div className="font-semibold text-sm flex items-center gap-2">
+                              <Download className="h-4 w-4 text-primary shrink-0" />
+                              <span className="truncate">
+                                {result.filename || t('jobs.generatedFile', { defaultValue: 'Archivo generado' })}
+                              </span>
+                            </div>
+                            <div className="text-xs text-muted-foreground flex flex-wrap items-center gap-2">
+                              {result.total_count !== undefined && (
+                                <span>{t('jobs.totalRows', { defaultValue: 'Total registros' })}: {result.total_count}</span>
+                              )}
+                              {result.size_bytes !== undefined && (
+                                <span>&bull; {Math.round(result.size_bytes / 1024)} KB</span>
+                              )}
+                              {result.file_count !== undefined && (
+                                <span>&bull; {result.file_count} {t('jobs.files', { defaultValue: 'archivos' })}</span>
+                              )}
+                            </div>
+                          </div>
+                          <Button
+                            size="sm"
+                            className="gap-1.5 shrink-0 w-full sm:w-auto"
+                            onClick={() => triggerFileDownload(result.download_url, result.filename)}
+                          >
+                            <Download className="h-4 w-4" />
+                            <span>{t('jobs.downloadResult', { defaultValue: 'Descargar archivo' })}</span>
+                          </Button>
+                        </div>
+                      )}
+                      <div className="relative flex-1 flex flex-col">
+                        <div className="absolute top-2 right-2 z-10">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 text-xs gap-1.5 bg-background/80 backdrop-blur shadow-sm"
+                            onClick={() => handleCopy(JSON.stringify(result, null, 2), 'resultJson')}
+                          >
+                            {copiedKey === 'resultJson' ? (
+                              <Check className="h-3.5 w-3.5 text-emerald-500" />
+                            ) : (
+                              <Copy className="h-3.5 w-3.5" />
+                            )}
+                            {t('common.copy', { defaultValue: 'Copiar' })}
+                          </Button>
+                        </div>
+                        <div className="p-4 bg-slate-950 dark:bg-zinc-950 text-slate-100 rounded-lg flex-1 font-mono text-xs overflow-auto max-h-[400px]">
+                          <pre>{JSON.stringify(result, null, 2)}</pre>
+                        </div>
+                      </div>
                     </div>
-                    <div className="p-4 bg-slate-950 dark:bg-zinc-950 text-slate-100 rounded-lg flex-1 font-mono text-xs overflow-auto max-h-[400px]">
-                      <pre>{JSON.stringify(job.result, null, 2)}</pre>
-                    </div>
-                  </div>
-                ) : job.status === 'RUNNING' || job.status === 'PENDING' ? (
+                  );
+                })() : job.status === 'RUNNING' || job.status === 'PENDING' ? (
                   <div className="flex-1 flex flex-col items-center justify-center py-12 text-center text-muted-foreground gap-3">
                     <Loader2 className="h-10 w-10 text-primary animate-spin" />
                     <div className="space-y-1">

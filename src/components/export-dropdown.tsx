@@ -8,6 +8,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
@@ -17,7 +18,7 @@ import { useExportFormats } from '@/hooks/use-export-formats';
 import { cn } from '@/lib/utils';
 
 export interface ExportHandler {
-  handleExport: (format: string) => void;
+  handleExport: (format: string, asyncJob?: boolean) => void;
   isPending: boolean;
   totalRows?: number;
 }
@@ -27,8 +28,10 @@ export interface ExportDropdownProps {
   entityName?: string;
   /** Explicit formats override (if provided, skips backend query) */
   formats?: string[];
+  /** Force asynchronous background execution (?async_job=true) */
+  asyncJob?: boolean;
   /** Callback triggered when a format is selected */
-  onExport?: (format: string) => Promise<void> | void;
+  onExport?: (format: string, asyncJob?: boolean) => Promise<void> | void;
   /** Export handler provided by table hook */
   handler?: ExportHandler | null;
   /** Loading state indicator */
@@ -52,6 +55,7 @@ export interface ExportDropdownProps {
 export function ExportDropdown({
   entityName,
   formats: formatsProp,
+  asyncJob,
   onExport,
   handler,
   isPending: isPendingProp,
@@ -78,13 +82,13 @@ export function ExportDropdown({
     if (isDisabled) return;
     try {
       if (onExport) {
-        const result = onExport(format);
+        const result = onExport(format, asyncJob);
         if (result && typeof (result as any).then === 'function') {
           setIsLocalPending(true);
           await result;
         }
       } else if (handler?.handleExport) {
-        handler.handleExport(format);
+        handler.handleExport(format, asyncJob);
       }
     } finally {
       setIsLocalPending(false);
@@ -113,7 +117,7 @@ export function ExportDropdown({
           {!iconOnly && <ChevronDown className="h-3.5 w-3.5 opacity-60" />}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align={align} className="min-w-[160px]">
+      <DropdownMenuContent align={align} className="min-w-[170px]">
         {isLoadingFormats && availableFormats.length === 0 ? (
           <div className="p-2 text-xs text-muted-foreground flex items-center justify-center gap-2">
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -142,7 +146,8 @@ export function ExportDropdown({
 export interface ExportDropdownMenuSubProps {
   entityName?: string;
   formats?: string[];
-  onExport?: (format: string) => Promise<void> | void;
+  asyncJob?: boolean;
+  onExport?: (format: string, asyncJob?: boolean) => Promise<void> | void;
   disabled?: boolean;
   className?: string;
 }
@@ -150,6 +155,7 @@ export interface ExportDropdownMenuSubProps {
 export function ExportDropdownMenuSub({
   entityName,
   formats: formatsProp,
+  asyncJob,
   onExport,
   disabled = false,
   className,
@@ -176,7 +182,7 @@ export function ExportDropdownMenuSub({
           availableFormats.map((fmt) => (
             <DropdownMenuItem
               key={fmt}
-              onClick={() => onExport?.(fmt)}
+              onClick={() => onExport?.(fmt, asyncJob)}
               className="cursor-pointer text-xs sm:text-sm py-1.5"
             >
               {t(`export.formats.${fmt}`, { defaultValue: fmt.toUpperCase() })}

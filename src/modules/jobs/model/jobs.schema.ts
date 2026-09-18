@@ -70,9 +70,21 @@ export const GetJobsQuerySchema = GetPaginatedQueryBaseSchema.extend({
 
 export const JobsListResponseSchema = createPaginatedResponseSchema(JobSchema);
 
+export const JobDefinitionSchema = z.object({
+  name: z.string(),
+  title: z.string(),
+  description: z.string(),
+  category: z.string(),
+  icon: z.string().optional(),
+  is_dispatchable: z.boolean().default(false),
+  payload_schema: z.record(z.string(), z.any()).optional(),
+});
+
 export type JobType = z.infer<typeof JobSchema>;
 export type JobCreateRequest = z.infer<typeof JobCreateRequestSchema>;
 export type JobCancelResponse = z.infer<typeof JobCancelResponseSchema>;
 export type JobRetryResponse = z.infer<typeof JobRetryResponseSchema>;
 export type GetJobsQuery = z.infer<typeof GetJobsQuerySchema>;
 export type JobsListResponse = z.infer<typeof JobsListResponseSchema>;
+export type JobDefinition = z.infer<typeof JobDefinitionSchema>;
+

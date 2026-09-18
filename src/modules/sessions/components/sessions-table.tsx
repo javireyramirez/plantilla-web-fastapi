@@ -35,7 +35,7 @@ import { SessionStatusBadge } from './session-status-badge';
 
 interface SessionsTableProps {
   userId?: string;
-  exportRef?: React.MutableRefObject<((format: string) => Promise<void> | void) | null>;
+  exportRef?: React.MutableRefObject<((format: string, asyncJob?: boolean) => Promise<void> | void) | null>;
 }
 
 export function SessionsTable({ userId, exportRef }: SessionsTableProps) {
@@ -217,12 +217,13 @@ export function SessionsTable({ userId, exportRef }: SessionsTableProps) {
   } = useSessionsTable(columns, { userId });
 
   if (exportRef) {
-    exportRef.current = (format: string) =>
+    exportRef.current = (format: string, asyncJob?: boolean) =>
       handleExport(
         table.getSelectedRowModel().rows.length > 0
           ? table.getSelectedRowModel().rows
           : undefined,
-        format
+        format,
+        asyncJob
       );
   }
 
@@ -257,7 +258,7 @@ export function SessionsTable({ userId, exportRef }: SessionsTableProps) {
         render: (rows: any) => (
           <ExportDropdown
             entityName="sessions"
-            onExport={(format) => handleExport(rows, format)}
+            onExport={(format, asyncJob) => handleExport(rows, format, asyncJob)}
             isPending={isPendingActions}
             size="sm"
             variant="ghost"

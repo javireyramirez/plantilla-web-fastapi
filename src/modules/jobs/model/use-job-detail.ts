@@ -17,13 +17,13 @@ export function useJobDetail(id?: string) {
     try {
       const res = await cancelMutate(id);
       toast.success(
-        res.message || t('jobs.toast.cancelSuccess', { defaultValue: 'Tarea cancelada correctamente' })
+        t('jobs.toast.cancelSuccess', { defaultValue: res?.message || 'Tarea cancelada correctamente' })
       );
       refetch();
     } catch (err: any) {
       const serverMessage = err?.response?.data?.message || err?.message;
       toast.error(
-        serverMessage || t('jobs.toast.cancelError', { defaultValue: 'Error al cancelar la tarea' })
+        t('jobs.toast.cancelError', { defaultValue: serverMessage || 'Error al cancelar la tarea' })
       );
     }
   };
@@ -33,13 +33,13 @@ export function useJobDetail(id?: string) {
     try {
       const res = await retryMutate(id);
       toast.success(
-        res.message || t('jobs.toast.retrySuccess', { defaultValue: 'Tarea reencolada para reintento' })
+        t('jobs.toast.retrySuccess', { defaultValue: res?.message || 'Tarea reencolada para reintento' })
       );
       refetch();
     } catch (err: any) {
       const serverMessage = err?.response?.data?.message || err?.message;
       toast.error(
-        serverMessage || t('jobs.toast.retryError', { defaultValue: 'Error al reintentar la tarea' })
+        t('jobs.toast.retryError', { defaultValue: serverMessage || 'Error al reintentar la tarea' })
       );
     }
   };

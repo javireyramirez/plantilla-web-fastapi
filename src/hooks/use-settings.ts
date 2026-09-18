@@ -19,6 +19,9 @@ export const SETTINGS_KEYS = {
   STORAGE_MAX_UPLOAD_SIZE: 'storage.max_upload_size_bytes',
   STORAGE_MAX_ZIP_TOTAL_BYTES: 'storage.max_zip_total_bytes',
   STORAGE_MAX_ZIP_FILE_COUNT: 'storage.max_zip_file_count',
+  STORAGE_ZIP_ASYNC_THRESHOLD_BYTES: 'storage.zip_async_threshold_bytes',
+  EXPORTS_ASYNC_THRESHOLD_ROWS: 'exports.async_threshold_rows',
+  EXPORTS_ASYNC_THRESHOLD_EXCEL_ROWS: 'exports.async_threshold_excel_rows',
   STORAGE_PRESIGNED_EXPIRY_SECONDS: 'storage.presigned_expiry_seconds',
   STORAGE_ALLOWED_MIMETYPES: 'storage.allowed_mimetypes',
   STORAGE_ALLOWED_EXTENSIONS: 'storage.allowed_extensions',
@@ -31,6 +34,9 @@ export const SETTINGS_KEYS = {
 export const DEFAULT_MAX_UPLOAD_SIZE_BYTES = 52428800; // 50 MB
 export const DEFAULT_MAX_ZIP_TOTAL_BYTES = 104857600; // 100 MB
 export const DEFAULT_MAX_ZIP_FILE_COUNT = 100;
+export const DEFAULT_STORAGE_ZIP_ASYNC_THRESHOLD_BYTES = 52428800; // 50 MB
+export const DEFAULT_EXPORTS_ASYNC_THRESHOLD_ROWS = 5000;
+export const DEFAULT_EXPORTS_ASYNC_THRESHOLD_EXCEL_ROWS = 2000;
 export const DEFAULT_PRESIGNED_EXPIRY_SECONDS = 3600;
 export const DEFAULT_PAGE_SIZE = 20;
 export const DEFAULT_PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
@@ -261,6 +267,37 @@ export function useTablePagination(initialPage = 1) {
     defaultPageSize,
     pageSizeOptions,
     maxPageSize,
+  };
+}
+
+export function useExportConfig() {
+  const { getSetting } = useSettings();
+
+  const asyncThresholdRows = useMemo(() => {
+    return getSetting<number>(
+      SETTINGS_KEYS.EXPORTS_ASYNC_THRESHOLD_ROWS,
+      DEFAULT_EXPORTS_ASYNC_THRESHOLD_ROWS
+    );
+  }, [getSetting]);
+
+  const asyncThresholdExcelRows = useMemo(() => {
+    return getSetting<number>(
+      SETTINGS_KEYS.EXPORTS_ASYNC_THRESHOLD_EXCEL_ROWS,
+      DEFAULT_EXPORTS_ASYNC_THRESHOLD_EXCEL_ROWS
+    );
+  }, [getSetting]);
+
+  const zipAsyncThresholdBytes = useMemo(() => {
+    return getSetting<number>(
+      SETTINGS_KEYS.STORAGE_ZIP_ASYNC_THRESHOLD_BYTES,
+      DEFAULT_STORAGE_ZIP_ASYNC_THRESHOLD_BYTES
+    );
+  }, [getSetting]);
+
+  return {
+    asyncThresholdRows,
+    asyncThresholdExcelRows,
+    zipAsyncThresholdBytes,
   };
 }
 

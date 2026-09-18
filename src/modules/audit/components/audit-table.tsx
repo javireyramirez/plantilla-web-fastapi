@@ -277,12 +277,13 @@ export function AuditTable({ moduleSlug, entityId, exportRef }: AuditTableProps)
   });
 
   if (exportRef) {
-    exportRef.current = (format: string) =>
+    exportRef.current = (format: string, asyncJob?: boolean) =>
       handleExport(
         table.getSelectedRowModel().rows.length > 0
           ? table.getSelectedRowModel().rows
           : undefined,
-        format
+        format,
+        asyncJob
       );
   }
 
@@ -294,7 +295,7 @@ export function AuditTable({ moduleSlug, entityId, exportRef }: AuditTableProps)
         render: (selectedRows: any) => (
           <ExportDropdown
             entityName="audit"
-            onExport={(format) => handleExport(selectedRows, format)}
+            onExport={(format, asyncJob) => handleExport(selectedRows, format, asyncJob)}
             isPending={isPendingActions}
             size="sm"
             variant="ghost"

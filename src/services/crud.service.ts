@@ -1,4 +1,8 @@
+import i18n from 'i18next';
+import { toast } from 'sonner';
+
 import instance from '@/config/api';
+import { trackJob, triggerFileDownload } from '@/modules/jobs/model/job-tracker';
 import type { JobType } from '@/modules/jobs/model/jobs.schema';
 import type { ImportFormat, ImportUploadOptions } from '@/types/import.types';
 
@@ -112,6 +116,87 @@ export interface ExportRequest<TQuery = Record<string, unknown>, TId = string> {
   sortOrder?: 'asc' | 'desc';
   is_trash?: boolean;
   isTrash?: boolean;
+  async_job?: boolean;
+}
+
+/**
+ * Handles the dual response from export endpoints:
+ * 1. Asynchronous (HTTP 202 or JSON): parses JobType, shows toast and tracks SSE for auto-download upon completion.
+ * 2. Synchronous (HTTP 200 Blob): triggers immediate browser download.
+ */
+export async function handleDualExportResponse(
+  response: any,
+  entityName: string,
+  format?: string
+): Promise<Blob | JobType> {
+  const contentType = response.headers?.['content-type'] || '';
+  const isJson =
+    response.status === 202 ||
+    contentType.includes('application/json') ||
+    response.data?.type?.includes('application/json');
+
+  if (isJson) {
+    const text = response.data instanceof Blob ? await response.data.text() : JSON.stringify(response.data);
+    const jobData = (typeof text === 'string' ? JSON.parse(text) : text) as JobType;
+    toast.info(
+      i18n.t('export.asyncStarted', { defaultValue: 'Generando exportación en segundo plano...' })
+    );
+    trackJob(jobData.id, {
+      onCompleted: (result) => {
+        if (result?.download_url) {
+          triggerFileDownload(result.download_url, result.filename);
+          toast.success(
+            i18n.t('export.asyncCompleted', { defaultValue: 'Exportación completada. Descargando archivo...' })
+          );
+        }
+      },
+      onFailed: (err) => {
+        toast.error(
+          err || i18n.t('export.asyncFailed', { defaultValue: 'Error al generar la exportación en segundo plano' })
+        );
+      },
+    });
+    return jobData;
+  }
+
+  // 1. Obtener el nombre del archivo desde las cabeceras HTTP del backend (SSOT)
+  const contentDisposition = response.headers?.['content-disposition'];
+  let filename = '';
+
+  if (contentDisposition) {
+    const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+    if (filenameMatch && filenameMatch[1]) {
+      filename = filenameMatch[1];
+    }
+  }
+
+  if (!filename) {
+    const safeEntity = entityName.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const now = new Date();
+    const timestamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
+    const ext =
+      format === 'excel'
+        ? 'xlsx'
+        : format === 'google_sheets' || format === 'tsv'
+          ? 'tsv'
+          : format || 'csv';
+    filename = `${safeEntity}_${timestamp}.${ext}`;
+  }
+
+  // 2. Disparar la descarga del archivo en el navegador
+  const blob = response.data instanceof Blob ? response.data : new Blob([response.data]);
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', filename);
+  document.body.appendChild(link);
+  link.click();
+
+  // 3. Limpiar recursos del DOM
+  link.remove();
+  window.URL.revokeObjectURL(url);
+
+  return response.data;
 }
 
 export abstract class CrudService<
@@ -225,7 +310,13 @@ export abstract class CrudService<
     return data;
   };
 
-  export = async (body: ExportRequest<TQuery, TId>): Promise<Blob> => {
+  export = async (
+    body: ExportRequest<TQuery, TId>,
+    options?: { async_job?: boolean }
+  ): Promise<Blob | JobType> => {
+    const isAsync = Boolean(options?.async_job ?? body.async_job);
+    const params = isAsync ? { async_job: true } : undefined;
+
     const payload = {
       ...body,
       columns: body.columns && body.columns.length > 0 ? body.columns : undefined,
@@ -234,47 +325,14 @@ export abstract class CrudService<
       is_trash: body.is_trash ?? body.isTrash,
       filters: body.filters ? cleanApiParams(body.filters as Record<string, any>) : undefined,
     };
+    delete (payload as any).async_job;
+
     const response = await instance.post<Blob>(`/${this.entityName}/export`, payload, {
+      params,
       responseType: 'blob',
     });
 
-    // 1. Obtener el nombre del archivo desde las cabeceras HTTP del backend (SSOT)
-    const contentDisposition = response.headers?.['content-disposition'];
-    let filename = '';
-
-    if (contentDisposition) {
-      const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
-      if (filenameMatch && filenameMatch[1]) {
-        filename = filenameMatch[1];
-      }
-    }
-
-    if (!filename) {
-      const safeEntity = this.entityName.replace(/[^a-zA-Z0-9_-]/g, '_');
-      const now = new Date();
-      const timestamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
-      const ext =
-        body.format === 'excel'
-          ? 'xlsx'
-          : body.format === 'google_sheets' || body.format === 'tsv'
-            ? 'tsv'
-            : body.format || 'csv';
-      filename = `${safeEntity}_${timestamp}.${ext}`;
-    }
-
-    // 2. Disparar la descarga del archivo en el navegador
-    const url = window.URL.createObjectURL(response.data);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', filename);
-    document.body.appendChild(link);
-    link.click();
-
-    // 3. Limpiar recursos del DOM
-    link.remove();
-    window.URL.revokeObjectURL(url);
-
-    return response.data;
+    return handleDualExportResponse(response, this.entityName, body.format);
   };
 
   // ── Importación con descarga de plantilla y subida ────────────

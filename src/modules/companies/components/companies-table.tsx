@@ -169,7 +169,7 @@ export function CompaniesTable({ exportRef }: CompaniesTableProps = {}) {
   } = useCompanies(columns);
 
   if (exportRef) {
-    exportRef.current = (format: string) => handleExport(undefined, format);
+    exportRef.current = (format: string, asyncJob?: boolean) => handleExport(undefined, format, asyncJob);
   }
 
   const floatingActions = React.useMemo(() => {
@@ -180,7 +180,7 @@ export function CompaniesTable({ exportRef }: CompaniesTableProps = {}) {
         render: (selectedRows: any) => (
           <ExportDropdown
             entityName="companies"
-            onExport={(format) => handleExport(selectedRows, format)}
+            onExport={(format, asyncJob) => handleExport(selectedRows, format, asyncJob)}
             isPending={isPendingExport}
             size="sm"
             variant="ghost"

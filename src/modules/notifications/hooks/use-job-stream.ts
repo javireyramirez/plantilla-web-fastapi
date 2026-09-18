@@ -65,8 +65,13 @@ export function useJobStream(options: UseJobStreamOptions = {}) {
         const raw = JSON.parse(event.data);
         const data: JobProgressEvent = {
           job_id: raw.job_id || jobId || '',
-          progress: typeof raw.progress === 'number' ? raw.progress : Number(raw.progress) || 0,
-          progress_message: raw.progress_message ?? raw.message ?? null,
+          progress:
+            typeof raw.progress === 'number'
+              ? raw.progress
+              : typeof raw.progress_pct === 'number'
+                ? raw.progress_pct
+                : Number(raw.progress) || 0,
+          progress_message: raw.progress_message ?? raw.current_step ?? raw.message ?? null,
           status: raw.status || 'RUNNING',
         };
         callbacksRef.current.onProgress?.(data);
@@ -74,7 +79,7 @@ export function useJobStream(options: UseJobStreamOptions = {}) {
         // Invalidate or update jobs cache
         if (data.job_id) {
           queryClient.invalidateQueries({ queryKey: ['jobs', 'detail', data.job_id] });
-          queryClient.invalidateQueries({ queryKey: ['jobs', 'list'] });
+          queryClient.invalidateQueries({ queryKey: ['jobs'] });
         }
       } catch (err) {
         console.error('Error parsing job progress SSE payload:', err);
@@ -93,7 +98,7 @@ export function useJobStream(options: UseJobStreamOptions = {}) {
 
         if (data.job_id) {
           queryClient.invalidateQueries({ queryKey: ['jobs', 'detail', data.job_id] });
-          queryClient.invalidateQueries({ queryKey: ['jobs', 'list'] });
+          queryClient.invalidateQueries({ queryKey: ['jobs'] });
         }
 
         // Cierre explícito del stream en estado terminal
@@ -119,7 +124,7 @@ export function useJobStream(options: UseJobStreamOptions = {}) {
 
         if (data.job_id) {
           queryClient.invalidateQueries({ queryKey: ['jobs', 'detail', data.job_id] });
-          queryClient.invalidateQueries({ queryKey: ['jobs', 'list'] });
+          queryClient.invalidateQueries({ queryKey: ['jobs'] });
         }
 
         // Cierre explícito del stream en estado terminal

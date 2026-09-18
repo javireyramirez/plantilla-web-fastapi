@@ -1,5 +1,6 @@
 import instance from '@/config/api';
-import { cleanApiParams } from '@/services/crud.service';
+import { cleanApiParams, handleDualExportResponse } from '@/services/crud.service';
+import type { JobType } from '@/modules/jobs/model/jobs.schema';
 
 import { AuditLogType, AuditLogsListResponse, GetAuditLogsQuery } from './audit.schema';
 
@@ -94,49 +95,24 @@ class AuditService {
     return data;
   }
 
-  async export(body: any): Promise<Blob> {
+  async export(body: any, options?: { async_job?: boolean }): Promise<Blob | JobType> {
+    const isAsync = Boolean(options?.async_job ?? body?.async_job);
+    const params = isAsync ? { async_job: true } : undefined;
+
     const payload = {
       ...body,
       sort_by: body.sort_by ?? body.sortBy,
       sort_order: body.sort_order ?? body.sortOrder,
       filters: body.filters ? cleanApiParams(body.filters as Record<string, any>) : undefined,
     };
+    delete (payload as any).async_job;
+
     const response = await instance.post<Blob>(`/audit/export`, payload, {
+      params,
       responseType: 'blob',
     });
 
-    const contentDisposition = response.headers?.['content-disposition'];
-    let filename = '';
-
-    if (contentDisposition) {
-      const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
-      if (filenameMatch && filenameMatch[1]) {
-        filename = filenameMatch[1];
-      }
-    }
-
-    if (!filename) {
-      const now = new Date();
-      const timestamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
-      const ext =
-        body.format === 'excel'
-          ? 'xlsx'
-          : body.format === 'google_sheets' || body.format === 'tsv'
-            ? 'tsv'
-            : body.format || 'csv';
-      filename = `audit_logs_${timestamp}.${ext}`;
-    }
-
-    const url = window.URL.createObjectURL(response.data);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', filename);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
-
-    return response.data;
+    return handleDualExportResponse(response, 'audit_logs', body.format);
   }
 }
 

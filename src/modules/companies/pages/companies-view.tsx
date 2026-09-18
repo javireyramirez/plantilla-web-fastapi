@@ -19,7 +19,7 @@ export default function CompaniesView() {
   const canImport = can('companies', 'IMPORT');
 
   const [isImportOpen, setIsImportOpen] = React.useState(false);
-  const exportRef = React.useRef<((format: string) => Promise<void> | void) | null>(null);
+  const exportRef = React.useRef<((format: string, asyncJob?: boolean) => Promise<void> | void) | null>(null);
 
   return (
     <div className="flex flex-col space-y-6">
@@ -46,7 +46,7 @@ export default function CompaniesView() {
           {canExport && (
             <ExportDropdown
               entityName="companies"
-              onExport={(format) => exportRef.current?.(format)}
+              onExport={(format, asyncJob) => exportRef.current?.(format, asyncJob)}
               variant="outline"
               size="sm"
             />

@@ -50,7 +50,10 @@
       "json": "JSON (.json)",
       "tsv": "TSV (.tsv)",
       "google_sheets": "Google Sheets (.tsv)"
-    }
+    },
+    "asyncStarted": "Generando exportación en segundo plano...",
+    "asyncCompleted": "Exportación completada. Descargando archivo...",
+    "asyncFailed": "Error al generar la exportación en segundo plano"
   },
   "import": {
     "button": "Importar",
@@ -161,7 +164,6 @@
     "toastUnauthorized": "Debes iniciar sesión para acceder",
     "toastSessionError": "Error al verificar la sesión",
     "toastSessionExpired": "Tu sesión ha expirado, por favor entra de nuevo",
-
     "recoverInstructions": "Introduce tu dirección de email y te enviaremos un correo con los pasos a seguir",
     "send": "Enviar",
     "sending": "Enviando...",
@@ -171,7 +173,6 @@
     "toastErrorSignIN": "Credenciales incorrectas",
     "toastSuccessSignUp": "Cuenta creada correctamente",
     "toastErrorSignUp": "Error al crear la cuenta",
-
     "resetPasswordTitle": "Cambiar Contraseña",
     "newPassword": "Nueva Contraseña",
     "confirmPassword": "Confirmar Contraseña",
@@ -180,7 +181,6 @@
     "toastSuccessReset": "Contraseña cambiada correctamente",
     "toastErrorReset": "Fallo al cambiar la contraseña",
     "unauthorizedReset": "Acceso no autorizado. El enlace de recuperación es necesario",
-
     "verifyEmailTitleError": "Error en la verificación",
     "verifyEmailDescriptionError": "El enlace es inválido, ha expirado o ya ha sido utilizado",
     "verifyEmailGoToLogin": "Volver a inicio de sesión",
@@ -319,8 +319,6 @@
       "error": "Error al enviar la notificación"
     }
   },
-
-
   "organizations": {
     "title": "Organizaciones",
     "subtitle": "Gestiona y visualiza el listado de organizaciones registradas.",
@@ -379,7 +377,6 @@
       }
     }
   },
-
   "users": {
     "title": "Usuarios",
     "subtitle": "Gestiona y visualiza el listado de usuarios registrados en el sistema.",
@@ -477,10 +474,8 @@
       "creacion": "Creación",
       "active": "Activo",
       "inactive": "Inactivo",
-
       "isSystem": "Sistema",
       "isNotSystem": "No sistema",
-
       "emailVerified": "Verificado",
       "emailNoVerified": "No verificado"
     },
@@ -501,7 +496,6 @@
       }
     }
   },
-
   "roles": {
     "title": "Roles",
     "subtitle": "Gestiona y visualiza el listado de roles y sus permisos en el sistema.",
@@ -592,7 +586,6 @@
       "global": "Global"
     }
   },
-
   "teams": {
     "title": "Equipos",
     "subtitle": "Gestiona y visualiza el listado de equipos registrados.",
@@ -647,7 +640,6 @@
       "creacion": "Creación",
       "name": "Equipo"
     },
-
     "form": {
       "update": "Equipo actualizado con éxito",
       "create": "Equipo creado con éxito",
@@ -659,7 +651,6 @@
       }
     }
   },
-
   "teamMembers": {
     "add": "Añadir miembros",
     "addTitle": "Añadir miembros al equipo",
@@ -727,8 +718,10 @@
     "descriptionLabel": "Descripción",
     "descriptionPlaceholder": "Detalles o notas sobre el enlace (opcional)",
     "toast": {
-      "urlSuccess": "Enlace añadido con éxito",
-      "urlError": "Error al añadir el enlace"
+      "uploadSuccessMultiple": "Archivos subidos correctamente",
+      "uploadSuccessSingle": "Archivo subido correctamente",
+      "uploadError": "Error al subir el archivo",
+      "fileTooLarge": "El archivo \"{{name}}\" supera el tamaño máximo permitido ({{size}})"
     },
     "dropzone": {
       "dropActive": "Suelta los archivos aquí...",
@@ -784,12 +777,9 @@
       "sendToTrash": "Enviar a papelera",
       "deletePermanent": "Eliminar de forma permanente"
     },
-    "toast": {
-      "uploadSuccessMultiple": "Archivos subidos correctamente",
-      "uploadSuccessSingle": "Archivo subido correctamente",
-      "uploadError": "Error al subir el archivo",
-      "fileTooLarge": "El archivo \"{{name}}\" supera el tamaño máximo permitido ({{size}})"
-    }
+    "zipAsyncStarted": "Generando archivo ZIP en segundo plano...",
+    "zipAsyncCompleted": "Archivo ZIP listo. Descargando...",
+    "zipAsyncFailed": "Error al generar el archivo ZIP en segundo plano"
   },
   "audit": {
     "title": "Auditoría",
@@ -1015,6 +1005,7 @@
     "status": {
       "label": "Estado",
       "pending": "Pendiente",
+      "scheduled": "Programada",
       "running": "En ejecución",
       "completed": "Completado",
       "failed": "Fallido",
@@ -1043,13 +1034,57 @@
       "payloadMustBeObject": "El payload debe ser un objeto JSON válido",
       "invalidJson": "El formato JSON introducido no es válido",
       "enqueueSuccess": "Tarea encolada correctamente",
-      "enqueueError": "Error al encolar la tarea"
+      "enqueueError": "Error al encolar la tarea",
+      "namePlaceholder": "ej: exports.generate, trash.purge",
+      "entityTypePlaceholder": "ej: companies, users",
+      "entityIdPlaceholder": "00000000-0000-0000-0000-000000000000"
     },
     "toast": {
       "cancelSuccess": "Tarea cancelada correctamente",
       "cancelError": "Error al cancelar la tarea",
       "retrySuccess": "Tarea programada para reintento",
       "retryError": "Error al reintentar la tarea"
+    },
+    "noLinkedEntity": "Sin entidad vinculada",
+    "generatedFile": "Archivo generado",
+    "downloadResult": "Descargar archivo",
+    "totalRows": "Total registros",
+    "files": "archivos",
+    "catalog": {
+      "selectDefinition": "Catálogo de tareas registradas",
+      "selectPlaceholder": "Seleccionar tipo de tarea...",
+      "dispatchable": "Ejecutable",
+      "customJob": "Tarea personalizada (manual)..."
+    },
+    "definitions": {
+      "exports_generate": {
+        "title": "Exportación de Datos",
+        "description": "Generación en segundo plano de exportaciones tabulares en formatos CSV, Excel, TSV y JSON."
+      },
+      "storage_compress": {
+        "title": "Compresión de Archivos",
+        "description": "Compresión masiva de adjuntos de almacenamiento en archivos ZIP."
+      },
+      "trash_purge": {
+        "title": "Purga de Papelera",
+        "description": "Purga definitiva de registros en papelera que superan el período de retención."
+      },
+      "audit_purge": {
+        "title": "Purga de Auditoría",
+        "description": "Limpieza periódica de registros históricos de auditoría expirados."
+      },
+      "imports_validate": {
+        "title": "Validación de Importación",
+        "description": "Validación e importación de registros masivos desde archivos CSV o Excel."
+      },
+      "emails_send": {
+        "title": "Envío de Email",
+        "description": "Envío transaccional asíncrono de correos electrónicos con reintentos y backoff."
+      },
+      "notifications_fan_out": {
+        "title": "Difusión de Notificaciones",
+        "description": "Distribución masiva de alertas y notificaciones a múltiples usuarios."
+      }
     }
   },
   "sessions": {
@@ -1150,4 +1185,3 @@
     }
   }
 }
-

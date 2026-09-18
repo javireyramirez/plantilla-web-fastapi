@@ -1,6 +1,7 @@
 import { UseQueryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { CrudService, ExportRequest } from '@/services/crud.service';
+import type { JobType } from '@/modules/jobs/model/jobs.schema';
 
 export function createGenericQueries<
   TItem,
@@ -152,7 +153,7 @@ export function createGenericQueries<
     },
 
     useExport: () => {
-      return useMutation<Blob, Error, ExportRequest<TQuery, TId>>({
+      return useMutation<Blob | JobType, Error, ExportRequest<TQuery, TId>>({
         mutationFn: (body) => service.export(body),
       });
     },

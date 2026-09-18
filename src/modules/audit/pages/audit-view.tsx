@@ -10,7 +10,7 @@ export default function AuditView() {
   const { t } = useTranslation();
   const { can } = usePermissions();
   const canExport = can('audit', 'EXPORT');
-  const exportRef = React.useRef<((format: string) => Promise<void> | void) | null>(null);
+  const exportRef = React.useRef<((format: string, asyncJob?: boolean) => Promise<void> | void) | null>(null);
 
   return (
     <div className="flex flex-col space-y-6">
@@ -26,7 +26,7 @@ export default function AuditView() {
           <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
             <ExportDropdown
               entityName="audit"
-              onExport={(format) => exportRef.current?.(format)}
+              onExport={(format, asyncJob) => exportRef.current?.(format, asyncJob)}
               variant="outline"
               size="sm"
             />

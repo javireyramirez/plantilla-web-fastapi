@@ -2,6 +2,7 @@ import { useMutation, useQuery, UseQueryOptions } from '@tanstack/react-query';
 
 import { AuditLogType, AuditLogsListResponse, GetAuditLogsQuery } from './audit.schema';
 import { auditService } from './audit.service';
+import type { JobType } from '@/modules/jobs/model/jobs.schema';
 
 export const auditQueries = {
   useGetAll: (
@@ -32,7 +33,7 @@ export const auditQueries = {
   },
 
   useExport: () => {
-    return useMutation<Blob, Error, any>({
+    return useMutation<Blob | JobType, Error, any>({
       mutationFn: (body: any) => auditService.export(body),
     });
   },

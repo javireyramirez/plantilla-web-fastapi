@@ -4,6 +4,7 @@ import {
   GetJobsQuery,
   JobCancelResponse,
   JobCreateRequest,
+  JobDefinition,
   JobRetryResponse,
   JobType,
   JobsListResponse,
@@ -23,9 +24,11 @@ export const jobsQueries = {
       refetchInterval: (q) => {
         const items = q.state.data?.data;
         const hasActive = items?.some(
-          (j) => j.status === 'PENDING' || j.status === 'RUNNING'
+          (j) =>
+            j.status === 'RUNNING' ||
+            (j.status === 'PENDING' && (!j.scheduled_at || new Date(j.scheduled_at).getTime() <= Date.now()))
         );
-        return hasActive ? 4000 : false;
+        return hasActive ? 3000 : false;
       },
       ...options,
     });
@@ -42,9 +45,12 @@ export const jobsQueries = {
       staleTime: 0,
       refetchOnWindowFocus: false,
       refetchInterval: (q) => {
-        const status = q.state.data?.status;
-        const isRunning = status === 'PENDING' || status === 'RUNNING';
-        return isRunning ? 4000 : false;
+        const job = q.state.data;
+        if (!job) return false;
+        const isRunning =
+          job.status === 'RUNNING' ||
+          (job.status === 'PENDING' && (!job.scheduled_at || new Date(job.scheduled_at).getTime() <= Date.now()));
+        return isRunning ? 3000 : false;
       },
       ...options,
     });
@@ -77,6 +83,16 @@ export const jobsQueries = {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['jobs'] });
       },
+    });
+  },
+
+  useDefinitions: (options?: Omit<UseQueryOptions<JobDefinition[], Error>, 'queryKey' | 'queryFn'>) => {
+    return useQuery<JobDefinition[], Error>({
+      queryKey: ['jobs', 'definitions'],
+      queryFn: () => jobsService.getJobDefinitions(),
+      staleTime: 1000 * 60 * 30, // 30 minutes cache
+      refetchOnWindowFocus: false,
+      ...options,
     });
   },
 };

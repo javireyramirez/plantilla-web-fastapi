@@ -1,4 +1,19 @@
-import { Ban, CheckCircle2, Clock, Loader2, XCircle, type LucideIcon } from 'lucide-react';
+import {
+  Archive,
+  Ban,
+  Bell,
+  CheckCircle2,
+  Clock,
+  Download,
+  Loader2,
+  Mail,
+  Shield,
+  Trash2,
+  Upload,
+  Workflow,
+  XCircle,
+  type LucideIcon,
+} from 'lucide-react';
 
 import { formatRelativeTime as sharedFormatRelativeTime } from '@/lib/date';
 
@@ -116,6 +131,60 @@ export function formatJobDuration(startedAt?: string | Date | null, completedAt?
   return `${hours}h ${remainingMinutes}m`;
 }
 
-export function formatRelativeTime(date: Date | string): string {
-  return sharedFormatRelativeTime(date);
+export function formatRelativeTime(
+  date: Date | string,
+  t?: (key: string, options?: any) => string
+): string {
+  return sharedFormatRelativeTime(date, t);
 }
+
+export function getJobDefinitionTitle(
+  t: (key: string, options?: any) => string,
+  name?: string | null,
+  fallbackTitle?: string | null
+): string {
+  if (!name) return fallbackTitle || '';
+  const cleanName = name.replace(/\./g, '_');
+  return t(`jobs.definitions.${cleanName}.title`, {
+    defaultValue: t(`jobs.definitions.${name}.title`, {
+      defaultValue: fallbackTitle || name,
+    }),
+  });
+}
+
+export function getJobDefinitionDescription(
+  t: (key: string, options?: any) => string,
+  name?: string | null,
+  fallbackDescription?: string | null
+): string {
+  if (!name) return fallbackDescription || '';
+  const cleanName = name.replace(/\./g, '_');
+  return t(`jobs.definitions.${cleanName}.description`, {
+    defaultValue: t(`jobs.definitions.${name}.description`, {
+      defaultValue: fallbackDescription || '',
+    }),
+  });
+}
+
+export function getJobIcon(iconName?: string): LucideIcon {
+  switch (iconName?.toLowerCase()) {
+    case 'download':
+      return Download;
+    case 'upload':
+      return Upload;
+    case 'archive':
+      return Archive;
+    case 'mail':
+      return Mail;
+    case 'trash':
+    case 'trash-2':
+      return Trash2;
+    case 'shield':
+      return Shield;
+    case 'bell':
+      return Bell;
+    default:
+      return Workflow;
+  }
+}
+

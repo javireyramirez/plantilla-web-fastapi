@@ -160,11 +160,16 @@ export function useStorageTable({
 
   const { mutateAsync: downloadZip, isPending: isPendingDownloadZip } = useBulkDownloadZip();
 
-  const handleBulkDownload = async (rows: Row<Document>[]) => {
+  const handleBulkDownload = async (rows: Row<Document>[], asyncJob?: boolean) => {
     const documentIds = rows.map((r) => r.original.id);
     if (documentIds.length === 0) return;
     try {
-      await downloadZip({ entityType: entityType ?? '', entityId: entityId ?? '', documentIds });
+      await downloadZip({
+        entityType: entityType ?? '',
+        entityId: entityId ?? '',
+        documentIds,
+        asyncJob,
+      });
     } catch {
       // Manejado en el onError del mutation hook
     }
