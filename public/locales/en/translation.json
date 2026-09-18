@@ -52,6 +52,63 @@
       "google_sheets": "Google Sheets (.tsv)"
     }
   },
+  "import": {
+    "button": "Import",
+    "dialogTitle": "Import records",
+    "dialogDescription": "Upload an Excel (.xlsx) or CSV (.csv) file to bulk process and insert records.",
+    "downloadTemplate": "Download template",
+    "templateExcel": "Excel Template (.xlsx)",
+    "templateCsv": "CSV Template (.csv)",
+    "dropzone": {
+      "dragActive": "Drop the file here...",
+      "idle": "Drag and drop your file here, or click to browse",
+      "hint": "Supported formats: .xlsx, .csv (maximum 10 MB)",
+      "fileSelected": "Selected file:",
+      "changeFile": "Change file"
+    },
+    "options": {
+      "modeLabel": "Import mode",
+      "modeAtomic": "Atomic (All or nothing)",
+      "modeAtomicDesc": "If a single row fails, the entire operation is rolled back and no records are created.",
+      "modePartial": "Partial (Resilient)",
+      "modePartialDesc": "Inserts all valid rows and generates a detailed report for failed rows.",
+      "dryRun": "Simulate import (Dry Run)",
+      "dryRunDesc": "Validates data and business rules without persisting records in database."
+    },
+    "status": {
+      "uploading": "Uploading file to server...",
+      "processing": "Processing import in background...",
+      "pollingNotice": "Checking task status..."
+    },
+    "results": {
+      "title": "Import result",
+      "dryRunNotice": "Dry-run simulation completed (no records were persisted)",
+      "successTitle": "Import completed successfully!",
+      "partialTitle": "Import completed with errors",
+      "failedTitle": "Import failed",
+      "totalRows": "Total rows",
+      "importedRows": "Imported rows",
+      "failedRows": "Failed rows",
+      "totalErrors": "Total errors",
+      "truncatedWarning": "Showing the first 100 errors encountered.",
+      "errorsTable": {
+        "title": "Failed rows detail",
+        "row": "Row",
+        "field": "Field",
+        "message": "Error",
+        "value": "Submitted value"
+      },
+      "importAnother": "Import another file",
+      "close": "Close"
+    },
+    "errors": {
+      "invalidFileType": "Invalid file format. Only .xlsx and .csv files are supported.",
+      "fileTooLarge": "File exceeds the maximum allowed size of 10 MB.",
+      "noFileSelected": "You must select a file to import.",
+      "uploadFailed": "Failed to upload import file.",
+      "downloadTemplateFailed": "Failed to download import template."
+    }
+  },
   "modules": {
     "categories": {
       "business": "Business",

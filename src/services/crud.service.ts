@@ -1,4 +1,6 @@
 import instance from '@/config/api';
+import type { JobType } from '@/modules/jobs/model/jobs.schema';
+import type { ImportFormat, ImportUploadOptions } from '@/types/import.types';
 
 const KEY_MAP: Record<string, string> = {
   sortBy: 'sort_by',
@@ -273,5 +275,56 @@ export abstract class CrudService<
     window.URL.revokeObjectURL(url);
 
     return response.data;
+  };
+
+  // ── Importación con descarga de plantilla y subida ────────────
+
+  downloadImportTemplate = async (format: ImportFormat = 'excel'): Promise<Blob> => {
+    const response = await instance.get<Blob>(`/${this.entityName}/import-template`, {
+      params: { format },
+      responseType: 'blob',
+    });
+
+    const contentDisposition = response.headers?.['content-disposition'];
+    let filename = '';
+
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+      if (filenameMatch && filenameMatch[1]) {
+        filename = filenameMatch[1];
+      }
+    }
+
+    if (!filename) {
+      const safeEntity = this.entityName.replace(/[^a-zA-Z0-9_-]/g, '_');
+      const ext = format === 'excel' ? 'xlsx' : 'csv';
+      filename = `plantilla_${safeEntity}.${ext}`;
+    }
+
+    const url = window.URL.createObjectURL(response.data);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+
+    return response.data;
+  };
+
+  uploadImport = async (file: File, options?: ImportUploadOptions): Promise<JobType> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('mode', options?.mode ?? 'atomic');
+    formData.append('dry_run', String(options?.dryRun ?? false));
+
+    const response = await instance.post<any>(`/${this.entityName}/import`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    return response.data?.data ?? response.data;
   };
 }

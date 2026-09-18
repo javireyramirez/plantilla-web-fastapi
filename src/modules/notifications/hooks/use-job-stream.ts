@@ -22,6 +22,7 @@ export function useJobStream(options: UseJobStreamOptions = {}) {
   const queryClient = useQueryClient();
   const { data: session } = useSession();
   const [isConnected, setIsConnected] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const activeSourceRef = useRef<EventSource | null>(null);
 
   const token = (session as any)?.session?.token || (session as any)?.token;
@@ -47,6 +48,7 @@ export function useJobStream(options: UseJobStreamOptions = {}) {
       activeSourceRef.current = null;
     }
 
+    setHasError(false);
     const streamUrl = notificationsService.getJobStreamUrl(jobId, token);
     const es = new EventSource(streamUrl, {
       withCredentials: true,
@@ -55,11 +57,18 @@ export function useJobStream(options: UseJobStreamOptions = {}) {
 
     es.onopen = () => {
       setIsConnected(true);
+      setHasError(false);
     };
 
-    es.addEventListener('job_progress', (event: MessageEvent) => {
+    const handleProgress = (event: MessageEvent) => {
       try {
-        const data: JobProgressEvent = JSON.parse(event.data);
+        const raw = JSON.parse(event.data);
+        const data: JobProgressEvent = {
+          job_id: raw.job_id || jobId || '',
+          progress: typeof raw.progress === 'number' ? raw.progress : Number(raw.progress) || 0,
+          progress_message: raw.progress_message ?? raw.message ?? null,
+          status: raw.status || 'RUNNING',
+        };
         callbacksRef.current.onProgress?.(data);
 
         // Invalidate or update jobs cache
@@ -68,40 +77,75 @@ export function useJobStream(options: UseJobStreamOptions = {}) {
           queryClient.invalidateQueries({ queryKey: ['jobs', 'list'] });
         }
       } catch (err) {
-        console.error('Error parsing job_progress SSE payload:', err);
+        console.error('Error parsing job progress SSE payload:', err);
       }
-    });
+    };
 
-    es.addEventListener('job_completed', (event: MessageEvent) => {
+    const handleCompleted = (event: MessageEvent) => {
       try {
-        const data: JobCompletedEvent = JSON.parse(event.data);
+        const raw = JSON.parse(event.data);
+        const data: JobCompletedEvent = {
+          job_id: raw.job_id || jobId || '',
+          status: raw.status || 'COMPLETED',
+          result: raw.result ?? raw,
+        };
         callbacksRef.current.onCompleted?.(data);
 
         if (data.job_id) {
           queryClient.invalidateQueries({ queryKey: ['jobs', 'detail', data.job_id] });
           queryClient.invalidateQueries({ queryKey: ['jobs', 'list'] });
         }
-      } catch (err) {
-        console.error('Error parsing job_completed SSE payload:', err);
-      }
-    });
 
-    es.addEventListener('job_failed', (event: MessageEvent) => {
+        // Cierre explícito del stream en estado terminal
+        es.close();
+        if (activeSourceRef.current === es) {
+          activeSourceRef.current = null;
+        }
+        setIsConnected(false);
+      } catch (err) {
+        console.error('Error parsing job completed SSE payload:', err);
+      }
+    };
+
+    const handleFailed = (event: MessageEvent) => {
       try {
-        const data: JobFailedEvent = JSON.parse(event.data);
+        const raw = JSON.parse(event.data);
+        const data: JobFailedEvent = {
+          job_id: raw.job_id || jobId || '',
+          status: raw.status || 'FAILED',
+          error: raw.error ?? raw.message ?? null,
+        };
         callbacksRef.current.onFailed?.(data);
 
         if (data.job_id) {
           queryClient.invalidateQueries({ queryKey: ['jobs', 'detail', data.job_id] });
           queryClient.invalidateQueries({ queryKey: ['jobs', 'list'] });
         }
+
+        // Cierre explícito del stream en estado terminal
+        es.close();
+        if (activeSourceRef.current === es) {
+          activeSourceRef.current = null;
+        }
+        setIsConnected(false);
       } catch (err) {
-        console.error('Error parsing job_failed SSE payload:', err);
+        console.error('Error parsing job failed SSE payload:', err);
       }
-    });
+    };
+
+    // Listeners duales: notación snake_case y dot notation
+    es.addEventListener('job_progress', handleProgress);
+    es.addEventListener('job.progress', handleProgress);
+
+    es.addEventListener('job_completed', handleCompleted);
+    es.addEventListener('job.completed', handleCompleted);
+
+    es.addEventListener('job_failed', handleFailed);
+    es.addEventListener('job.failed', handleFailed);
 
     es.onerror = () => {
       setIsConnected(false);
+      setHasError(true);
     };
 
     return () => {
@@ -113,5 +157,5 @@ export function useJobStream(options: UseJobStreamOptions = {}) {
     };
   }, [enabled, session?.user?.id, token, jobId, queryClient]);
 
-  return { isConnected };
+  return { isConnected, hasError };
 }

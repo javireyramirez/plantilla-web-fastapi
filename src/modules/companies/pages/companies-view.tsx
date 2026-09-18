@@ -1,10 +1,11 @@
-import { Plus } from 'lucide-react';
+import { Plus, Upload } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 import * as React from 'react';
 
 import { ExportDropdown } from '@/components/export-dropdown';
+import { ImportDialog } from '@/components/import-dialog';
 import { Button } from '@/components/ui/button';
 import usePermissions from '@/hooks/use-permissions';
 
@@ -15,7 +16,9 @@ export default function CompaniesView() {
   const { can } = usePermissions();
   const canCreate = can('companies', 'CREATE');
   const canExport = can('companies', 'EXPORT');
+  const canImport = can('companies', 'IMPORT');
 
+  const [isImportOpen, setIsImportOpen] = React.useState(false);
   const exportRef = React.useRef<((format: string) => Promise<void> | void) | null>(null);
 
   return (
@@ -29,6 +32,17 @@ export default function CompaniesView() {
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          {canImport && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 shadow-sm"
+              onClick={() => setIsImportOpen(true)}
+            >
+              <Upload className="h-4 w-4" />
+              <span>{t('import.button', { defaultValue: 'Importar' })}</span>
+            </Button>
+          )}
           {canExport && (
             <ExportDropdown
               entityName="companies"
@@ -51,6 +65,14 @@ export default function CompaniesView() {
       <div className="rounded-xl border bg-card shadow-sm">
         <CompaniesTable exportRef={exportRef} />
       </div>
+
+      {canImport && (
+        <ImportDialog
+          entityName="companies"
+          open={isImportOpen}
+          onOpenChange={setIsImportOpen}
+        />
+      )}
     </div>
   );
 }

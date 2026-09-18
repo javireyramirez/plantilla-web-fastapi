@@ -52,6 +52,63 @@
       "google_sheets": "Google Sheets (.tsv)"
     }
   },
+  "import": {
+    "button": "Importar",
+    "dialogTitle": "Importar registros",
+    "dialogDescription": "Sube un archivo Excel (.xlsx) o CSV (.csv) para procesar e insertar registros de forma masiva.",
+    "downloadTemplate": "Descargar plantilla",
+    "templateExcel": "Plantilla Excel (.xlsx)",
+    "templateCsv": "Plantilla CSV (.csv)",
+    "dropzone": {
+      "dragActive": "Suelta el archivo aquí...",
+      "idle": "Arrastra y suelta tu archivo aquí, o haz clic para seleccionarlo",
+      "hint": "Formatos soportados: .xlsx, .csv (máximo 10 MB)",
+      "fileSelected": "Archivo seleccionado:",
+      "changeFile": "Cambiar archivo"
+    },
+    "options": {
+      "modeLabel": "Modo de importación",
+      "modeAtomic": "Atómico (Todo o nada)",
+      "modeAtomicDesc": "Si falla una sola fila, se cancela la operación completa y no se crea ningún registro.",
+      "modePartial": "Parcial (Resiliente)",
+      "modePartialDesc": "Inserta todas las filas válidas y genera un reporte detallado con las filas fallidas.",
+      "dryRun": "Simular importación (Dry Run)",
+      "dryRunDesc": "Valida las reglas y datos sin insertar ningún registro en la base de datos."
+    },
+    "status": {
+      "uploading": "Subiendo archivo al servidor...",
+      "processing": "Procesando importación en segundo plano...",
+      "pollingNotice": "Comprobando estado de la tarea..."
+    },
+    "results": {
+      "title": "Resultado de la importación",
+      "dryRunNotice": "Simulación completada (no se persistieron registros)",
+      "successTitle": "¡Importación completada con éxito!",
+      "partialTitle": "Importación finalizada con errores",
+      "failedTitle": "Error en la importación",
+      "totalRows": "Total filas",
+      "importedRows": "Filas importadas",
+      "failedRows": "Filas fallidas",
+      "totalErrors": "Total errores",
+      "truncatedWarning": "Se muestran los primeros 100 errores encontrados.",
+      "errorsTable": {
+        "title": "Detalle de filas con error",
+        "row": "Fila",
+        "field": "Campo",
+        "message": "Error",
+        "value": "Valor enviado"
+      },
+      "importAnother": "Importar otro archivo",
+      "close": "Cerrar"
+    },
+    "errors": {
+      "invalidFileType": "Formato de archivo inválido. Solo se admiten archivos .xlsx y .csv.",
+      "fileTooLarge": "El archivo excede el tamaño máximo permitido de 10 MB.",
+      "noFileSelected": "Debes seleccionar un archivo para importar.",
+      "uploadFailed": "Error al enviar el archivo de importación.",
+      "downloadTemplateFailed": "Error al descargar la plantilla de importación."
+    }
+  },
   "modules": {
     "categories": {
       "business": "Negocio",
